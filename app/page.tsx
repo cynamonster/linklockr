@@ -184,6 +184,10 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
     if (!wallet) return alert("Please connect a wallet first.");
     if (!urlToLock || !price || !slug) return alert("Missing fields.");
 
+    if (parseFloat(price) < 2) {
+      return alert("Minimum price is $2.00 USD.");
+    }
+
     setIsLoading(true);
     try {
       // 1. SETUP
@@ -499,6 +503,12 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                             <RefreshCw size={20} />
                         </button>
                     </div>
+                    <span className={`text-[.8em] w-full font-mono ml-[1em] ${isDark 
+                          ? "border-slate-800 text-cyan-400 focus:border-cyan-500/50 focus:bg-slate-900/60" 
+                          : "border-transparent text-blue-600 focus:bg-white focus:ring-2 focus:ring-sky-400"}`}>
+                      Preview: linklockr.xyz/buy/{slug}
+                    </span>
+
                 </div>
 
                 {/* 2. PRICE INPUT */}
