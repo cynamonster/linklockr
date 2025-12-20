@@ -243,7 +243,14 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
     setIsLoading(false);
   };
 
-  if (!ready) return null; // Blink prevention
+  // if (!ready) return null; // Blink prevention
+  if (!ready) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="animate-spin mx-auto"/>
+      </div>
+    )
+  }
 
   // --- VIEW: LOGIN SCREEN ---
   if (!authenticated) {
