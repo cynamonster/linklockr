@@ -9,6 +9,7 @@ import { Lock, Unlock, Loader2, AlertCircle, ExternalLink, Check, Shield, Sparkl
 // --- IMPORTS ---
 import { supabase } from "../../../utils/supabase";
 import { lit } from "../../../utils/lit";
+import { checkAndSignAuthMessage } from "@lit-protocol/lit-node-client";
 
 // --- CONFIG ---
 const PRIVY_APP_ID = process.env.NEXT_PUBLIC_PRIVY_APP_ID || "";
@@ -313,6 +314,11 @@ function BuyPageContent() {
 
       // --- SUCCESS ---
       setIsOwner(true);
+      setTxStatus("indexing..."); // UI: "Veryfying..."
+
+      // Wait 2s before decrypting to let Lit nodes sync with the blockchain
+      await new Promise((resolve) => setTimeout(resolve, 2000)); 
+
       setTxStatus("");
       handleDecrypt();
 
@@ -418,9 +424,23 @@ Nonce: ${latestBlockhash}
 Issued At: ${issuedAt}
 Expiration Time: ${expirationTime}`;
 
+      // // 3. Generate AuthSig (The "Official" Way)
+      // // This handles SIWE formatting, Chain ID matching, and Expiration automatically.
+      // const authSig = await checkAndSignAuthMessage({
+      //   chain: "base", // ⚠️ Change to "baseSepolia" if you are on testnet!
+      //   signer: signer,
+      //   nonce: await lit.getLatestBlockhash(),
+      //   // Optional: Force the URI to match where you are hosted
+      //   uri: window.location.origin, 
+      //   expiration: new Date(Date.now() + 1000 * 60 * 60 * 24).toISOString(), 
+      // });
+
       // 4. Sign
       const signature = await signer.signMessage(siweMessage);
 
+      // const authSig = await checkAndSignAuthMessage({
+      //   chain: "base",
+   
       const authSig = {
         sig: signature,
         derivedVia: "web3.eth.personal.sign",
@@ -441,9 +461,19 @@ Expiration Time: ${expirationTime}`;
     } catch (e: any) {
       console.error(e);
       // Clean up the error message for the UI
-      const msg = e.message?.includes("NodeInvalidAuthSig") 
-        ? "Signature Invalid: Please try again." 
-        : (e.message || "Unknown error");
+
+      // const msg = e.message?.includes("NodeInvalidAuthSig") 
+      //   ? "Signature Invalid: Please try again." 
+      //   : (e.message || "Unknown error");
+
+      let msg = e.message || "Unknown error";
+        // Better Error Handling
+      if (msg.includes("NodeAccessControlConditionsReturnedNotAuthorized")) {
+        msg = "Access Denied. The network thinks you own 0 copies of this item.";
+      } else if (msg.includes("NodeInvalidAuthSig")) {
+        msg = "Signature Invalid. Please ensure your wallet is on the Base network.";
+      }
+      
       alert("Decryption Failed: " + msg);
     }
     setTxStatus("");

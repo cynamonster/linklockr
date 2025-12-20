@@ -1,6 +1,6 @@
 import { LitNodeClient } from "@lit-protocol/lit-node-client";
 import { encryptString, decryptToString } from "@lit-protocol/encryption";
-
+import { ethers } from "ethers";
 
 const CLIENT = new LitNodeClient({
   litNetwork: "datil-dev",
@@ -58,7 +58,7 @@ class Lit {
     const { ciphertext, dataToEncryptHash } = await encryptString(
       {
         accessControlConditions,
-        dataToEncrypt: url
+        dataToEncrypt: url,
         // authSig,
         // chain: "base"
       },
