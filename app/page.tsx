@@ -180,7 +180,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
 
   // --- CORE LOGIC: THE "OWNERLESS" PIPELINE ---
   const handleCreateLock = async () => {
-    const wallet = wallets[0]; 
+    const wallet = wallets.find(w => w.address === selectedAddress); 
     if (!wallet) return alert("Please connect a wallet first.");
     if (!urlToLock || !price || !slug) return alert("Missing fields.");
 
