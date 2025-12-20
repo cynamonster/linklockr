@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { 
   Lock, ArrowRight, Loader2, Zap, RefreshCw, 
   Copy, CheckCircle2, Shield, AlertCircle,
-  Sun, Moon
+  Sun, Moon,
+  FolderLock
 } from "lucide-react";
 import { PrivyProvider, usePrivy, useLoginWithEmail, useWallets } from "@privy-io/react-auth";
 import { ethers } from "ethers";
@@ -72,8 +73,7 @@ export default function App() {
         loginMethods: ['email', 'wallet'],
         appearance: { 
             theme: isDark ? 'dark' : 'light', 
-            accentColor: isDark ? '#22d3ee' : '#3b82f6', 
-            logo: 'https://linklockr.xyz/logo.png'
+            accentColor: isDark ? '#22d3ee' : '#3b82f6'
         },
         defaultChain: {
           id: 8453,
@@ -272,7 +272,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                           ? "bg-gradient-to-tr from-cyan-900 to-slate-900 border border-cyan-500/30 shadow-[0_0_15px_rgba(34,211,238,0.3)]" 
                           : "bg-gradient-to-tr from-sky-400 to-blue-600 shadow-lg shadow-sky-500/30"}
                     `}>
-                        <Lock className={`w-6 h-6 ${isDark ? "text-cyan-400" : "text-white"}`} />
+                        <FolderLock className={`w-6 h-6 ${isDark ? "text-cyan-400" : "text-white"}`} />
                     </div>
                     <h1 className={`text-3xl font-bold tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
                         LinkLockr.
