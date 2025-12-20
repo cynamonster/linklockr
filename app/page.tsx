@@ -4,10 +4,9 @@ import { useState, useEffect } from "react";
 import { 
   Lock, ArrowRight, Loader2, Zap, RefreshCw, 
   Copy, CheckCircle2, Shield, AlertCircle,
-  Sun, Moon,
-  FolderLock
+  Sun, Moon, FolderLock, ChevronDown, Wallet
 } from "lucide-react";
-import { PrivyProvider, usePrivy, useLoginWithEmail, useWallets } from "@privy-io/react-auth";
+import { PrivyProvider, usePrivy, useLoginWithEmail, useWallets, ConnectedWallet } from "@privy-io/react-auth";
 import { ethers } from "ethers";
 import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-generator';
 
@@ -109,6 +108,30 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
   const { authenticated, user, logout, login, ready } = usePrivy();
   const { loginWithCode, sendCode } = useLoginWithEmail();
   const { wallets } = useWallets();
+  const [selectedAddress, setSelectedAddress] = useState(""); // State for the Wallet Selector
+  useEffect(() => {
+      if (wallets.length > 0 && !selectedAddress) {
+          setSelectedAddress(wallets[0].address);
+      }
+  }, [wallets, selectedAddress]);
+
+  // State for the Withdraw Form (Cleaner than getElementById)
+  const [withdrawForm, setWithdrawForm] = useState({ address: "", amount: "" }); 
+
+  // Helper: Get the full wallet object based on selection
+  const activeWallet = wallets.find(w => w.address === selectedAddress) || wallets[0]; 
+
+  // Helper: Handle the withdraw action using the SPECIFIC wallet
+  const onWithdrawClick = async () => {
+    if (!activeWallet) return;
+    // Pass the actual wallet object so your handler knows which signer to use
+    await handleWithdraw(activeWallet, withdrawForm.address, withdrawForm.amount);
+  };
+
+  const formatAddress = (addr: string) => {
+    if (!addr) return "";
+    return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+  };
 
   // --- STATE ---
   const [email, setEmail] = useState("");
@@ -224,7 +247,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
   };
 
   // --- WITHDRAW LOGIC ---
-  const handleWithdraw = async (recipient: string, amount: string) => {
+  const handleWithdraw = async (recipient: ConnectedWallet, address: string, amount: string) => {
     const wallet = wallets[0];
     if (!wallet) return;
     setIsLoading(true);
@@ -548,31 +571,83 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
         ) : (
             /* WALLET TAB */
             <div className="space-y-6 animate-in fade-in slide-in-from-right-2">
-                <div className={`p-6 rounded-3xl relative overflow-hidden border ${isDark ? "bg-slate-900 border-slate-800" : "bg-slate-900 border-transparent"}`}>
-                    <div className={`absolute top-0 right-0 w-32 h-32 rounded-full blur-2xl ${isDark ? "bg-cyan-500/20" : "bg-blue-500/20"}`}></div>
-                    <div className="relative z-10">
-                        <p className="text-slate-500 text-xs font-bold uppercase mb-1">Active Wallet</p>
-                        <p className={`font-mono text-lg truncate opacity-90 ${isDark ? "text-cyan-400" : "text-blue-200"}`}>{user?.wallet?.address}</p>
-                    </div>
-                </div>
-                
-                <div className="space-y-4">
-                     <h3 className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Withdraw Funds</h3>
-                     <div className="grid grid-cols-3 gap-3">
-                        <input id="wAddr" placeholder="0x..." className={`col-span-2 p-3 border rounded-xl text-sm outline-none ${isDark ? "bg-black/40 border-slate-800 text-white" : "bg-white border-slate-200"}`} />
-                        <input id="wAmt" placeholder="$$" className={`p-3 border rounded-xl text-sm outline-none ${isDark ? "bg-black/40 border-slate-800 text-white" : "bg-white border-slate-200"}`} />
-                     </div>
-                     <button 
-                        onClick={() => handleWithdraw(
-                            (document.getElementById("wAddr") as HTMLInputElement).value,
-                            (document.getElementById("wAmt") as HTMLInputElement).value
-                        )}
-                        className={`w-full py-3 font-bold rounded-xl transition-all ${isDark ? "bg-slate-800 text-white hover:bg-slate-700" : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"}`}
-                     >
-                        Send USDC
-                     </button>
-                </div>
-            </div>
+                  
+              {/* ACTIVE WALLET CARD */}
+              <div className={`p-6 rounded-3xl relative overflow-hidden border transition-colors ${isDark ? "bg-slate-900 border-slate-800" : "bg-slate-900 border-transparent"}`}>
+                  <div className={`absolute top-0 right-0 w-32 h-32 rounded-full blur-2xl ${isDark ? "bg-cyan-500/20" : "bg-blue-500/20"}`}></div>
+                  
+                  <div className="relative z-10 flex flex-col gap-2">
+                      <div className="flex items-center justify-between">
+                          <p className="text-slate-500 text-xs font-bold uppercase tracking-wider flex items-center gap-2">
+                              <Wallet size={14} /> Active Wallet
+                          </p>
+                          
+                          {/* WALLET COUNT BADGE */}
+                          {wallets.length > 1 && (
+                              <span className="text-[10px] bg-white/10 px-2 py-0.5 rounded-full text-slate-400">
+                                  {wallets.length} Connected
+                              </span>
+                          )}
+                      </div>
+
+                      {/* WALLET SELECTOR DROPDOWN */}
+                      <div className="relative group">
+                          <select 
+                              value={selectedAddress}
+                              onChange={(e) => setSelectedAddress(e.target.value)}
+                              className={`w-full appearance-none bg-transparent font-mono text-lg outline-none cursor-pointer truncate pr-8 ${isDark ? "text-cyan-400" : "text-blue-200"}`}
+                          >
+                              {wallets.map((w) => (
+                                  <option key={w.address} value={w.address} className="bg-slate-900 text-slate-300 font-sans">
+                                      {formatAddress(w.address)} ({w.walletClientType === 'privy' ? 'Embedded' : w.walletClientType})
+                                      {/* {w.address} ({w.walletClientType}) */}
+                                  </option>
+                              ))}
+                          </select>
+                          
+                          {/* Custom Dropdown Arrow */}
+                          <ChevronDown className={`absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity ${isDark ? "text-cyan-400" : "text-blue-200"}`} size={16} />
+                      </div>
+
+                      <p className="text-xs text-slate-600 font-medium mt-1">
+                          {activeWallet?.walletClientType === 'privy' ? 'Embedded Wallet' : 'External Wallet'}
+                      </p>
+                  </div>
+              </div>
+
+              {/* WITHDRAW FORM */}
+              <div className="space-y-4">
+                  <h3 className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Withdraw Funds</h3>
+                  
+                  <div className="grid grid-cols-3 gap-3">
+                      <input 
+                          value={withdrawForm.address}
+                          onChange={(e) => setWithdrawForm({...withdrawForm, address: e.target.value})}
+                          placeholder="0x Destination..." 
+                          className={`col-span-2 p-3 border rounded-xl text-sm outline-none transition-all focus:ring-2 focus:ring-cyan-500/50 ${isDark ? "bg-black/40 border-slate-800 text-white placeholder:text-slate-600" : "bg-white border-slate-200"}`} 
+                      />
+                      <input 
+                          value={withdrawForm.amount}
+                          onChange={(e) => setWithdrawForm({...withdrawForm, amount: e.target.value})}
+                          placeholder="$$ Amount" 
+                          type="number"
+                          className={`p-3 border rounded-xl text-sm outline-none transition-all focus:ring-2 focus:ring-cyan-500/50 ${isDark ? "bg-black/40 border-slate-800 text-white placeholder:text-slate-600" : "bg-white border-slate-200"}`} 
+                      />
+                  </div>
+
+                  <button 
+                      onClick={onWithdrawClick}
+                      disabled={!withdrawForm.address || !withdrawForm.amount}
+                      className={`w-full py-3 font-bold rounded-xl transition-all flex items-center justify-center gap-2
+                          ${isDark 
+                              ? "bg-slate-800 text-white hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed" 
+                              : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+                          }`}
+                  >
+                      Send USDC
+                  </button>
+              </div>
+          </div>
         )}
       </div>
     </div>
