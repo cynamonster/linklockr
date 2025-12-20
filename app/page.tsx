@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { 
   Lock, ArrowRight, Loader2, Zap, RefreshCw, 
-  Copy, CheckCircle2, Shield, Sparkles, AlertCircle 
+  Copy, CheckCircle2, Shield, AlertCircle,
+  Sun, Moon
 } from "lucide-react";
 import { PrivyProvider, usePrivy, useLoginWithEmail, useWallets } from "@privy-io/react-auth";
 import { ethers } from "ethers";
@@ -42,7 +43,7 @@ function ThemeToggle({ isDark, toggle }: { isDark: boolean, toggle: () => void }
         }
       `}
     >
-      {isDark ? <Sparkles size={18} /> : <Zap size={18} />}
+      {isDark ? <Sun size={18} /> : <Moon size={18} />}
     </button>
   );
 }
