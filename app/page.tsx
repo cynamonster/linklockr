@@ -184,9 +184,10 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
     if (!wallet) return alert("Please connect a wallet first.");
     if (!urlToLock || !price || !slug) return alert("Missing fields.");
 
-    if (parseFloat(price) < 2) {
-      return alert("Minimum price is $2.00 USD.");
-    }
+    // MINIMUM PRICE ENFORCEMENT
+    // if (parseFloat(price) < 2) {
+    //   return alert("Minimum price is $2.00 USD.");
+    // }
 
     setIsLoading(true);
     try {
