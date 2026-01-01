@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { 
   Lock, ArrowRight, Loader2, Zap, RefreshCw, 
   Copy, CheckCircle2, Shield, AlertCircle,
-  Sun, Moon, FolderLock, ChevronDown, Wallet
+  Sun, Moon, FolderLock, ChevronDown, Wallet,
+  Square, SquareCheckBig, Info
 } from "lucide-react";
 import { PrivyProvider, usePrivy, useLoginWithEmail, useWallets, ConnectedWallet } from "@privy-io/react-auth";
 import { ethers } from "ethers";
@@ -36,7 +37,7 @@ function ThemeToggle({ isDark, toggle }: { isDark: boolean, toggle: () => void }
     <button 
       onClick={toggle}
       className={`
-        p-2 rounded-full transition-all duration-300 border backdrop-blur-md
+        p-2 rounded-full transition-all duration-300 border backdrop-blur-md cursor-pointer 
         ${isDark 
           ? "bg-slate-800/50 border-slate-700 text-cyan-400 hover:bg-slate-800 shadow-[0_0_15px_rgba(34,211,238,0.2)]" 
           : "bg-white/50 border-white/60 text-sky-600 hover:bg-white shadow-sm"
@@ -47,6 +48,21 @@ function ThemeToggle({ isDark, toggle }: { isDark: boolean, toggle: () => void }
     </button>
   );
 }
+
+const BLURB = `LinkLockr is an authenticated vending protocol that allows creators to sell access to encrypted content via blockchain.`;
+const INFO_TEXT = `
+Create a paid, encrypted link that buyers can use to buy access to your content.
+
+How it works:
+
+1. Enter the text you want to sell (e.g., a URL to your premium content).
+
+2. Set the price you want to charge for access.
+
+3. Create a custom link or use an auto-generated one.
+
+4. When a buyer purchases the link, they pay in Ethereum on the Base blockchain. The payment goes directly to your connected wallet, minus ~2.5% in network and platform fees.
+`;
 
 export default function App() {
   // Default to Dark Mode (The "Tactical/Aero" look)
@@ -148,6 +164,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
   const [statusMsg, setStatusMsg] = useState("");
   const [createdSlug, setCreatedSlug] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'create' | 'wallet'>('create');
+  const [isTermsChecked, setIsTermsChecked] = useState(false);
 
   // Auto-generate slug on mount
   useEffect(() => { generateNewSlug(); }, []);
@@ -330,7 +347,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                                     onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
                                 />
                                 <button onClick={handleLogin} className={`
-                                    p-4 rounded-2xl transition-all border
+                                    p-4 rounded-2xl transition-all border cursor-pointer
                                     ${isDark 
                                       ? "bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700 hover:text-white" 
                                       : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"}
@@ -343,7 +360,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                         <button 
                             onClick={login} 
                             className={`
-                                w-full group p-4 font-bold transition-all flex items-center justify-center gap-2 rounded-full
+                                w-full group p-4 font-bold transition-all flex items-center justify-center gap-2 rounded-full cursor-pointer 
                                 ${isDark 
                                   ? "bg-gradient-to-r from-cyan-600 to-blue-700 hover:shadow-[0_0_20px_rgba(34,211,238,0.4)] text-white" 
                                   : "bg-gradient-to-r from-sky-400 to-blue-600 hover:shadow-lg hover:shadow-sky-500/20 text-white"}
@@ -369,7 +386,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                             onChange={e => setCode(e.target.value)} 
                         />
                         <button onClick={handleVerify} disabled={isLoading} className={`
-                            w-full p-4 rounded-2xl font-bold transition-all
+                            w-full p-4 rounded-2xl font-bold transition-all cursor-pointer 
                             ${isDark ? "bg-slate-800 text-white hover:bg-slate-700" : "bg-slate-900 text-white hover:bg-slate-800"}
                         `}>
                             {isLoading ? <Loader2 className="animate-spin mx-auto"/> : "Verify Access"}
@@ -403,7 +420,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                 
                 <div className={`p-4 rounded-2xl border flex items-center justify-between gap-2 ${isDark ? "bg-black/30 border-slate-700" : "bg-slate-50 border-slate-200"}`}>
                     <code className={`text-sm font-mono truncate ${isDark ? "text-cyan-400" : "text-blue-600"}`}>{shareUrl}</code>
-                    <button onClick={() => navigator.clipboard.writeText(shareUrl)} className={`p-2 rounded-lg transition-colors ${isDark ? "hover:bg-slate-800 text-slate-400" : "hover:bg-white text-slate-500"}`}>
+                    <button onClick={() => navigator.clipboard.writeText(shareUrl)} className={`p-2 cursor-pointer rounded-lg transition-colors ${isDark ? "hover:bg-slate-800 text-slate-400" : "hover:bg-white text-slate-500"}`}>
                         <Copy size={16} />
                     </button>
                 </div>
@@ -411,7 +428,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                 <button onClick={() => {
                   setCreatedSlug(null);
                   generateNewSlug();
-                 }} className={`w-full py-3 font-medium ${isDark ? "text-slate-400 hover:text-white" : "text-slate-500 hover:text-slate-900"}`}>
+                 }} className={`w-full py-3 cursor-pointer font-medium ${isDark ? "text-slate-400 hover:text-white" : "text-slate-500 hover:text-slate-900"}`}>
                     Create Another
                 </button>
             </div>
@@ -437,7 +454,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
         </div>
         <div className="flex gap-4 items-center">
             <ThemeToggle isDark={isDark} toggle={toggleTheme} />
-            <button onClick={logout} className={`text-sm font-medium hover:text-opacity-100 ${isDark ? "text-slate-500 hover:text-white" : "text-slate-400 hover:text-slate-600"}`}>Logout</button>
+            <button onClick={logout} className={`cursor-pointer text-sm font-medium hover:text-opacity-100 ${isDark ? "text-slate-500 hover:text-white" : "text-slate-400 hover:text-slate-600"}`}>Logout</button>
         </div>
       </div>
 
@@ -449,7 +466,9 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
             : "bg-white/70 border-white/80 shadow-xl shadow-blue-900/5"}
           backdrop-blur-xl border
       `}>
+
         
+        <div className="flex justify-between items-start">
         {/* TAB SWITCHER */}
         <div className={`flex gap-2 mb-8 p-1.5 rounded-full w-fit border ${isDark ? "bg-black/40 border-slate-800" : "bg-slate-100/50 border-transparent"}`}>
             {['create', 'wallet'].map((tab) => (
@@ -457,7 +476,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                     key={tab}
                     onClick={() => setActiveTab(tab as any)}
                     className={`
-                        px-6 py-2 rounded-full text-sm font-bold transition-all uppercase tracking-wide
+                        px-6 py-2 rounded-full text-sm font-bold transition-all uppercase tracking-wide cursor-pointer 
                         ${activeTab === tab 
                             ? (isDark ? 'bg-slate-800 text-cyan-400 shadow-sm border border-slate-700' : 'bg-white text-slate-900 shadow-sm') 
                             : (isDark ? 'text-slate-500 hover:text-slate-300' : 'text-slate-400 hover:text-slate-600')
@@ -468,14 +487,64 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                 </button>
             ))}
         </div>
+        <div className="flex justify-end mb-6">
+          <button
+            onClick={() => alert(INFO_TEXT)}
+            aria-label="Link info"
+            className={`m-[0.8rem] cursor-pointer transition-all ${isDark ? "border-slate-800 text-cyan-400 hover:text-cyan-300" : "border-transparent text-sky-600 hover:text-sky-500"}`}
+          >
+            <Info size={22} />
+          </button>
+        </div>
+        </div>
 
         {activeTab === 'create' ? (
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2">
-                {/* 1. SLUG INPUT */}
+                {/* 1. URL INPUT */}
+                <div className="space-y-3">
+                    <label className={`text-xs font-bold uppercase tracking-wider ml-1 ${isDark ? "text-slate-500" : "text-slate-400"}`}>Content</label>
+                    <div className="relative">
+                        <Shield className={`absolute left-4 top-4 w-5 h-5 ${isDark ? "text-slate-600" : "text-slate-300"}`} />
+                        <input 
+                            value={urlToLock}
+                            onChange={(e) => setUrlToLock(e.target.value)}
+                            type="url" 
+                            placeholder="https://..." 
+                            className={`
+                                w-full p-4 pl-12 outline-none transition-all rounded-2xl border
+                                ${isDark 
+                                  ? "bg-black/40 border-slate-800 text-slate-300 placeholder:text-slate-700 focus:border-cyan-500/50 focus:bg-slate-900/60" 
+                                  : "bg-white/50 border-transparent text-slate-900 placeholder:text-slate-300 focus:bg-white focus:ring-2 focus:ring-sky-400"}
+                            `}
+                        />
+                    </div>
+                </div>
+
+                {/* 2. PRICE INPUT */}
+                <div className="space-y-3">
+                    <label className={`text-xs font-bold uppercase tracking-wider ml-1 ${isDark ? "text-slate-500" : "text-slate-400"}`}>Price</label>
+                    <div className="relative">
+                        <span className={`absolute left-4 top-4 font-bold ${isDark ? "text-slate-600" : "text-slate-400"}`}>$</span>
+                        <input 
+                            value={price}
+                            onChange={(e) => setPrice(e.target.value)}
+                            type="number" 
+                            placeholder="5.00" 
+                            className={`
+                                w-full p-4 pl-8 outline-none transition-all font-bold text-xl rounded-2xl border
+                                ${isDark 
+                                  ? "bg-black/40 border-slate-800 text-white placeholder:text-slate-700 focus:border-cyan-500/50 focus:bg-slate-900/60" 
+                                  : "bg-white/50 border-transparent text-slate-900 placeholder:text-slate-300 focus:bg-white focus:ring-2 focus:ring-sky-400"}
+                            `}
+                        />
+                    </div>
+                </div>
+
+                {/* 3. SLUG INPUT */}
                 <div className="space-y-3">
                     <div className="flex justify-between items-center ml-1">
-                        <label className={`text-xs font-bold uppercase tracking-wider ${isDark ? "text-slate-500" : "text-slate-400"}`}>Link Slug</label>
-                        <span className={`text-[10px] ${isDark ? "text-slate-600" : "text-slate-400"}`}>Immutable ID</span>
+                        <label className={`text-xs font-bold uppercase tracking-wider ${isDark ? "text-slate-500" : "text-slate-400"}`}>Link</label>
+                        {/* <span className={`text-[10px] ${isDark ? "text-slate-600" : "text-slate-400"}`}>Immutable ID</span> */}
                     </div>
                     <div className="flex gap-2">
                         <div className="relative flex-1 group">
@@ -495,7 +564,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                         <button 
                             onClick={generateNewSlug}
                             className={`
-                                p-4 rounded-2xl transition-all border
+                                p-4 rounded-2xl transition-all border cursor-pointer
                                 ${isDark 
                                   ? "bg-slate-800/50 border-slate-800 text-slate-400 hover:text-cyan-400 hover:bg-slate-800" 
                                   : "bg-white/50 border-transparent text-slate-400 hover:text-sky-500 hover:bg-white"}
@@ -504,60 +573,37 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                             <RefreshCw size={20} />
                         </button>
                     </div>
-                    <span className={`text-[.8em] w-full font-mono ml-[1em] ${isDark 
-                          ? "border-slate-800 text-cyan-400 focus:border-cyan-500/50 focus:bg-slate-900/60" 
-                          : "border-transparent text-blue-600 focus:bg-white focus:ring-2 focus:ring-sky-400"}`}>
+                    <span className={`text-[.8em] w-full font-mono ml-[1em] opacity-50 ${isDark 
+                        ? "border-slate-800 text-cyan-400 focus:border-cyan-500/50 focus:bg-slate-900/60" 
+                        : "border-transparent text-blue-600 focus:bg-white focus:ring-2 focus:ring-sky-400"}`}>
                       Preview: linklockr.xyz/buy/{slug}
                     </span>
 
                 </div>
 
-                {/* 2. PRICE INPUT */}
-                <div className="space-y-3">
-                    <label className={`text-xs font-bold uppercase tracking-wider ml-1 ${isDark ? "text-slate-500" : "text-slate-400"}`}>Price (USDC)</label>
-                    <div className="relative">
-                        <span className={`absolute left-4 top-4 font-bold ${isDark ? "text-slate-600" : "text-slate-400"}`}>$</span>
-                        <input 
-                            value={price}
-                            onChange={(e) => setPrice(e.target.value)}
-                            type="number" 
-                            placeholder="5.00" 
-                            className={`
-                                w-full p-4 pl-8 outline-none transition-all font-bold text-xl rounded-2xl border
-                                ${isDark 
-                                  ? "bg-black/40 border-slate-800 text-white placeholder:text-slate-700 focus:border-cyan-500/50 focus:bg-slate-900/60" 
-                                  : "bg-white/50 border-transparent text-slate-900 placeholder:text-slate-300 focus:bg-white focus:ring-2 focus:ring-sky-400"}
-                            `}
-                        />
-                    </div>
-                </div>
-
-                {/* 3. URL INPUT */}
-                <div className="space-y-3">
-                    <label className={`text-xs font-bold uppercase tracking-wider ml-1 ${isDark ? "text-slate-500" : "text-slate-400"}`}>Content URL</label>
-                    <div className="relative">
-                        <Shield className={`absolute left-4 top-4 w-5 h-5 ${isDark ? "text-slate-600" : "text-slate-300"}`} />
-                        <input 
-                            value={urlToLock}
-                            onChange={(e) => setUrlToLock(e.target.value)}
-                            type="url" 
-                            placeholder="https://..." 
-                            className={`
-                                w-full p-4 pl-12 outline-none transition-all rounded-2xl border
-                                ${isDark 
-                                  ? "bg-black/40 border-slate-800 text-slate-300 placeholder:text-slate-700 focus:border-cyan-500/50 focus:bg-slate-900/60" 
-                                  : "bg-white/50 border-transparent text-slate-900 placeholder:text-slate-300 focus:bg-white focus:ring-2 focus:ring-sky-400"}
-                            `}
-                        />
-                    </div>
+                {/* TERMS CHECKBOX */}
+                <div className="flex items-start gap-2 pt-2">
+                  <button 
+                  className={`mt-1 flex-row gap-2 flex items-center`}
+                  onClick={() => setIsTermsChecked(!isTermsChecked)}
+                  >
+                  {isTermsChecked ? (
+                    <SquareCheckBig className={`w-8 h-8 cursor-pointer ${isDark ? "text-cyan-400 hover:text-cyan-500" : "text-blue-600 hover:text-blue-700"}`} />
+                  ) : (
+                    <Square className={`w-8 h-8 cursor-pointer ${isDark ? "text-slate-600 hover:text-slate-500" : "text-slate-400 hover:text-slate-500"}`} />
+                  )}
+                    <p className={`text-[10px] leading-tight text-left cursor-pointer ${isDark ? "text-slate-600" : "text-slate-400"}`}>
+                    By creating this link, you agree that you have the right to sell this content and indemnify LinkLockr from any liability. Content reported 3 times is automatically removed.
+                    </p>
+                  </button>
                 </div>
 
                 {/* SUBMIT BUTTON */}
                 <button 
                   onClick={handleCreateLock}
-                  disabled={isLoading}
+                  disabled={isLoading || !isTermsChecked}
                   className={`
-                      w-full font-bold py-5 transition-all flex items-center justify-center gap-2 rounded-full
+                      w-full font-bold py-5 transition-all flex items-center justify-center gap-2 rounded-full cursor-pointer
                       ${isDark 
                         ? "bg-gradient-to-r from-cyan-600 to-blue-700 text-white hover:shadow-[0_0_25px_rgba(34,211,238,0.4)] hover:scale-[1.01]" 
                         : "bg-gradient-to-r from-sky-400 to-blue-600 text-white hover:shadow-lg hover:shadow-sky-500/30 hover:scale-[1.01]"}
@@ -571,13 +617,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                   )}
                 </button>
                 
-                {/* TERMS CHECKBOX */}
-                <div className="flex items-start gap-2 pt-2">
-                    <input type="checkbox" className="mt-1" />
-                    <p className={`text-[10px] leading-tight ${isDark ? "text-slate-600" : "text-slate-400"}`}>
-                        By creating this link, you agree that you have the right to sell this content and indemnify LinkLockr from any liability. Content with 3+ reports is automatically delisted.
-                    </p>
-                </div>
+
             </div>
         ) : (
             /* WALLET TAB */
@@ -655,7 +695,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                               : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-50"
                           }`}
                   >
-                      Send USDC
+                      Send ETH
                   </button>
               </div>
           </div>
