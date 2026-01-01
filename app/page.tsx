@@ -51,6 +51,7 @@ function ThemeToggle({ isDark, toggle }: { isDark: boolean, toggle: () => void }
 }
 
 const BLURB = `LinkLockr is an authenticated vending protocol that allows creators to sell access to encrypted content via blockchain.`;
+const INFO_TEXT = `LinkLockr encrypts your text, stores it on IPFS, then unencrypts and delivers it upon payment. No traditional financial intermediaries, just you and your audience.`;
 
 export default function App() {
   // Default to Dark Mode (The "Tactical/Aero" look)
@@ -460,7 +461,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
 
                 <div className={`mt-3 text-sm leading-relaxed ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                   <p className={`mb-4 ${isDark ? "text-slate-200/80" : "text-slate-600"}`}>
-                  Sell access to your content, decentralized via Web3. LinkLockr encrypts your text content, stores it on IPFS, and gives it to your buyers after they pay for it.
+                   {INFO_TEXT}
                   </p>
 
                   <ol className="space-y-3 ml-3">
@@ -853,7 +854,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
 
               <div className={`mt-3 text-sm leading-relaxed ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                 <p className={`mb-4 ${isDark ? "text-slate-200/80" : "text-slate-600"}`}>
-                Sell access to your content, decentralized via Web3. LinkLockr encrypts your text content, stores it on IPFS, and gives it to your buyers after they pay for it.
+                  {INFO_TEXT}
                 </p>
 
                 <ol className="space-y-3 ml-3">
