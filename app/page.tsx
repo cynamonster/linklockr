@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { 
   Lock, ArrowRight, Loader2, Zap, RefreshCw, 
   Copy, CheckCircle2, Shield, AlertCircle,
   Sun, Moon, FolderLock, ChevronDown, Wallet,
-  Square, SquareCheckBig, Info
+  Square, SquareCheckBig, Info,
+  CircleX
 } from "lucide-react";
 import { PrivyProvider, usePrivy, useLoginWithEmail, useWallets, ConnectedWallet } from "@privy-io/react-auth";
 import { ethers } from "ethers";
@@ -165,6 +166,36 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
   const [createdSlug, setCreatedSlug] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'create' | 'wallet'>('create');
   const [isTermsChecked, setIsTermsChecked] = useState(false);
+  // Info modal state (replaces checkbox/peer technique)
+  const [isInfoOpen, setIsInfoOpen] = useState(false);
+  // Ref for modal panel to detect outside clicks
+  const infoModalRef = useRef<HTMLDivElement | null>(null);
+
+  // Close modal on outside click or Escape key
+  useEffect(() => {
+    if (!isInfoOpen) return;
+
+    const onPointerDown = (e: Event) => {
+      const target = e.target as Node | null;
+      if (infoModalRef.current && target && !infoModalRef.current.contains(target)) {
+        setIsInfoOpen(false);
+      }
+    };
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsInfoOpen(false);
+    };
+
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("touchstart", onPointerDown);
+    document.addEventListener("keydown", onKey);
+
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("touchstart", onPointerDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [isInfoOpen]);
 
   // Auto-generate slug on mount
   useEffect(() => { generateNewSlug(); }, []);
@@ -469,33 +500,79 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
 
         
         <div className="flex justify-between items-start">
-        {/* TAB SWITCHER */}
-        <div className={`flex gap-2 mb-8 p-1.5 rounded-full w-fit border ${isDark ? "bg-black/40 border-slate-800" : "bg-slate-100/50 border-transparent"}`}>
-            {['create', 'wallet'].map((tab) => (
-                <button 
-                    key={tab}
-                    onClick={() => setActiveTab(tab as any)}
+          {/* TAB SWITCHER */}
+          <div className={`flex gap-2 mb-8 p-1.5 rounded-full w-fit border ${isDark ? "bg-black/40 border-slate-800" : "bg-slate-100/50 border-transparent"}`}>
+              {['create', 'wallet'].map((tab) => (
+                  <button 
+                      key={tab}
+                      onClick={() => setActiveTab(tab as any)}
+                      className={`
+                          px-6 py-2 rounded-full text-sm font-bold transition-all uppercase tracking-wide cursor-pointer 
+                          ${activeTab === tab 
+                              ? (isDark ? 'bg-slate-800 text-cyan-400 shadow-sm border border-slate-700' : 'bg-white text-slate-900 shadow-sm') 
+                              : (isDark ? 'text-slate-500 hover:text-slate-300' : 'text-slate-400 hover:text-slate-600')
+                          }
+                      `}
+                  >
+                      {tab}
+                  </button>
+              ))}
+          </div>
+          
+          <div className="flex justify-end mb-6">
+            {/* Info Modal Toggle (uses React state now) */}
+            <button
+              onClick={() => setIsInfoOpen(true)}
+              aria-label="Link info"
+              className={`m-[0.8rem] cursor-pointer transition-all ${isDark ? "border-slate-800 text-cyan-400 hover:text-cyan-300" : "border-transparent text-sky-600 hover:text-sky-500"}`}
+            >
+              <Info size={22} />
+            </button>
+
+            {/* Modal (centred, absolute, animated) - rendered when isInfoOpen is true */}
+            {isInfoOpen && (
+              <div className="fixed inset-0 z-50">
+                {/* backdrop */}
+                <div
+                  className="absolute inset-0 bg-black/40 backdrop-blur-sm rounded-[2.5rem]"
+                  onClick={() => setIsInfoOpen(false)}
+                />
+
+                {/* centered modal panel */}
+                <div className="relative flex items-start justify-center min-h-screen px-4 pt-[1.5rem]">
+                  <div
+                    ref={infoModalRef}
                     className={`
-                        px-6 py-2 rounded-full text-sm font-bold transition-all uppercase tracking-wide cursor-pointer 
-                        ${activeTab === tab 
-                            ? (isDark ? 'bg-slate-800 text-cyan-400 shadow-sm border border-slate-700' : 'bg-white text-slate-900 shadow-sm') 
-                            : (isDark ? 'text-slate-500 hover:text-slate-300' : 'text-slate-400 hover:text-slate-600')
-                        }
+                      w-full max-w-xl mx-auto p-6 rounded-2xl shadow-xl
+                      ${isDark ? "bg-slate-900/95 text-slate-100 border border-slate-800" : "bg-white/95 text-slate-900 border border-white/60"}
+                      animate-in fade-in slide-in-from-bottom-2
+                      pointer-events-auto
                     `}
-                >
-                    {tab}
-                </button>
-            ))}
-        </div>
-        <div className="flex justify-end mb-6">
-          <button
-            onClick={() => alert(INFO_TEXT)}
-            aria-label="Link info"
-            className={`m-[0.8rem] cursor-pointer transition-all ${isDark ? "border-slate-800 text-cyan-400 hover:text-cyan-300" : "border-transparent text-sky-600 hover:text-sky-500"}`}
-          >
-            <Info size={22} />
-          </button>
-        </div>
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="info-modal-title"
+                  >
+                    <div className="flex justify-between items-start gap-4">
+                      <h3 id="info-modal-title" className="text-lg font-bold">
+                        About this link
+                      </h3>
+                      <button
+                          onClick={() => setIsInfoOpen(false)}
+                          aria-label="Close info"
+                          className={`cursor-pointer transition-all ${isDark ? "border-slate-800 text-cyan-400 hover:text-cyan-300" : "border-transparent text-sky-600 hover:text-sky-500"}`}
+                        >
+                          <CircleX size={22} />
+                      </button>
+                    </div>
+
+                    <div className="mt-3 text-sm leading-relaxed whitespace-pre-wrap">
+                      {INFO_TEXT}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {activeTab === 'create' ? (
