@@ -462,21 +462,24 @@ Expiration Time: ${expirationTime}`;
               </div>
 
               {/* NEW: BALANCE DISPLAY */}
-              <div className="flex items-end inline-flex">
+              <div className="flex items-center inline-flex flex-col justify-center mt-4">
                   <span>Wallet Balance: </span>
-                  <span>&nbsp;</span>
-                  <span>&nbsp;</span>
-                  <span className={`text-3xl font-bold text-white`}>
+                  {/* <span>&nbsp;</span> */}
+                  {/* <span>&nbsp;</span> */}
                     {
                       isFetchingEthBalance ? (
                         <Loader2 className="inline-block animate-spin text-cyan-400" />
                       ) : (
-                        `${Number(ethBalance).toFixed(4)} ETH ($${(Number(ethBalance) * ETH_PRICE).toFixed(2)})`
+                        <>
+                          <span className={`text-3xl font-bold text-white`}>
+                            ${(Number(ethBalance) * ETH_PRICE).toFixed(2)}
+                          </span>
+                          <span className="text-sm font-bold text-slate-500 mb-1">
+                            ({Number(ethBalance).toFixed(4)} ETH)
+                          </span>
+                        </>
                       )
                     }
-                  </span>
-                  <span>&nbsp;</span>
-                  <span className="text-sm font-bold text-slate-500 mb-1">ETH</span>
               </div>
           </div>
 
@@ -486,50 +489,50 @@ Expiration Time: ${expirationTime}`;
                 {/* LOCKED STATE */}
                 {!isOwner && (
                     <div className="bg-black/30 rounded-2xl p-6 border border-white/5 text-center space-y-4">
-            <div className="text-4xl font-bold text-white tracking-tight">
-              {`$${Number(linkData.price_usd).toFixed(2)}`}
-              <span className="text-lg text-slate-500 font-medium ml-1">USD</span>
-              <div className="text-sm text-slate-500 mt-1">(~{Number(linkData.price_eth).toFixed(6)} ETH)</div>
-            </div>
-                        <p className="text-sm text-slate-400">Unlock this content permanently on the blockchain.</p>
-                        
-                        {!authenticated ? (
-                            <button onClick={login} className="w-full py-4 rounded-xl bg-slate-800 text-white font-bold hover:bg-slate-700 transition-all">
-                                Connect Wallet
-                            </button>
-                        ) : (
-                            <div className="space-y-3">
-                                {/* WALLET SELECTOR (NEW) */}
-                                {wallets.length > 0 && (
-                                    <div className="relative group">
-                                        <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                                            <Wallet size={14} className="text-slate-500" />
-                                        </div>
-                                        <select 
-                                            value={selectedAddress}
-                                            onChange={(e) => setSelectedAddress(e.target.value)}
-                                            className="w-full pl-9 pr-8 py-2 bg-slate-900/50 border border-slate-700 rounded-lg text-xs font-mono text-slate-300 outline-none appearance-none cursor-pointer hover:border-slate-600 transition-colors"
-                                        >
-                                            {wallets.map((w) => (
-                                                <option key={w.address} value={w.address} className="bg-slate-900">
-                                                    {formatAddress(w.address)} ({w.walletClientType === 'privy' ? 'Embedded' : w.walletClientType})
-                                                </option>
-                                            ))}
-                                        </select>
-                                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" size={14} />
-                                    </div>
-                                )}
+                      <div className="text-4xl font-bold text-white tracking-tight">
+                        {`$${Number(linkData.price_usd).toFixed(2)}`}
+                        <span className="text-lg text-slate-500 font-medium ml-1">USD</span>
+                        <div className="text-sm text-slate-500 mt-1">(~{Number(linkData.price_eth).toFixed(6)} ETH)</div>
+                      </div>
+                      <p className="text-sm text-slate-400">Unlock this content permanently on the blockchain.</p>
+                      
+                      {!authenticated ? (
+                          <button onClick={login} className="w-full py-4 rounded-xl bg-slate-800 text-white font-bold hover:bg-slate-700 transition-all">
+                              Connect Wallet
+                          </button>
+                      ) : (
+                          <div className="space-y-3">
+                              {/* WALLET SELECTOR (NEW) */}
+                              {wallets.length > 0 && (
+                                  <div className="relative group">
+                                      <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                                          <Wallet size={14} className="text-slate-500" />
+                                      </div>
+                                      <select 
+                                          value={selectedAddress}
+                                          onChange={(e) => setSelectedAddress(e.target.value)}
+                                          className="w-full pl-9 pr-8 py-2 bg-slate-900/50 border border-slate-700 rounded-lg text-xs font-mono text-slate-300 outline-none appearance-none cursor-pointer hover:border-slate-600 transition-colors"
+                                      >
+                                          {wallets.map((w) => (
+                                              <option key={w.address} value={w.address} className="bg-slate-900">
+                                                  {formatAddress(w.address)} ({w.walletClientType === 'privy' ? 'Embedded' : w.walletClientType})
+                                              </option>
+                                          ))}
+                                      </select>
+                                      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" size={14} />
+                                  </div>
+                              )}
 
-                                <button 
-                                    onClick={handleBuy} 
-                                    disabled={txStatus !== ""}
-                                    className="w-full py-4 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-bold shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:scale-[1.02] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    {txStatus === "buying" && <><Loader2 className="animate-spin" /> Confirming Purchase...</>}
-                                    {txStatus === "" && <><Unlock size={20} /> Purchase & Unlock</>}
-                                </button>
-                            </div>
-                        )}
+                              <button 
+                                  onClick={handleBuy} 
+                                  disabled={txStatus !== ""}
+                                  className="w-full py-4 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-bold shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:scale-[1.02] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                  {txStatus === "buying" && <><Loader2 className="animate-spin" /> Confirming Purchase...</>}
+                                  {txStatus === "" && <><Unlock size={20} /> Purchase & Unlock</>}
+                              </button>
+                          </div>
+                      )}
                     </div>
                 )}
 
