@@ -10,6 +10,7 @@ import { FolderLock, Unlock, Loader2, AlertCircle, ExternalLink, Check, Shield, 
 import { supabase } from "../../../utils/supabase";
 import { lit } from "../../../utils/lit";
 import { checkAndSignAuthMessage } from "@lit-protocol/lit-node-client";
+import { LogOut } from "lucide-react";
 
 // --- CONFIG ---
 const PRIVY_APP_ID = process.env.NEXT_PUBLIC_PRIVY_APP_ID || "";
@@ -76,7 +77,7 @@ export default function BuyPage() {
 // --- 2. THE CONTENT (Logic) ---
 function BuyPageContent() {
   const { slug } = useParams();
-  const { authenticated, login } = usePrivy();
+  const { authenticated, login, logout } = usePrivy();
   const { wallets } = useWallets();
 
   // -- WALLETS --
@@ -89,6 +90,17 @@ function BuyPageContent() {
         setSelectedAddress(wallets[0].address);
     }
   }, [wallets, selectedAddress]);
+
+  // Disconnect handler: logs out of Privy and clears wallet selection
+  const handleDisconnect = async () => {
+    try {
+      if (logout) await logout();
+    } catch (err) {
+      console.error('Logout failed', err);
+    }
+    setSelectedAddress("");
+    setIsOwner(false);
+  };
 
   const [ethBalance, setEthBalance] = useState("0.0000");
   const [isFetchingEthBalance, setIsFetchingEthBalance] = useState(false);
@@ -594,8 +606,21 @@ Expiration Time: ${expirationTime}`;
 
             </div>
 
+              {/* Disconnect button to allow user to logout / disconnect wallet */}
+              {authenticated && (
+                <div className="flex items-center justify-center">
+                  <button
+                    onClick={handleDisconnect}
+                    title="Disconnect wallet"
+                    className="cursor-pointer mt-2 inline-flex items-center gap-2 text-xs text-slate-400 hover:text-slate-200 transition-colors"
+                  >
+                    <span className="">Disconnect wallet</span>
+                  </button>
+                </div>
+              )}
+            
             {/* FOOTER */}
-            <div className="mt-8 text-center border-t border-white/5 pt-6">
+            <div className="mt-2 text-center border-t border-white/5 pt-6">
                 <p className="text-xs text-slate-500">
                     Secured by <a href="https://linklockr.xyz" target="_blank" className="text-cyan-400 hover:text-cyan-300">LinkLockr</a>.
                 </p>
