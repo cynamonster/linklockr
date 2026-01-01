@@ -316,9 +316,12 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
     )
   }
 
+  
+
   // --- VIEW: LOGIN SCREEN ---
   if (!authenticated) {
     return (
+      <>
        <div className="min-h-screen flex items-center justify-center p-4">
           <div className={`
              max-w-md w-full p-8 transition-all duration-500 rounded-[2rem]
@@ -341,15 +344,24 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                         LinkLockr.
                     </h1>
                     <p className={`text-sm font-medium ${isDark ? "text-cyan-200/50" : "text-slate-500"}`}>
-                        Authenticated Vending Protocol
+                        Sell access to your digital content
                     </p>
                   </div>
-                  <ThemeToggle isDark={isDark} toggle={toggleTheme} />
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setIsInfoOpen(true)}
+                      aria-label="Link info"
+                      className={`m-[0.2rem] cursor-pointer transition-all ${isDark ? "border-slate-800 text-cyan-400 hover:text-cyan-300" : "border-transparent text-sky-600 hover:text-sky-500"}`}
+                    >
+                      <Info size={20} />
+                    </button>
+                    <ThemeToggle isDark={isDark} toggle={toggleTheme} />
+                  </div>
               </div>
 
                {step === "login" ? (
                    <div className="space-y-6">
-                        <div className="space-y-2">
+                        {/* <div className="space-y-2">
                             <label className={`text-xs font-bold uppercase tracking-wider ml-1 ${isDark ? "text-slate-500" : "text-slate-400"}`}>Email Access</label>
                             <div className="flex gap-2">
                                 <input 
@@ -373,7 +385,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                                     <ArrowRight size={20} />
                                 </button>
                             </div>
-                        </div>
+                        </div> */}
 
                         <button 
                             onClick={login} 
@@ -413,6 +425,91 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                )}
           </div>
        </div>
+        {/* Shared Info Modal rendered in login view */}
+        {isInfoOpen && (
+          <div className="fixed inset-0 z-50">
+            <div
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm rounded-[2.5rem]"
+              onClick={() => setIsInfoOpen(false)}
+            />
+            <div className="relative flex items-center justify-center min-h-screen px-4 pt-[1.5rem]">
+              <div
+                ref={infoModalRef}
+                className={`
+                  w-full max-w-xl mx-auto p-6 rounded-2xl shadow-xl
+                  ${isDark ? "bg-slate-900/95 text-slate-100 border border-slate-800" : "bg-white/95 text-slate-900 border border-white/60"}
+                  animate-in fade-in slide-in-from-bottom-2
+                  pointer-events-auto
+                `}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="info-modal-title"
+              >
+                <div className="flex justify-between items-start gap-4">
+                  <h3 id="info-modal-title" className="text-lg font-bold">
+                    How to use LinkLockr
+                  </h3>
+                  <button
+                      onClick={() => setIsInfoOpen(false)}
+                      aria-label="Close info"
+                      className={`cursor-pointer transition-all ${isDark ? "border-slate-800 text-cyan-400 hover:text-cyan-300" : "border-transparent text-sky-600 hover:text-sky-500"}`}
+                    >
+                      <CircleX size={22} />
+                  </button>
+                </div>
+
+                <div className={`mt-3 text-sm leading-relaxed ${isDark ? "text-slate-300" : "text-slate-700"}`}>
+                  <p className={`mb-4 ${isDark ? "text-slate-200/80" : "text-slate-600"}`}>
+                  Sell access to your content, decentralized via Web3. LinkLockr encrypts your text content, stores it on IPFS, and gives it to your buyers after they pay for it.
+                  </p>
+
+                  <ol className="space-y-3 ml-3">
+                  <li className="flex items-start gap-3">
+                    <div className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center font-semibold text-xs ${isDark ? "bg-cyan-600 text-black" : "bg-sky-100 text-sky-700"}`}>
+                    1
+                    </div>
+                    <div>
+                    <div className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>Lock your text</div>
+                    <div className="text-[13px] opacity-80">Enter the URL or text you want to sell.</div>
+                    </div>
+                  </li>
+
+                  <li className="flex items-start gap-3">
+                    <div className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center font-semibold text-xs ${isDark ? "bg-cyan-600 text-black" : "bg-sky-100 text-sky-700"}`}>
+                    2
+                    </div>
+                    <div>
+                    <div className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>Set your price</div>
+                    <div className="text-[13px] opacity-80">Displayed in US Dollars, paid in Ethereum on the Base chain.</div>
+                    </div>
+                  </li>
+
+                  <li className="flex items-start gap-3">
+                    <div className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center font-semibold text-xs ${isDark ? "bg-cyan-600 text-black" : "bg-sky-100 text-sky-700"}`}>
+                    3
+                    </div>
+                    <div>
+                    <div className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>Create your link</div>
+                    <div className="text-[13px] opacity-80">Enter a custom purchase link or use an auto-generated one.</div>
+                    </div>
+                  </li>
+
+                  <li className="flex items-start gap-3">
+                    <div className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center font-semibold text-xs ${isDark ? "bg-cyan-600 text-black" : "bg-sky-100 text-sky-700"}`}>
+                    4
+                    </div>
+                    <div>
+                    <div className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>Share your locked link</div>
+                    <div className="text-[13px] opacity-80">Payments are instantly sent to your connected wallet on the Base chain. Platform/network fees (~2.5%) apply.</div>
+                    </div>
+                  </li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </>
     )
   }
 
@@ -515,98 +612,6 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
             >
               <Info size={22} />
             </button>
-
-            {/* Modal (centred, absolute, animated) - rendered when isInfoOpen is true */}
-            {isInfoOpen && (
-              <div className="fixed inset-0 z-50">
-                {/* backdrop */}
-                <div
-                  className="absolute inset-0 bg-black/40 backdrop-blur-sm rounded-[2.5rem]"
-                  onClick={() => setIsInfoOpen(false)}
-                />
-
-                {/* centered modal panel */}
-                <div className="relative flex items-start justify-center min-h-screen px-4 pt-[1.5rem]">
-                  <div
-                    ref={infoModalRef}
-                    className={`
-                      w-full max-w-xl mx-auto p-6 rounded-2xl shadow-xl
-                      ${isDark ? "bg-slate-900/95 text-slate-100 border border-slate-800" : "bg-white/95 text-slate-900 border border-white/60"}
-                      animate-in fade-in slide-in-from-bottom-2
-                      pointer-events-auto
-                    `}
-                    role="dialog"
-                    aria-modal="true"
-                    aria-labelledby="info-modal-title"
-                  >
-                    <div className="flex justify-between items-start gap-4">
-                      <h3 id="info-modal-title" className="text-lg font-bold">
-                        How to use LinkLockr
-                      </h3>
-                      <button
-                          onClick={() => setIsInfoOpen(false)}
-                          aria-label="Close info"
-                          className={`cursor-pointer transition-all ${isDark ? "border-slate-800 text-cyan-400 hover:text-cyan-300" : "border-transparent text-sky-600 hover:text-sky-500"}`}
-                        >
-                          <CircleX size={22} />
-                      </button>
-                    </div>
-
-                    <div className={`mt-3 text-sm leading-relaxed ${isDark ? "text-slate-300" : "text-slate-700"}`}>
-                      <p className={`mb-4 ${isDark ? "text-slate-200/80" : "text-slate-600"}`}>
-                      Sell access to your content, decentralized. LinkLockr encrypts your text content, stores it on IPFS, and gives it to your buyers after they pay for it.
-                      </p>
-
-                      <ol className="space-y-3 ml-3">
-                      <li className="flex items-start gap-3">
-                        <div className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center font-semibold text-xs ${isDark ? "bg-cyan-600 text-black" : "bg-sky-100 text-sky-700"}`}>
-                        1
-                        </div>
-                        <div>
-                        <div className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>Lock your text</div>
-                        <div className="text-[13px] opacity-80">Enter the URL or text you want to sell.</div>
-                        </div>
-                      </li>
-
-                      <li className="flex items-start gap-3">
-                        <div className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center font-semibold text-xs ${isDark ? "bg-cyan-600 text-black" : "bg-sky-100 text-sky-700"}`}>
-                        2
-                        </div>
-                        <div>
-                        <div className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>Set your price</div>
-                        <div className="text-[13px] opacity-80">Displayed in US Dollars, paid in Ethereum on the Base chain.</div>
-                        </div>
-                      </li>
-
-                      <li className="flex items-start gap-3">
-                        <div className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center font-semibold text-xs ${isDark ? "bg-cyan-600 text-black" : "bg-sky-100 text-sky-700"}`}>
-                        3
-                        </div>
-                        <div>
-                        <div className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>Create your link</div>
-                        <div className="text-[13px] opacity-80">Enter a custom purchase link or use an auto-generated one.</div>
-                        </div>
-                      </li>
-
-                      <li className="flex items-start gap-3">
-                        <div className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center font-semibold text-xs ${isDark ? "bg-cyan-600 text-black" : "bg-sky-100 text-sky-700"}`}>
-                        4
-                        </div>
-                        <div>
-                        <div className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>Share your locked link</div>
-                        <div className="text-[13px] opacity-80">Payments are instantly sent to your connected wallet on the Base chain. Platform/network fees (~2.5%) apply.</div>
-                        </div>
-                      </li>
-                      </ol>
-
-                      {/* <div className={`mt-4 p-3 rounded-lg border text-[13px] ${isDark ? "bg-black/30 border-slate-800 text-cyan-200" : "bg-white/50 border-slate-100 text-slate-700"}`}>
-                      Tip: After creation, the encrypted payload is pinned to IPFS and your locked link is indexed for discovery. You can create another link anytime.
-                      </div> */}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         </div>
 
@@ -813,6 +818,90 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
           </div>
         )}
       </div>
+      {/* Shared Info Modal rendered in dashboard view */}
+      {isInfoOpen && (
+        <div className="fixed inset-0 z-50">
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm rounded-[2.5rem]"
+            onClick={() => setIsInfoOpen(false)}
+          />
+          <div className="relative flex items-center justify-center min-h-screen px-4 pt-[1.5rem]">
+            <div
+              ref={infoModalRef}
+              className={`
+                w-full max-w-xl mx-auto p-6 rounded-2xl shadow-xl
+                ${isDark ? "bg-slate-900/95 text-slate-100 border border-slate-800" : "bg-white/95 text-slate-900 border border-white/60"}
+                animate-in fade-in slide-in-from-bottom-2
+                pointer-events-auto
+              `}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="info-modal-title"
+            >
+              <div className="flex justify-between items-start gap-4">
+                <h3 id="info-modal-title" className="text-lg font-bold">
+                  How to use LinkLockr
+                </h3>
+                <button
+                    onClick={() => setIsInfoOpen(false)}
+                    aria-label="Close info"
+                    className={`cursor-pointer transition-all ${isDark ? "border-slate-800 text-cyan-400 hover:text-cyan-300" : "border-transparent text-sky-600 hover:text-sky-500"}`}
+                  >
+                    <CircleX size={22} />
+                </button>
+              </div>
+
+              <div className={`mt-3 text-sm leading-relaxed ${isDark ? "text-slate-300" : "text-slate-700"}`}>
+                <p className={`mb-4 ${isDark ? "text-slate-200/80" : "text-slate-600"}`}>
+                Sell access to your content, decentralized via Web3. LinkLockr encrypts your text content, stores it on IPFS, and gives it to your buyers after they pay for it.
+                </p>
+
+                <ol className="space-y-3 ml-3">
+                <li className="flex items-start gap-3">
+                  <div className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center font-semibold text-xs ${isDark ? "bg-cyan-600 text-black" : "bg-sky-100 text-sky-700"}`}>
+                  1
+                  </div>
+                  <div>
+                  <div className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>Lock your text</div>
+                  <div className="text-[13px] opacity-80">Enter the URL or text you want to sell.</div>
+                  </div>
+                </li>
+
+                <li className="flex items-start gap-3">
+                  <div className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center font-semibold text-xs ${isDark ? "bg-cyan-600 text-black" : "bg-sky-100 text-sky-700"}`}>
+                  2
+                  </div>
+                  <div>
+                  <div className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>Set your price</div>
+                  <div className="text-[13px] opacity-80">Displayed in US Dollars, paid in Ethereum on the Base chain.</div>
+                  </div>
+                </li>
+
+                <li className="flex items-start gap-3">
+                  <div className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center font-semibold text-xs ${isDark ? "bg-cyan-600 text-black" : "bg-sky-100 text-sky-700"}`}>
+                  3
+                  </div>
+                  <div>
+                  <div className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>Create your link</div>
+                  <div className="text-[13px] opacity-80">Enter a custom purchase link or use an auto-generated one.</div>
+                  </div>
+                </li>
+
+                <li className="flex items-start gap-3">
+                  <div className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center font-semibold text-xs ${isDark ? "bg-cyan-600 text-black" : "bg-sky-100 text-sky-700"}`}>
+                  4
+                  </div>
+                  <div>
+                  <div className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>Share your locked link</div>
+                  <div className="text-[13px] opacity-80">Payments are instantly sent to your connected wallet on the Base chain. Platform/network fees (~2.5%) apply.</div>
+                  </div>
+                </li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
