@@ -283,15 +283,24 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
       await tx.wait();
 
       // 6. INDEX FOR DISCOVERY (Supabase) — store both USD and ETH representations
-      await supabase.from('links').insert({
+      const { data: insertedLink, error: insertError } = await supabase.from('links').insert({
         slug: slug,
         id_hash: slugHash,
         creator: user?.wallet?.address,
         price_usd: priceUsd,
+        // NOTE: some DB schemas use `price_usdc` (not-null). If your DB requires cents or an integer,
+        // convert accordingly (e.g. Math.round(priceUsd * 100)). For now we set the same USD value.
+        price_usdc: priceUsd,
         price_eth: String(priceEth),
         ipfs_hash: ipfsHash,
         active: true // Default true until reports come in
       });
+
+      if (insertError) {
+        console.error('Supabase insert error:', insertError);
+        // Throw so the outer catch will surface the problem to the user
+        throw insertError;
+      }
 
       setCreatedSlug(slug);
       setStatusMsg("Success!");

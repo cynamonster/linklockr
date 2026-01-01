@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { ethers } from "ethers";
 import { PrivyProvider, usePrivy, useWallets } from "@privy-io/react-auth";
-import { Lock, Unlock, Loader2, AlertCircle, ExternalLink, Check, Shield, Sparkles, Copy, ChevronDown, Wallet } from "lucide-react";
+import { FolderLock, Unlock, Loader2, AlertCircle, ExternalLink, Check, Shield, Sparkles, Copy, ChevronDown, Wallet } from "lucide-react";
 
 // --- IMPORTS ---
 import { supabase } from "../../../utils/supabase";
@@ -142,7 +142,7 @@ function BuyPageContent() {
   const handleCopy = async () => {
     try {
         // await navigator.clipboard.writeText(linkData.creator);
-        await navigator.clipboard.writeText(activeWallet.address);
+        await navigator.clipboard.writeText(linkData.creator);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000); // Reset after 2s
     } catch (err) {
@@ -409,9 +409,9 @@ Expiration Time: ${expirationTime}`;
       <div className="max-w-md w-full relative z-10">
         {/* HEADER */}
         <div className="flex justify-center mb-8">
-            <div className="bg-slate-900/50 border border-cyan-500/30 p-3 rounded-2xl shadow-[0_0_15px_rgba(34,211,238,0.2)]">
-                <Lock className="text-cyan-400 w-6 h-6" />
-            </div>
+          <div className="bg-slate-900/50 border border-cyan-500/30 p-3 rounded-2xl shadow-[0_0_15px_rgba(34,211,238,0.2)]">
+            <FolderLock className="text-cyan-400 w-6 h-6" />
+          </div>
         </div>
 
         {/* MAIN CARD */}
@@ -426,23 +426,16 @@ Expiration Time: ${expirationTime}`;
                   <div className="inline-flex items-center gap-2 px-3 py-1 bg-black/40 rounded-full border border-white/5">
                       <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
                       <span className="text-xs text-slate-400 font-mono">
-                          {
-                            activeWallet 
-                              ? activeWallet.address.slice(0, 6)
-                              : linkData.creator.slice(0, 6)
-                          }
-                          ...
-                          {
-                            activeWallet
-                              ? activeWallet.address.slice(-4)
-                              : linkData.creator.slice(-4)
-                          }
+                        Created by:&nbsp;
+                        {linkData?.creator
+                          ? `${linkData.creator.slice(0, 6)}...${linkData.creator.slice(-4)}`
+                          : "—"}
                       </span>
                       
                       {/* Copy Button */}
                       <button 
                           onClick={handleCopy}
-                          className="ml-1 p-1 hover:bg-white/10 rounded-md transition-colors group relative"
+                          className="ml-1 p-1 hover:bg-white/10 rounded-md transition-colors group relative cursor-pointer"
                           title="Copy full address"
                       >
                           {copied ? (
@@ -452,35 +445,39 @@ Expiration Time: ${expirationTime}`;
                           )}
                           
                           {/* Optional Tooltip */}
-                          {copied && (
+                          {/* {copied && (
                               <span className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-green-600 text-[10px] text-white rounded">
                                   Copied!
                               </span>
-                          )}
+                          )} */}
                       </button>
                   </div>
               </div>
 
               {/* NEW: BALANCE DISPLAY */}
-              <div className="flex items-center inline-flex flex-col justify-center mt-4">
-                  <span>Wallet Balance: </span>
-                  {/* <span>&nbsp;</span> */}
-                  {/* <span>&nbsp;</span> */}
-                    {
-                      isFetchingEthBalance ? (
-                        <Loader2 className="inline-block animate-spin text-cyan-400" />
-                      ) : (
-                        <>
-                          <span className={`text-3xl font-bold text-white`}>
-                            ${(Number(ethBalance) * ETH_PRICE).toFixed(2)}
-                          </span>
-                          <span className="text-sm font-bold text-slate-500 mb-1">
-                            ({Number(ethBalance).toFixed(4)} ETH)
-                          </span>
-                        </>
-                      )
-                    }
-              </div>
+              {
+                authenticated && activeWallet && (
+                  <div className="flex items-center inline-flex flex-col justify-center mt-4">
+                      <span>Your wallet balance: </span>
+                      {/* <span>&nbsp;</span> */}
+                      {/* <span>&nbsp;</span> */}
+                        {
+                          isFetchingEthBalance ? (
+                            <Loader2 className="inline-block animate-spin text-cyan-400" />
+                          ) : (
+                            <>
+                              <span className={`text-3xl font-bold text-white`}>
+                                ${(Number(ethBalance) * ETH_PRICE).toFixed(2)}
+                              </span>
+                              <span className="text-sm font-bold text-slate-500 mb-1">
+                                ({Number(ethBalance).toFixed(4)} ETH)
+                              </span>
+                            </>
+                          )
+                        }
+                  </div>
+                )
+              }
           </div>
 
             {/* ACTION AREA */}
@@ -492,9 +489,17 @@ Expiration Time: ${expirationTime}`;
                       <div className="text-4xl font-bold text-white tracking-tight">
                         {`$${Number(linkData.price_usd).toFixed(2)}`}
                         <span className="text-lg text-slate-500 font-medium ml-1">USD</span>
-                        <div className="text-sm text-slate-500 mt-1">(~{Number(linkData.price_eth).toFixed(6)} ETH)</div>
+                        <div className="text-sm text-slate-500 mt-1">
+                          ( {Number(linkData?.price_eth || 0).toFixed(6)} ETH )
+                        </div>
                       </div>
-                      <p className="text-sm text-slate-400">Unlock this content permanently on the blockchain.</p>
+                      {
+                        activeWallet ? null : (
+                          <p className="text-sm text-slate-400">
+                            Connect your wallet to purchase and unlock this content.
+                          </p>
+                        )
+                      }
                       
                       {!authenticated ? (
                           <button onClick={login} className="w-full py-4 rounded-xl bg-slate-800 text-white font-bold hover:bg-slate-700 transition-all">
@@ -526,7 +531,7 @@ Expiration Time: ${expirationTime}`;
                               <button 
                                   onClick={handleBuy} 
                                   disabled={txStatus !== ""}
-                                  className="w-full py-4 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-bold shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:scale-[1.02] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                  className="cursor-pointer w-full py-4 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-bold shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:scale-[1.02] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                               >
                                   {txStatus === "buying" && <><Loader2 className="animate-spin" /> Confirming Purchase...</>}
                                   {txStatus === "" && <><Unlock size={20} /> Purchase & Unlock</>}
@@ -592,7 +597,7 @@ Expiration Time: ${expirationTime}`;
             {/* FOOTER */}
             <div className="mt-8 text-center border-t border-white/5 pt-6">
                 <p className="text-xs text-slate-500">
-                    Secured by LinkLockr. Content is immutable.
+                    Secured by <a href="https://linklockr.xyz" target="_blank" className="text-cyan-400 hover:text-cyan-300">LinkLockr</a>.
                 </p>
             </div>
         </div>
