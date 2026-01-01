@@ -14,7 +14,8 @@
     * `id` (text, Primary Key): The `slug` (e.g., "brave-blue-lion").
     * `id_hash` (text): The `keccak256` hash used in the contract.
     * `creator` (text): Wallet address of creator.
-    * `price_usdc` (numeric): Display price.
+    * `price_usd` (numeric): Display price entered by the seller in USD (e.g. 5.00).
+    * `price_eth` (numeric/text): Derived ETH equivalent at time of creation (e.g. "0.001234"). Stored so buyers and indexers can show the ETH amount used for on-chain payment. Consider numeric(36,18) or text for precision.
     * `ipfs_hash` (text): The encrypted content pointer.
     * `created_at` (timestamp): Default `now()`.
     * `active` (bool): Default `true`. Set to `false` if hidden by admin.

@@ -3,7 +3,7 @@ LinkLockr Engineering Context
 
 1. Project Overview & Philosophy
 
-    Goal: A decentralized "Link Vending Machine" on Base. Users encrypt URLs (via Lit Protocol) and sell access for USDC.
+    Goal: A decentralized "Link Vending Machine" on Base. Users encrypt URLs (via Lit Protocol) and sell access for ETH.
 
     Core Philosophy: "Ownerless Protocol, Managed Interface."
 
@@ -26,7 +26,7 @@ LinkLockr Engineering Context
 
     Database (Moderation): Supabase (Postgres) for reporting/flagging only.
 
-    Payment: USDC on Base (0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913).
+    Payment: Native ETH on Base.
 
 
 3. Smart Contract Architecture (The Protocol)

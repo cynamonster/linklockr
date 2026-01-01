@@ -21,15 +21,9 @@ import { supabase } from "../utils/supabase";
 // --- CONFIGURATION ---
 const PRIVY_APP_ID = process.env.NEXT_PUBLIC_PRIVY_APP_ID || ""; 
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || ""; 
-const USDC_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"; // Base Mainnet USDC
-
-// ABI for the Ownerless Contract
+// ABI for the Ownerless Contract (price is in wei for native ETH)
 const CONTRACT_ABI = [
-  "function createLink(string _slug, uint256 _price, string _ipfsHash) external",
-];
-
-const USDC_ABI = [
-  "function transfer(address to, uint256 amount) returns (bool)"
+  "function createLink(string _slug, uint256 _price, string _ipfsHash) external"
 ];
 
 const NEXT_PUBLIC_FEE_BPS = process.env.NEXT_PUBLIC_FEE_BPS
@@ -57,6 +51,19 @@ function ThemeToggle({ isDark, toggle }: { isDark: boolean, toggle: () => void }
 
 const BLURB = `LinkLockr is an authenticated vending protocol that allows creators to sell access to encrypted content via blockchain.`;
 const INFO_TEXT = `LinkLockr encrypts your text, stores it on IPFS, then unencrypts and delivers it upon payment. No traditional financial intermediaries, just you and your audience.`;
+
+async function fetchEthPriceUsd() {
+  try {
+    const res = await fetch(
+      "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd"
+    );
+    if (!res.ok) throw new Error("Bad response");
+    const data = await res.json();
+    return data.ethereum.usd;
+  } catch (err) {
+    return 3500; // conservative fallback
+  }
+}
 
 export default function App() {
   // Default to Dark Mode (The "Tactical/Aero" look)
@@ -262,19 +269,28 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
       // 5. MINT ON CHAIN
       setStatusMsg("5/5 Confirming on Base...");
       const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-      const priceWei = ethers.parseUnits(price, 6); // USDC 6 decimals
+
+      // Seller enters USD-denominated price. Convert to ETH using a live oracle
+      const ethUsd = await fetchEthPriceUsd();
+      const priceUsd = parseFloat(price);
+      const priceEth = priceUsd / ethUsd; // decimal ETH amount
+
+      // Ensure the ETH string has at most 18 decimals to satisfy ethers' fixed-point requirements
+      const priceEthFixed = priceEth.toFixed(18); // pads or truncates to 18 decimal places
+      const priceWei = ethers.parseEther(priceEthFixed);
 
       const tx = await contract.createLink(slug, priceWei, ipfsHash);
       await tx.wait();
 
-      // 6. INDEX FOR DISCOVERY (Supabase)
+      // 6. INDEX FOR DISCOVERY (Supabase) — store both USD and ETH representations
       await supabase.from('links').insert({
-          slug: slug,
-          id_hash: slugHash,
-          creator: user?.wallet?.address,
-          price_usdc: price,
-          ipfs_hash: ipfsHash,
-          active: true // Default true until reports come in
+        slug: slug,
+        id_hash: slugHash,
+        creator: user?.wallet?.address,
+        price_usd: priceUsd,
+        price_eth: String(priceEth),
+        ipfs_hash: ipfsHash,
+        active: true // Default true until reports come in
       });
 
       setCreatedSlug(slug);
@@ -294,23 +310,24 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
 
   // --- WITHDRAW LOGIC ---
   const handleWithdraw = async (recipient: ConnectedWallet, address: string, amount: string) => {
-    const wallet = wallets[0];
-    if (!wallet) return;
-    setIsLoading(true);
-    try {
-        const provider = await wallet.getEthereumProvider();
-        const ethersProvider = new ethers.BrowserProvider(provider);
-        const signer = await ethersProvider.getSigner();
-        const usdcContract = new ethers.Contract(USDC_ADDRESS, USDC_ABI, signer);
-        
-        const amountWei = ethers.parseUnits(amount, 6);
-        const tx = await usdcContract.transfer(recipient, amountWei);
-        await tx.wait();
-        alert(`Sent $${amount}`);
-    } catch (e: any) {
-        alert(e.message);
-    }
-    setIsLoading(false);
+  if (!recipient) return;
+  setIsLoading(true);
+  try {
+    const provider = await recipient.getEthereumProvider();
+    const ethersProvider = new ethers.BrowserProvider(provider);
+    const signer = await ethersProvider.getSigner();
+
+    // Send native ETH to the target address
+    const tx = await signer.sendTransaction({
+      to: address,
+      value: ethers.parseEther(amount),
+    });
+    await tx.wait();
+    alert(`Sent ${amount} ETH`);
+  } catch (e: any) {
+    alert(e.message || String(e));
+  }
+  setIsLoading(false);
   };
 
   // if (!ready) return null; // Blink prevention

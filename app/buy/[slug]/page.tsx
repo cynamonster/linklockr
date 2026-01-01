@@ -14,8 +14,6 @@ import { checkAndSignAuthMessage } from "@lit-protocol/lit-node-client";
 // --- CONFIG ---
 const PRIVY_APP_ID = process.env.NEXT_PUBLIC_PRIVY_APP_ID || "";
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || ""; 
-const USDC_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"; // Base Mainnet USDC
-
 // YOUR WALLET ADDRESS (Where the 5% fee goes)
 const PLATFORM_FEE_RECIPIENT = process.env.NEXT_PUBLIC_PLATFORM_FEE_RECIPIENT; 
 
@@ -25,31 +23,7 @@ const NEXT_PUBLIC_FEE_BPS = process.env.NEXT_PUBLIC_FEE_BPS
 
 const LINK_ABI = [
   "function balanceOf(address account, uint256 id) view returns (uint256)",
-  "function buyLink(string _slug, address _recipient, address _feeRecipient, uint256 _feeBps) external"
-];
-
-const USDC_ABI = [
-  {
-    "constant": true,
-    "inputs": [{"name": "_owner", "type": "address"}],
-    "name": "balanceOf",
-    "outputs": [{"name": "balance", "type": "uint256"}],
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [{"name": "_owner", "type": "address"}, {"name": "_spender", "type": "address"}],
-    "name": "allowance",
-    "outputs": [{"name": "", "type": "uint256"}],
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [{"name": "_spender", "type": "address"}, {"name": "_value", "type": "uint256"}],
-    "name": "approve",
-    "outputs": [{"name": "", "type": "bool"}],
-    "type": "function"
-  }
+  "function buyLink(string _slug, address _recipient, address _feeRecipient, uint256 _feeBps) external payable"
 ];
 
 async function fetchEthPriceUsd() {
@@ -116,44 +90,26 @@ function BuyPageContent() {
     }
   }, [wallets, selectedAddress]);
 
-  const [usdcBalance, setUsdcBalance] = useState("0.00");
-  const [isFetchingUsdcBalance, setIsFetchingUsdcBalance] = useState(false);
-  // ADD THIS EFFECT to fetch USDC balance
+  const [ethBalance, setEthBalance] = useState("0.0000");
+  const [isFetchingEthBalance, setIsFetchingEthBalance] = useState(false);
+
+  // Fetch native ETH balance for the connected wallet
   useEffect(() => {
     const fetchBalance = async () => {
-      setIsFetchingUsdcBalance(true);
+      setIsFetchingEthBalance(true);
 
       if (!wallets[0]) return;
 
       try {
           const address = wallets[0].address;
-
-          // 2. Use the "Foolproof" JSON ABI for balanceOf
-          const USDC_ABI = [
-              {
-                  "constant": true,
-                  "inputs": [{"name": "_owner", "type": "address"}],
-                  "name": "balanceOf",
-                  "outputs": [{"name": "balance", "type": "uint256"}],
-                  "type": "function"
-              }
-          ];
-
-          // 3. Force Connection to Base Mainnet (Bypasses wallet network issues)
           const provider = new ethers.JsonRpcProvider("https://mainnet.base.org");
-          
-          // 4. Create Contract
-          const usdcContract = new ethers.Contract(USDC_ADDRESS, USDC_ABI, provider);
-
-          // 5. Fetch
-          const rawBalance = await usdcContract.balanceOf(address);
-          const formatted = ethers.formatUnits(rawBalance, 6); // USDC is 6 decimals
-          
-          setUsdcBalance(formatted);
-          setIsFetchingUsdcBalance(false);
-
+          const rawBalance = await provider.getBalance(address);
+          const formatted = ethers.formatEther(rawBalance);
+          setEthBalance(formatted);
       } catch (err) {
-          console.error("Error fetching USDC:", err);
+          console.error("Error fetching ETH balance:", err);
+      } finally {
+          setIsFetchingEthBalance(false);
       }
     };
 
@@ -270,25 +226,17 @@ function BuyPageContent() {
         throw new Error(`Insufficient ETH. You need about $${estimatedUsdForGas} of ETH on Base to pay for gas fees.`);
       }
 
-      // --- CHECK 2: MONEY (USDC) ---
-      const usdcContract = new ethers.Contract(USDC_ADDRESS, USDC_ABI, signer);
-      const priceWei = ethers.parseUnits(linkData.price_usdc.toString(), 6);
-      const usdcBalance = await usdcContract.balanceOf(userAddress);
-      
-      if (usdcBalance < priceWei) {
-        throw new Error(`Insufficient funds. Price is $${linkData.price_usdc} USDC.`);
+      // --- CHECK 2: MONEY (native ETH) ---
+      // Price is stored in the index as `price_eth` (e.g. "0.01") — convert to wei
+      const priceWei = ethers.parseEther(String(linkData.price_eth));
+
+      // Ensure buyer has enough ETH to cover price + gas
+      const totalNeeded = priceWei + ethers.parseEther("0.00003");
+      if (ethBalance < totalNeeded) {
+        throw new Error(`Insufficient ETH. Please ensure you have ETH for the purchase plus gas.`);
       }
 
-      // --- STEP 3: APPROVE ---
-      setTxStatus("approving"); // UI: "Approving USDC..."
-      const allowance = await usdcContract.allowance(userAddress, CONTRACT_ADDRESS);
-      
-      if (allowance < priceWei) {
-        const txApprove = await usdcContract.approve(CONTRACT_ADDRESS, ethers.MaxUint256);
-        await txApprove.wait();
-      }
-
-      // --- STEP 4: BUY ---
+      // --- ACTION: BUY ---
       setTxStatus("buying"); // UI: "Purchasing..."
       const contract = new ethers.Contract(CONTRACT_ADDRESS, LINK_ABI, signer);
       
@@ -298,7 +246,8 @@ function BuyPageContent() {
             slug, 
             userAddress, 
             PLATFORM_FEE_RECIPIENT, 
-            NEXT_PUBLIC_FEE_BPS
+            NEXT_PUBLIC_FEE_BPS,
+            { value: priceWei }
         );
       } catch (err) {
         throw new Error("Transaction likely to fail. Is the item still available?");
@@ -308,7 +257,8 @@ function BuyPageContent() {
         slug, 
         userAddress, 
         PLATFORM_FEE_RECIPIENT, 
-        NEXT_PUBLIC_FEE_BPS 
+        NEXT_PUBLIC_FEE_BPS,
+        { value: priceWei }
       );
       await txBuy.wait();
 
@@ -334,53 +284,6 @@ function BuyPageContent() {
       setTxStatus("");
     }
   };
-
-  // Permit Signature Helper Function for handleBuy function
-  async function getUsdcPermit(signer: any, userAddress: string, spender: string, value: any) {
-    // 1. Get current time & nonce
-    const deadline = Math.floor(Date.now() / 1000) + 3600; // 1 hour deadline
-    const usdcContract = new ethers.Contract(USDC_ADDRESS, ["function nonces(address) view returns (uint256)"], signer);
-    const nonce = await usdcContract.nonces(userAddress);
-  
-    // 2. Define the EIP-712 Domain
-    const domain = {
-      name: "USD Coin",
-      version: "2",
-      chainId: 8453, // Base Mainnet
-      verifyingContract: USDC_ADDRESS
-    };
-  
-    // 3. Define the Type Structure (Must match USDC contract exactly)
-    const types = {
-      Permit: [
-        { name: "owner", type: "address" },
-        { name: "spender", type: "address" },
-        { name: "value", type: "uint256" },
-        { name: "nonce", type: "uint256" },
-        { name: "deadline", type: "uint256" }
-      ]
-    };
-  
-    // 4. Define the Values
-    const values = {
-      owner: userAddress,
-      spender: spender,
-      value: value,
-      nonce: nonce,
-      deadline: deadline
-    };
-  
-    // 5. Sign it (Metamask/Privy pops up with a readable message, NO GAS)
-    const signature = await signer.signTypedData(domain, types, values);
-    const sig = ethers.Signature.from(signature);
-  
-    return {
-      r: sig.r,
-      s: sig.s,
-      v: sig.v,
-      deadline
-    };
-  }
 
   // D. DECRYPT FLOW (Fixed: Strict SIWE Formatting)
   const handleDecrypt = async () => {
@@ -565,15 +468,15 @@ Expiration Time: ${expirationTime}`;
                   <span>&nbsp;</span>
                   <span className={`text-3xl font-bold text-white`}>
                     {
-                      isFetchingUsdcBalance ? (
+                      isFetchingEthBalance ? (
                         <Loader2 className="inline-block animate-spin text-cyan-400" />
                       ) : (
-                        `$${Number(usdcBalance).toFixed(2)}`
+                        `${Number(ethBalance).toFixed(4)} ETH ($${(Number(ethBalance) * ETH_PRICE).toFixed(2)})`
                       )
                     }
                   </span>
                   <span>&nbsp;</span>
-                  <span className="text-sm font-bold text-slate-500 mb-1">USDC</span>
+                  <span className="text-sm font-bold text-slate-500 mb-1">ETH</span>
               </div>
           </div>
 
@@ -583,10 +486,11 @@ Expiration Time: ${expirationTime}`;
                 {/* LOCKED STATE */}
                 {!isOwner && (
                     <div className="bg-black/30 rounded-2xl p-6 border border-white/5 text-center space-y-4">
-                        <div className="text-4xl font-bold text-white tracking-tight">
-                            ${linkData.price_usdc}
-                            <span className="text-lg text-slate-500 font-medium ml-1">USDC</span>
-                        </div>
+            <div className="text-4xl font-bold text-white tracking-tight">
+              {`$${Number(linkData.price_usd).toFixed(2)}`}
+              <span className="text-lg text-slate-500 font-medium ml-1">USD</span>
+              <div className="text-sm text-slate-500 mt-1">(~{Number(linkData.price_eth).toFixed(6)} ETH)</div>
+            </div>
                         <p className="text-sm text-slate-400">Unlock this content permanently on the blockchain.</p>
                         
                         {!authenticated ? (
@@ -621,7 +525,6 @@ Expiration Time: ${expirationTime}`;
                                     disabled={txStatus !== ""}
                                     className="w-full py-4 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-bold shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:scale-[1.02] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    {txStatus === "approving" && <><Loader2 className="animate-spin" /> Approving USDC...</>}
                                     {txStatus === "buying" && <><Loader2 className="animate-spin" /> Confirming Purchase...</>}
                                     {txStatus === "" && <><Unlock size={20} /> Purchase & Unlock</>}
                                 </button>
