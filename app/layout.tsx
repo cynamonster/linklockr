@@ -14,15 +14,18 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "LinkLockr | Sell Your Links",
-  description: "The simplest way to sell digital content, powered by Web3.",
+  description: "Sell access to encrypted content, powered by Web3.",
   openGraph: {
-    title: "LinkLockr",
-    description: "Sell files with crypto. No signups.",
+    title: "LinkLockr | Sell Your Links",
+    description: "Sell access to encrypted content, powered by Web3.",
     url: "https://linklockr.xyz",
     siteName: "LinkLockr",
     locale: "en_US",
     type: "website",
-  }
+  },
+  icons: {
+    icon: '/favicon.svg', // Assumes file is in /public/favicon.svg
+  },
 };
 
 export default function RootLayout({

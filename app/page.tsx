@@ -466,7 +466,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                 ? "bg-slate-900/50 border-cyan-500/30 shadow-[0_0_10px_rgba(34,211,238,0.15)]" 
                 : "bg-gradient-to-tr from-sky-400 to-blue-600 border-transparent shadow-lg shadow-blue-500/20"}
            `}>
-               <Lock className={`w-5 h-5 ${isDark ? "text-cyan-400" : "text-white"}`} />
+               <FolderLock className={`w-5 h-5 ${isDark ? "text-cyan-400" : "text-white"}`} />
            </div>
            <span className={`font-bold text-xl tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>LinkLockr</span>
         </div>
@@ -554,7 +554,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
 
                     <div className={`mt-3 text-sm leading-relaxed ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                       <p className={`mb-4 ${isDark ? "text-slate-200/80" : "text-slate-600"}`}>
-                      Sell access to your content, decentralized. LinkLockr encrypts your text content, stores it on IPFS, and gives it to your buyer after they pay for it.
+                      Sell access to your content, decentralized. LinkLockr encrypts your text content, stores it on IPFS, and gives it to your buyers after they pay for it.
                       </p>
 
                       <ol className="space-y-3 ml-3">
@@ -594,7 +594,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                         </div>
                         <div>
                         <div className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>Share your locked link</div>
-                        <div className="text-[13px] opacity-80">Payments are immediately sent to your connected wallet on the Base chain. Platform/network fees (~2.5%) apply.</div>
+                        <div className="text-[13px] opacity-80">Payments are instantly sent to your connected wallet on the Base chain. Platform/network fees (~2.5%) apply.</div>
                         </div>
                       </li>
                       </ol>
