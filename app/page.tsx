@@ -51,19 +51,6 @@ function ThemeToggle({ isDark, toggle }: { isDark: boolean, toggle: () => void }
 }
 
 const BLURB = `LinkLockr is an authenticated vending protocol that allows creators to sell access to encrypted content via blockchain.`;
-const INFO_TEXT = `
-Create a paid, encrypted link that buyers can use to buy access to your content.
-
-How it works:
-
-1. Enter the text you want to sell (e.g., a URL to your premium content).
-
-2. Set the price you want to charge for access.
-
-3. Create a custom link or use an auto-generated one.
-
-4. When a buyer purchases the link, they pay in Ethereum on the Base blockchain. The payment goes directly to your connected wallet, minus ~2.5% in network and platform fees.
-`;
 
 export default function App() {
   // Default to Dark Mode (The "Tactical/Aero" look)
@@ -554,7 +541,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                   >
                     <div className="flex justify-between items-start gap-4">
                       <h3 id="info-modal-title" className="text-lg font-bold">
-                        About this link
+                        How to use LinkLockr
                       </h3>
                       <button
                           onClick={() => setIsInfoOpen(false)}
@@ -565,8 +552,56 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                       </button>
                     </div>
 
-                    <div className="mt-3 text-sm leading-relaxed whitespace-pre-wrap">
-                      {INFO_TEXT}
+                    <div className={`mt-3 text-sm leading-relaxed ${isDark ? "text-slate-300" : "text-slate-700"}`}>
+                      <p className={`mb-4 ${isDark ? "text-slate-200/80" : "text-slate-600"}`}>
+                      Sell access to your content, decentralized. LinkLockr encrypts your text content, stores it on IPFS, and gives it to your buyer after they pay for it.
+                      </p>
+
+                      <ol className="space-y-3 ml-3">
+                      <li className="flex items-start gap-3">
+                        <div className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center font-semibold text-xs ${isDark ? "bg-cyan-600 text-black" : "bg-sky-100 text-sky-700"}`}>
+                        1
+                        </div>
+                        <div>
+                        <div className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>Lock your text</div>
+                        <div className="text-[13px] opacity-80">Enter the URL or text you want to sell.</div>
+                        </div>
+                      </li>
+
+                      <li className="flex items-start gap-3">
+                        <div className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center font-semibold text-xs ${isDark ? "bg-cyan-600 text-black" : "bg-sky-100 text-sky-700"}`}>
+                        2
+                        </div>
+                        <div>
+                        <div className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>Set your price</div>
+                        <div className="text-[13px] opacity-80">Displayed in US Dollars, paid in Ethereum on the Base chain.</div>
+                        </div>
+                      </li>
+
+                      <li className="flex items-start gap-3">
+                        <div className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center font-semibold text-xs ${isDark ? "bg-cyan-600 text-black" : "bg-sky-100 text-sky-700"}`}>
+                        3
+                        </div>
+                        <div>
+                        <div className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>Create your link</div>
+                        <div className="text-[13px] opacity-80">Enter a custom purchase link or use an auto-generated one.</div>
+                        </div>
+                      </li>
+
+                      <li className="flex items-start gap-3">
+                        <div className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center font-semibold text-xs ${isDark ? "bg-cyan-600 text-black" : "bg-sky-100 text-sky-700"}`}>
+                        4
+                        </div>
+                        <div>
+                        <div className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>Share your locked link</div>
+                        <div className="text-[13px] opacity-80">Payments are immediately sent to your connected wallet on the Base chain. Platform/network fees (~2.5%) apply.</div>
+                        </div>
+                      </li>
+                      </ol>
+
+                      {/* <div className={`mt-4 p-3 rounded-lg border text-[13px] ${isDark ? "bg-black/30 border-slate-800 text-cyan-200" : "bg-white/50 border-slate-100 text-slate-700"}`}>
+                      Tip: After creation, the encrypted payload is pinned to IPFS and your locked link is indexed for discovery. You can create another link anytime.
+                      </div> */}
                     </div>
                   </div>
                 </div>
@@ -579,7 +614,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2">
                 {/* 1. URL INPUT */}
                 <div className="space-y-3">
-                    <label className={`text-xs font-bold uppercase tracking-wider ml-1 ${isDark ? "text-slate-500" : "text-slate-400"}`}>Content</label>
+                    <label className={`text-xs font-bold uppercase tracking-wider ml-1 ${isDark ? "text-slate-500" : "text-slate-400"}`}>Text to Encrypt</label>
                     <div className="relative">
                         <Shield className={`absolute left-4 top-4 w-5 h-5 ${isDark ? "text-slate-600" : "text-slate-300"}`} />
                         <input 
@@ -599,7 +634,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
 
                 {/* 2. PRICE INPUT */}
                 <div className="space-y-3">
-                    <label className={`text-xs font-bold uppercase tracking-wider ml-1 ${isDark ? "text-slate-500" : "text-slate-400"}`}>Price</label>
+                    <label className={`text-xs font-bold uppercase tracking-wider ml-1 ${isDark ? "text-slate-500" : "text-slate-400"}`}>Price to Unencrypt</label>
                     <div className="relative">
                         <span className={`absolute left-4 top-4 font-bold ${isDark ? "text-slate-600" : "text-slate-400"}`}>$</span>
                         <input 
@@ -620,7 +655,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                 {/* 3. SLUG INPUT */}
                 <div className="space-y-3">
                     <div className="flex justify-between items-center ml-1">
-                        <label className={`text-xs font-bold uppercase tracking-wider ${isDark ? "text-slate-500" : "text-slate-400"}`}>Link</label>
+                        <label className={`text-xs font-bold uppercase tracking-wider ${isDark ? "text-slate-500" : "text-slate-400"}`}>Link to Payment Page</label>
                         {/* <span className={`text-[10px] ${isDark ? "text-slate-600" : "text-slate-400"}`}>Immutable ID</span> */}
                     </div>
                     <div className="flex gap-2">
