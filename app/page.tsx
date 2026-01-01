@@ -32,6 +32,11 @@ const USDC_ABI = [
   "function transfer(address to, uint256 amount) returns (bool)"
 ];
 
+const NEXT_PUBLIC_FEE_BPS = process.env.NEXT_PUBLIC_FEE_BPS
+        ? parseInt(process.env.NEXT_PUBLIC_FEE_BPS)
+        : 500; // Default to 500 bps (5%);
+const perecentFeeBps = NEXT_PUBLIC_FEE_BPS / 100;
+
 // --- THEME TOGGLE (Aero Style) ---
 function ThemeToggle({ isDark, toggle }: { isDark: boolean, toggle: () => void }) {
   return (
@@ -501,7 +506,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                     </div>
                     <div>
                     <div className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>Share your locked link</div>
-                    <div className="text-[13px] opacity-80">Payments are instantly sent to your connected wallet on the Base chain. Platform/network fees (~2.5%) apply.</div>
+                    <div className="text-[13px] opacity-80">Payments are instantly sent to your connected wallet on the Base chain. Platform/network fees (~{perecentFeeBps}%) apply.</div>
                     </div>
                   </li>
                   </ol>
@@ -894,7 +899,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                   </div>
                   <div>
                   <div className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>Share your locked link</div>
-                  <div className="text-[13px] opacity-80">Payments are instantly sent to your connected wallet on the Base chain. Platform/network fees (~2.5%) apply.</div>
+                  <div className="text-[13px] opacity-80">Payments are instantly sent to your connected wallet on the Base chain. Platform/network fees (~{perecentFeeBps}%) apply.</div>
                   </div>
                 </li>
                 </ol>
