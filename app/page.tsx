@@ -288,10 +288,8 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
         id_hash: slugHash,
         creator: user?.wallet?.address,
         price_usd: priceUsd,
-        // NOTE: some DB schemas use `price_usdc` (not-null). If your DB requires cents or an integer,
-        // convert accordingly (e.g. Math.round(priceUsd * 100)). For now we set the same USD value.
-        price_usdc: priceUsd,
-        price_eth: String(priceEth),
+        price_eth: priceEthFixed,
+        price_wei: priceWei.toString(),
         ipfs_hash: ipfsHash,
         active: true // Default true until reports come in
       });

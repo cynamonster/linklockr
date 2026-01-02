@@ -37,6 +37,7 @@ async function fetchEthPriceUsd() {
       return data.ethereum.usd;
   } catch (err) {
       // Fallback to conservative default eth price
+      console.warn("Could not fetch real-time ETH price, using fallback.");
       return 3500;
   }
 }
@@ -240,7 +241,29 @@ function BuyPageContent() {
 
       // --- CHECK 2: MONEY (native ETH) ---
       // Price is stored in the index as `price_eth` (e.g. "0.01") — convert to wei
-      const priceWei = ethers.parseEther(String(linkData.price_eth));
+      // Safe parse: ensure we don't pass a string with >18 decimals to ethers.parseUnits
+      const safeParseEther = (value: string | number) => {
+        let s = typeof value === 'number' ? String(value) : (value || '0');
+
+        // Handle scientific notation by expanding to fixed decimals
+        if (s.includes('e') || s.includes('E')) {
+          // Use a reasonably high fixed precision then trim
+          s = Number(s).toFixed(20);
+        }
+
+        // Normalize and truncate fractional part to <= 18 decimals
+        if (s.includes('.')) {
+          const [intPart, fracPart] = s.split('.');
+          const frac = (fracPart || '').replace(/[^0-9]/g, '');
+          const truncated = frac.slice(0, 18);
+          s = truncated.length > 0 ? `${intPart}.${truncated}` : intPart;
+        }
+
+        return ethers.parseUnits(s, 18);
+      };
+
+      // const priceWei = safeParseEther(linkData.price_eth);
+      const priceWei = BigInt(linkData.price_wei);
 
       // Ensure buyer has enough ETH to cover price + gas
       const totalNeeded = priceWei + ethers.parseEther("0.00003");
@@ -254,7 +277,7 @@ function BuyPageContent() {
       
       // Manual gas estimate to catch "Item Paused" or other contract errors cleanly
       try {
-        await contract.buyLink.estimateGas(
+        await contract["buyLink(string,address,address,uint256)"].estimateGas(
             slug, 
             userAddress, 
             PLATFORM_FEE_RECIPIENT, 
@@ -262,6 +285,7 @@ function BuyPageContent() {
             { value: priceWei }
         );
       } catch (err) {
+        console.error("Gas estimation failed", err);
         throw new Error("Transaction likely to fail. Is the item still available?");
       }
 
@@ -471,8 +495,6 @@ Expiration Time: ${expirationTime}`;
                 authenticated && activeWallet && (
                   <div className="flex items-center inline-flex flex-col justify-center mt-4">
                       <span>Your wallet balance: </span>
-                      {/* <span>&nbsp;</span> */}
-                      {/* <span>&nbsp;</span> */}
                         {
                           isFetchingEthBalance ? (
                             <Loader2 className="inline-block animate-spin text-cyan-400" />
