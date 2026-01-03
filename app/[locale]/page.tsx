@@ -563,9 +563,9 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                 `}>
                     <CheckCircle2 className="w-8 h-8" />
                 </div>
-                <h2 className={`text-2xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Link Initialized!</h2>
+                <h2 className={`text-2xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>{t('linkCreated')}</h2>
                 <p className={`${isDark ? "text-slate-400" : "text-slate-500"}`}>
-                    Your content is encrypted on IPFS and the slug is registered on Base.
+                    {t('linkCreated_desc')}
                 </p>
                 
                 <div className={`p-4 rounded-2xl border flex items-center justify-between gap-2 ${isDark ? "bg-black/30 border-slate-700" : "bg-slate-50 border-slate-200"}`}>
@@ -579,7 +579,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                   setCreatedSlug(null);
                   generateNewSlug();
                  }} className={`w-full py-3 cursor-pointer font-medium ${isDark ? "text-slate-400 hover:text-white" : "text-slate-500 hover:text-slate-900"}`}>
-                    Create Another
+                    {t('createAnother')}
                 </button>
             </div>
         </div>
@@ -604,7 +604,9 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
         </div>
         <div className="flex gap-4 items-center">
             <ThemeToggle isDark={isDark} toggle={toggleTheme} />
-            <button onClick={logout} className={`cursor-pointer text-sm font-medium hover:text-opacity-100 ${isDark ? "text-slate-500 hover:text-white" : "text-slate-400 hover:text-slate-600"}`}>Logout</button>
+            <button onClick={logout} className={`cursor-pointer text-sm font-medium hover:text-opacity-100 ${isDark ? "text-slate-500 hover:text-white" : "text-slate-400 hover:text-slate-600"}`}>
+              {t('logout')}
+            </button>
         </div>
       </div>
 
@@ -654,7 +656,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2">
                 {/* 1. URL INPUT */}
                 <div className="space-y-3">
-                    <label className={`text-xs font-bold uppercase tracking-wider ml-1 ${isDark ? "text-slate-500" : "text-slate-400"}`}>Text to Encrypt</label>
+                    <label className={`text-xs font-bold uppercase tracking-wider ml-1 ${isDark ? "text-slate-500" : "text-slate-400"}`}>{t('textToEncrypt')}</label>
                     <div className="relative">
                         <Shield className={`absolute left-4 top-4 w-5 h-5 ${isDark ? "text-slate-600" : "text-slate-300"}`} />
                         <input 
@@ -674,7 +676,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
 
                 {/* 2. PRICE INPUT */}
                 <div className="space-y-3">
-                    <label className={`text-xs font-bold uppercase tracking-wider ml-1 ${isDark ? "text-slate-500" : "text-slate-400"}`}>Price to Unencrypt</label>
+                    <label className={`text-xs font-bold uppercase tracking-wider ml-1 ${isDark ? "text-slate-500" : "text-slate-400"}`}>${t('priceToUnencrypt')}</label>
                     <div className="relative">
                         <span className={`absolute left-4 top-4 font-bold ${isDark ? "text-slate-600" : "text-slate-400"}`}>$</span>
                         <input 
@@ -695,8 +697,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                 {/* 3. SLUG INPUT */}
                 <div className="space-y-3">
                     <div className="flex justify-between items-center ml-1">
-                        <label className={`text-xs font-bold uppercase tracking-wider ${isDark ? "text-slate-500" : "text-slate-400"}`}>Link to Payment Page</label>
-                        {/* <span className={`text-[10px] ${isDark ? "text-slate-600" : "text-slate-400"}`}>Immutable ID</span> */}
+                        <label className={`text-xs font-bold uppercase tracking-wider ${isDark ? "text-slate-500" : "text-slate-400"}`}>{t('linkToPaymentPage')}</label>
                     </div>
                     <div className="flex gap-2">
                         <div className="relative flex-1 group">

@@ -17,6 +17,16 @@
         "step3_desc": "Enter a custom purchase link or use an auto-generated one.",
         "step4": "Share your locked link",
         "TODO": "TODO: link fee percentage should be from .env.local",
-        "step4_desc": "Payments are instantly sent to your connected wallet on the Base chain. Platform/network fees (~{percent}%) apply."
+        "step4_desc": "Payments are instantly sent to your connected wallet on the Base chain. Platform/network fees (~{percent}%) apply.",
+
+        "linkCreated": "Link Created!",
+        "linkCreated_desc": "Your content is encrypted on IPFS and the slug is registered on Base.",
+        "linkCreated_desc_unused": "Your paid link is ready. Share it with your audience to start earning!",
+        "createAnother": "Create Another",
+
+        "textToEncrypt": "Text to Encrypt",
+        "priceToUnencrypt": "Price to Unencrypt",
+        "linkToPaymentPage": "Link to Payment Page"
+
     }
 }
