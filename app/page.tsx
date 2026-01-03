@@ -28,7 +28,7 @@ const CONTRACT_ABI = [
 
 const NEXT_PUBLIC_FEE_BPS = process.env.NEXT_PUBLIC_FEE_BPS
         ? parseInt(process.env.NEXT_PUBLIC_FEE_BPS)
-        : 500; // Default to 500 bps (5%);
+        : 250; // Default to 250 bps (2.5%);
 const perecentFeeBps = NEXT_PUBLIC_FEE_BPS / 100;
 
 // --- THEME TOGGLE (Aero Style) ---
