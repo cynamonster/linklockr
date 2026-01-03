@@ -37,6 +37,8 @@
         "report_error": "There was an error submitting your report. Please try again later.",
         "report_button": "Report Link",
         "connect_to_report": "You need to connect your wallet to report this link.",
-        "report_reason_prompt": "Please provide a reason for reporting this link (at least 5 characters)."
+        "report_reason_prompt": "Please provide a reason for reporting this link (at least 5 characters).",
+        "already_reported": "You have already reported this link.",
+        "report_reason_too_short": "The reason for reporting is too short. Please provide at least 5 characters."
     }
 }

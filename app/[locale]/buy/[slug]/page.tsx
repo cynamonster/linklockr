@@ -436,6 +436,9 @@ Expiration Time: ${expirationTime}`;
     </div>
   );
 
+  const isFlagged = linkData.status === 'flagged';
+  const isBanned = linkData.status === 'banned';
+
   return (
     <div className="min-h-screen bg-[#0B0C15] text-slate-200 font-sans selection:bg-cyan-500/30 flex items-center justify-center p-4 relative overflow-hidden">
       
@@ -517,9 +520,20 @@ Expiration Time: ${expirationTime}`;
 
             {/* ACTION AREA */}
             <div className="space-y-6">
+
+                {/* BANNED (Nobody sees it) */}
+                {linkData.status === 'banned' && (
+                  <div className="bg-red-500/10 rounded-2xl p-6 border border-red-500/30 text-center space-y-4">
+                    <AlertCircle className="w-10 h-10 text-red-500 mx-auto" />
+                    <h2 className="text-white font-bold text-xl">Content Removed</h2>
+                    <p className="text-red-200">
+                      This content has been removed due to multiple reports and is no longer available.
+                    </p>
+                  </div>
+                )}
                 
                 {/* LOCKED STATE */}
-                {!isOwner && (
+                {linkData.status !== 'banned' && !isOwner && (
                     <div className="bg-black/30 rounded-2xl p-6 border border-white/5 text-center space-y-4">
                       <div className="text-4xl font-bold text-white tracking-tight">
                         {`$${Number(linkData.price_usd).toFixed(2)}`}
@@ -577,7 +591,7 @@ Expiration Time: ${expirationTime}`;
                 )}
 
                 {/* UNLOCKED STATE */}
-                {isOwner && !decryptedContent && (
+                {linkData.status !== 'banned' && isOwner && !decryptedContent && (
                     <div className="text-center space-y-4">
                         {/* THE "WHY" BADGE */}
                         {isCreator ? (
@@ -604,7 +618,7 @@ Expiration Time: ${expirationTime}`;
                 )}
 
                 {/* REVEALED CONTENT */}
-                {decryptedContent && (
+                {linkData.status !== 'banned' && decryptedContent && (
                     <div className="animate-in zoom-in-95 duration-300">
                         <div className="bg-cyan-950/30 border border-cyan-500/30 rounded-2xl p-6 relative group">
                             <h3 className="text-cyan-500 text-xs font-bold uppercase mb-2">Decrypted Payload</h3>
@@ -645,26 +659,28 @@ Expiration Time: ${expirationTime}`;
             {/* FOOTER */}
             <div className="flex flex-col items-center gap-6">
               {/* The Trust Footer */}
-              <div className="flex flex-col items-center gap-2 border-t border-slate-800 pt-6 w-full max-w-sm">
-                <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">
-                  {/* {t('safety_first')} */}
-                  safety first
-                </p>
-                
-                {/* {isFlagged 
-                ? (
-                  <div className="bg-red-900/20 border border-red-500/50 p-4 rounded-lg mb-6 flex justify-between items-start">
-                    <div>
-                      <h4 className="text-red-400 font-bold text-sm">{t('under_review')}</h4>
-                      <p className="text-xs text-red-300/80">{t('buyer_warning')}</p>
+              {linkData.status !== 'banned' && (
+                <div className="flex flex-col items-center gap-2 border-t border-slate-800 pt-6 w-full max-w-sm">
+                  <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">
+                    {/* {t('safety_first')} */}
+                    safety first
+                  </p>
+                  
+                  {/* {isFlagged 
+                  ? (
+                    <div className="bg-red-900/20 border border-red-500/50 p-4 rounded-lg mb-6 flex justify-between items-start">
+                      <div>
+                        <h4 className="text-red-400 font-bold text-sm">{t('under_review')}</h4>
+                        <p className="text-xs text-red-300/80">{t('buyer_warning')}</p>
+                      </div>
+                      <ReportButton slug={slug} userHasAccess={userHasAccess} />
                     </div>
-                    <ReportButton slug={slug} userHasAccess={userHasAccess} />
-                  </div>
-                )
-                : ( */}
-                  <ReportButton slug={slug?.toString() || ""} userHasAccess={authenticated} />
-                {/* )} */}
-              </div>
+                  )
+                  : ( */}
+                    <ReportButton slug={slug?.toString() || ""} userHasAccess={authenticated} />
+                  {/* )} */}
+                </div>
+              )}
             </div>
             <div className="mt-2 text-center border-t border-white/5 pt-6">
                 <p className="text-xs text-slate-500">
