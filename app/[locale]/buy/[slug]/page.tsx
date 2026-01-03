@@ -11,6 +11,7 @@ import { supabase } from "../../../../utils/supabase";
 import { lit } from "../../../../utils/lit";
 import { checkAndSignAuthMessage } from "@lit-protocol/lit-node-client";
 import { LogOut } from "lucide-react";
+import { ReportButton } from "@/app/components/ReportButton";
 
 // --- CONFIG ---
 const PRIVY_APP_ID = process.env.NEXT_PUBLIC_PRIVY_APP_ID || "";
@@ -642,6 +643,29 @@ Expiration Time: ${expirationTime}`;
               )}
             
             {/* FOOTER */}
+            <div className="flex flex-col items-center gap-6">
+              {/* The Trust Footer */}
+              <div className="flex flex-col items-center gap-2 border-t border-slate-800 pt-6 w-full max-w-sm">
+                <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">
+                  {/* {t('safety_first')} */}
+                  safety first
+                </p>
+                
+                {/* {isFlagged 
+                ? (
+                  <div className="bg-red-900/20 border border-red-500/50 p-4 rounded-lg mb-6 flex justify-between items-start">
+                    <div>
+                      <h4 className="text-red-400 font-bold text-sm">{t('under_review')}</h4>
+                      <p className="text-xs text-red-300/80">{t('buyer_warning')}</p>
+                    </div>
+                    <ReportButton slug={slug} userHasAccess={userHasAccess} />
+                  </div>
+                )
+                : ( */}
+                  <ReportButton slug={slug?.toString() || ""} userHasAccess={authenticated} />
+                {/* )} */}
+              </div>
+            </div>
             <div className="mt-2 text-center border-t border-white/5 pt-6">
                 <p className="text-xs text-slate-500">
                     Secured by <a href="https://linklockr.xyz" target="_blank" className="text-cyan-400 hover:text-cyan-300">LinkLockr</a>.

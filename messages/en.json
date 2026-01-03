@@ -28,5 +28,15 @@
         "priceToUnencrypt": "Price to Unencrypt",
         "linkToPaymentPage": "Link to Payment Page"
 
+    },
+    "Moderation": {
+        "report_link": "Report this link",
+        "report_reason_placeholder": "Reason for reporting",
+        "report_submit": "Submit Report",
+        "report_success": "Thank you for your report. Our team will review it shortly.",
+        "report_error": "There was an error submitting your report. Please try again later.",
+        "report_button": "Report Link",
+        "connect_to_report": "You need to connect your wallet to report this link.",
+        "report_reason_prompt": "Please provide a reason for reporting this link (at least 5 characters)."
     }
 }
