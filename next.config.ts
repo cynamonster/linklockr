@@ -1,4 +1,8 @@
 import type { NextConfig } from "next";
+import createNextIntlPlugin from 'next-intl/plugin';
+
+const withNextIntl = createNextIntlPlugin('./i18n.ts');
+console.log('withNextIntl plugin loaded', withNextIntl);
 
 const nextConfig: NextConfig = {
   // 1. Keep the Webpack fix for compatibility
@@ -11,4 +15,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);

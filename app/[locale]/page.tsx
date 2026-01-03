@@ -11,12 +11,13 @@ import {
 import { PrivyProvider, usePrivy, useLoginWithEmail, useWallets, ConnectedWallet } from "@privy-io/react-auth";
 import { ethers } from "ethers";
 import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-generator';
+import {useTranslations} from 'next-intl';
 
 // --- IMPORTS ---
 // Ensure these utility files exist in your project structure
-import { lit } from "../utils/lit";
-import { uploadToIPFS } from "../utils/ipfs";
-import { supabase } from "../utils/supabase";
+import { lit } from "../../utils/lit";
+import { uploadToIPFS } from "../../utils/ipfs";
+import { supabase } from "../../utils/supabase";
 
 // --- CONFIGURATION ---
 const PRIVY_APP_ID = process.env.NEXT_PUBLIC_PRIVY_APP_ID || ""; 
@@ -29,7 +30,7 @@ const CONTRACT_ABI = [
 const NEXT_PUBLIC_FEE_BPS = process.env.NEXT_PUBLIC_FEE_BPS
         ? parseInt(process.env.NEXT_PUBLIC_FEE_BPS)
         : 250; // Default to 250 bps (2.5%);
-const perecentFeeBps = NEXT_PUBLIC_FEE_BPS / 100;
+const percentFeeBps = NEXT_PUBLIC_FEE_BPS / 100;
 
 // --- THEME TOGGLE (Aero Style) ---
 function ThemeToggle({ isDark, toggle }: { isDark: boolean, toggle: () => void }) {
@@ -50,7 +51,7 @@ function ThemeToggle({ isDark, toggle }: { isDark: boolean, toggle: () => void }
 }
 
 const BLURB = `LinkLockr is an authenticated vending protocol that allows creators to sell access to encrypted content via blockchain.`;
-const INFO_TEXT = `LinkLockr encrypts your text, stores it on IPFS, then unencrypts and delivers it upon payment. No traditional financial intermediaries, just you and your audience.`;
+// const INFO_TEXT = `LinkLockr encrypts your text, stores it on IPFS, then unencrypts and delivers it upon payment. No traditional financial intermediaries, just you and your audience.`;
 
 async function fetchEthPriceUsd() {
   try {
@@ -122,6 +123,9 @@ export default function App() {
 }
 
 function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () => void }) {
+  const t = useTranslations('Index');
+  console.log("Translations:", t);
+
   const { authenticated, user, logout, login, ready } = usePrivy();
   const { loginWithCode, sendCode } = useLoginWithEmail();
   const { wallets } = useWallets();
@@ -374,7 +378,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                         LinkLockr.
                     </h1>
                     <p className={`text-sm font-medium ${isDark ? "text-cyan-200/50" : "text-slate-500"}`}>
-                        Sell access to your digital content
+                        {t('description')}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -428,7 +432,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                             `}
                         >
                             <Zap size={18} fill="currentColor" className="text-white/80 group-hover:text-white" />
-                            Connect Wallet
+                            {t('connectWallet')}
                         </button>
                    </div>
                ) : (
@@ -477,7 +481,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
               >
                 <div className="flex justify-between items-start gap-4">
                   <h3 id="info-modal-title" className="text-lg font-bold">
-                    How to use LinkLockr
+                    {t('modalTitle')}
                   </h3>
                   <button
                       onClick={() => setIsInfoOpen(false)}
@@ -490,7 +494,8 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
 
                 <div className={`mt-3 text-sm leading-relaxed ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                   <p className={`mb-4 ${isDark ? "text-slate-200/80" : "text-slate-600"}`}>
-                   {INFO_TEXT}
+                   {/* {INFO_TEXT} */}
+                   {t('modalDescription')}
                   </p>
 
                   <ol className="space-y-3 ml-3">
@@ -499,8 +504,8 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                     1
                     </div>
                     <div>
-                    <div className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>Lock your text</div>
-                    <div className="text-[13px] opacity-80">Enter the URL or text you want to sell.</div>
+                    <div className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>{t('step1')}</div>
+                    <div className="text-[13px] opacity-80">{t('step1_desc')}</div>
                     </div>
                   </li>
 
@@ -509,8 +514,8 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                     2
                     </div>
                     <div>
-                    <div className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>Set your price</div>
-                    <div className="text-[13px] opacity-80">Displayed in US Dollars, paid in Ethereum on the Base chain.</div>
+                    <div className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>{t('step2')}</div>
+                    <div className="text-[13px] opacity-80">{t('step2_desc')}</div>
                     </div>
                   </li>
 
@@ -519,8 +524,8 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                     3
                     </div>
                     <div>
-                    <div className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>Create your link</div>
-                    <div className="text-[13px] opacity-80">Enter a custom purchase link or use an auto-generated one.</div>
+                    <div className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>{t('step3')}</div>
+                    <div className="text-[13px] opacity-80">{t('step3_desc')}</div>
                     </div>
                   </li>
 
@@ -529,8 +534,8 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                     4
                     </div>
                     <div>
-                    <div className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>Share your locked link</div>
-                    <div className="text-[13px] opacity-80">Payments are instantly sent to your connected wallet on the Base chain. Platform/network fees (~{perecentFeeBps}%) apply.</div>
+                    <div className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>{t('step4')}</div>
+                    <div className="text-[13px] opacity-80">{t('step4_desc', { percent: percentFeeBps })}</div>
                     </div>
                   </li>
                   </ol>
@@ -883,7 +888,8 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
 
               <div className={`mt-3 text-sm leading-relaxed ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                 <p className={`mb-4 ${isDark ? "text-slate-200/80" : "text-slate-600"}`}>
-                  {INFO_TEXT}
+                  {/* {INFO_TEXT} */}
+                  {t('modalDescription')}
                 </p>
 
                 <ol className="space-y-3 ml-3">
@@ -923,7 +929,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                   </div>
                   <div>
                   <div className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>Share your locked link</div>
-                  <div className="text-[13px] opacity-80">Payments are instantly sent to your connected wallet on the Base chain. Platform/network fees (~{perecentFeeBps}%) apply.</div>
+                  <div className="text-[13px] opacity-80">Payments are instantly sent to your connected wallet on the Base chain. Platform/network fees (~{percentFeeBps}%) apply.</div>
                   </div>
                 </li>
                 </ol>

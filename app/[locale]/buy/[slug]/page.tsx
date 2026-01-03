@@ -7,8 +7,8 @@ import { PrivyProvider, usePrivy, useWallets } from "@privy-io/react-auth";
 import { FolderLock, Unlock, Loader2, AlertCircle, ExternalLink, Check, Shield, Sparkles, Copy, ChevronDown, Wallet } from "lucide-react";
 
 // --- IMPORTS ---
-import { supabase } from "../../../utils/supabase";
-import { lit } from "../../../utils/lit";
+import { supabase } from "../../../../utils/supabase";
+import { lit } from "../../../../utils/lit";
 import { checkAndSignAuthMessage } from "@lit-protocol/lit-node-client";
 import { LogOut } from "lucide-react";
 
