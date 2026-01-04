@@ -5,10 +5,11 @@ import { useParams } from "next/navigation";
 import { ethers } from "ethers";
 import { PrivyProvider, usePrivy, useWallets } from "@privy-io/react-auth";
 import { FolderLock, Unlock, Loader2, AlertCircle, ExternalLink, Check, Shield, Sparkles, Copy, ChevronDown, Wallet } from "lucide-react";
+import {useTranslations} from 'next-intl';
 
 // --- IMPORTS ---
-import { supabase } from "../../../../utils/supabase";
-import { lit } from "../../../../utils/lit";
+import { supabase } from "@/utils/supabase";
+import { lit } from "@/utils/lit";
 import { checkAndSignAuthMessage } from "@lit-protocol/lit-node-client";
 import { LogOut } from "lucide-react";
 import { ReportButton } from "@/app/components/ReportButton";
@@ -45,7 +46,7 @@ async function fetchEthPriceUsd() {
 const ETH_PRICE = await fetchEthPriceUsd(); 
 
 // --- 1. THE WRAPPER (Fixes the "Uncaught Error") ---
-export default function BuyPage() {
+export default function BuyPage() {    
     return (
       <PrivyProvider
         appId={PRIVY_APP_ID}
@@ -81,6 +82,8 @@ function BuyPageContent() {
   const { slug } = useParams();
   const { authenticated, login, logout } = usePrivy();
   const { wallets } = useWallets();
+  
+  const t = useTranslations('BuyPage');
 
   // -- WALLETS --
   // Wallet Selection State
@@ -237,7 +240,8 @@ function BuyPageContent() {
       const estimatedUsdForGas = (Number(ethers.formatEther(estimatedEthForGas)) * ETH_PRICE).toFixed(2);
 
       if (ethBalance < estimatedEthForGas) {
-        throw new Error(`Insufficient ETH. You need about $${estimatedUsdForGas} of ETH on Base to pay for gas fees.`);
+        // throw new Error(`Insufficient ETH. You need about $${estimatedUsdForGas} of ETH on Base to pay for gas fees.`);
+        throw new Error(t('insufficientGas'));
       }
 
       // --- CHECK 2: MONEY (native ETH) ---
@@ -269,7 +273,7 @@ function BuyPageContent() {
       // Ensure buyer has enough ETH to cover price + gas
       const totalNeeded = priceWei + ethers.parseEther("0.00003");
       if (ethBalance < totalNeeded) {
-        throw new Error(`Insufficient ETH. Please ensure you have ETH for the purchase plus gas.`);
+        throw new Error(t('insufficientGas'));
       }
 
       // --- ACTION: BUY ---
@@ -409,9 +413,9 @@ Expiration Time: ${expirationTime}`;
       let msg = e.message || "Unknown error";
         // Better Error Handling
       if (msg.includes("NodeAccessControlConditionsReturnedNotAuthorized")) {
-        msg = "Access Denied. The network thinks you own 0 copies of this item.";
+        msg = t('accessDenied');
       } else if (msg.includes("NodeInvalidAuthSig")) {
-        msg = "Signature Invalid. Please ensure your wallet is on the Base network.";
+        msg = t('signatureInvalid');
       }
       
       alert("Decryption Failed: " + msg);
@@ -430,7 +434,7 @@ Expiration Time: ${expirationTime}`;
     <div className="min-h-screen bg-[#0B0C15] flex items-center justify-center p-4">
         <div className="bg-red-500/10 border border-red-500/50 p-6 rounded-2xl text-center max-w-md">
             <AlertCircle className="w-10 h-10 text-red-500 mx-auto mb-4" />
-            <h2 className="text-white font-bold text-xl mb-2">Unavailable</h2>
+            <h2 className="text-white font-bold text-xl mb-2">{t('unavailable')}</h2>
             <p className="text-red-200">{error}</p>
         </div>
     </div>
@@ -459,7 +463,7 @@ Expiration Time: ${expirationTime}`;
             
             {/* CONTENT HEADER */}
             <div className="text-center space-y-2 mb-8">
-              <p className="text-cyan-500 font-mono text-xs uppercase tracking-widest">Secure Content</p>
+              <p className="text-cyan-500 font-mono text-xs uppercase tracking-widest">{t('contentCardHeader')}</p>
               <h1 className="text-2xl font-bold text-white break-words">{slug}</h1>
               
               <div className="flex flex-col items-center gap-3">
@@ -522,37 +526,39 @@ Expiration Time: ${expirationTime}`;
             <div className="space-y-6">
 
                 {/* BANNED (Nobody sees it) */}
-                {linkData.status === 'banned' && (
-                  <div className="bg-red-500/10 rounded-2xl p-6 border border-red-500/30 text-center space-y-4">
+                {isBanned && (
+                  <div className="bg-red-500/10 rounded-2xl p-6 border border-red-500/30 text-center space-y-4 mb-5">
                     <AlertCircle className="w-10 h-10 text-red-500 mx-auto" />
-                    <h2 className="text-white font-bold text-xl">Content Removed</h2>
+                    <h2 className="text-white font-bold text-xl">{t('contentRemoved')}</h2>
                     <p className="text-red-200">
-                      This content has been removed due to multiple reports and is no longer available.
+                      {t('contentRemovedMessage')}
                     </p>
                   </div>
                 )}
                 
                 {/* LOCKED STATE */}
-                {linkData.status !== 'banned' && !isOwner && (
+                {!isBanned && !isOwner && (
                     <div className="bg-black/30 rounded-2xl p-6 border border-white/5 text-center space-y-4">
                       <div className="text-4xl font-bold text-white tracking-tight">
                         {`$${Number(linkData.price_usd).toFixed(2)}`}
+                        {/* if language == es || pt : it'll be in USDC, not USD */}
                         <span className="text-lg text-slate-500 font-medium ml-1">USD</span>
                         <div className="text-sm text-slate-500 mt-1">
+                          {/* if language == es || pt : it'll be in USDC, not ETH */}
                           ( {Number(linkData?.price_eth || 0).toFixed(6)} ETH )
                         </div>
                       </div>
                       {
                         activeWallet ? null : (
                           <p className="text-sm text-slate-400">
-                            Connect your wallet to purchase and unlock this content.
+                            {t('connectWalletPrompt')}
                           </p>
                         )
                       }
                       
                       {!authenticated ? (
                           <button onClick={login} className="w-full py-4 rounded-xl bg-slate-800 text-white font-bold hover:bg-slate-700 transition-all">
-                              Connect Wallet
+                              {t('connectWallet')}
                           </button>
                       ) : (
                           <div className="space-y-3">
@@ -582,8 +588,8 @@ Expiration Time: ${expirationTime}`;
                                   disabled={txStatus !== ""}
                                   className="cursor-pointer w-full py-4 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-bold shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:scale-[1.02] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                               >
-                                  {txStatus === "buying" && <><Loader2 className="animate-spin" /> Confirming Purchase...</>}
-                                  {txStatus === "" && <><Unlock size={20} /> Purchase & Unlock</>}
+                                  {txStatus === "buying" && <><Loader2 className="animate-spin" /> {t('confirmingPurchase')}</>}
+                                  {txStatus === "" && <><Unlock size={20} /> {t('purchaseAndUnlock')}</>}
                               </button>
                           </div>
                       )}
@@ -591,7 +597,7 @@ Expiration Time: ${expirationTime}`;
                 )}
 
                 {/* UNLOCKED STATE */}
-                {linkData.status !== 'banned' && isOwner && !decryptedContent && (
+                {!isBanned && isOwner && !decryptedContent && (
                     <div className="text-center space-y-4">
                         {/* THE "WHY" BADGE */}
                         {isCreator ? (
@@ -618,7 +624,7 @@ Expiration Time: ${expirationTime}`;
                 )}
 
                 {/* REVEALED CONTENT */}
-                {linkData.status !== 'banned' && decryptedContent && (
+                {!isBanned && decryptedContent && (
                     <div className="animate-in zoom-in-95 duration-300">
                         <div className="bg-cyan-950/30 border border-cyan-500/30 rounded-2xl p-6 relative group">
                             <h3 className="text-cyan-500 text-xs font-bold uppercase mb-2">Decrypted Payload</h3>
@@ -659,26 +665,26 @@ Expiration Time: ${expirationTime}`;
             {/* FOOTER */}
             <div className="flex flex-col items-center gap-6">
               {/* The Trust Footer */}
-              {linkData.status !== 'banned' && (
+              {!isBanned && (
                 <div className="flex flex-col items-center gap-2 border-t border-slate-800 pt-6 w-full max-w-sm">
-                  <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">
+                  {/* <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold"> */}
                     {/* {t('safety_first')} */}
-                    safety first
-                  </p>
+                    {/* safety first */}
+                  {/* </p> */}
                   
-                  {/* {isFlagged 
+                  {isFlagged 
                   ? (
                     <div className="bg-red-900/20 border border-red-500/50 p-4 rounded-lg mb-6 flex justify-between items-start">
                       <div>
                         <h4 className="text-red-400 font-bold text-sm">{t('under_review')}</h4>
                         <p className="text-xs text-red-300/80">{t('buyer_warning')}</p>
                       </div>
-                      <ReportButton slug={slug} userHasAccess={userHasAccess} />
+                      <ReportButton slug={slug?.toString() || ""} userHasAccess={authenticated} />
                     </div>
                   )
-                  : ( */}
+                  : (
                     <ReportButton slug={slug?.toString() || ""} userHasAccess={authenticated} />
-                  {/* )} */}
+                  )}
                 </div>
               )}
             </div>

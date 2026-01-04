@@ -124,7 +124,6 @@ export default function App() {
 
 function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () => void }) {
   const t = useTranslations('Index');
-  console.log("Translations:", t);
 
   const { authenticated, user, logout, login, ready } = usePrivy();
   const { loginWithCode, sendCode } = useLoginWithEmail();
