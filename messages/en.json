@@ -1,5 +1,5 @@
 {
-    "Index": {
+    "CreatePage": {
         "title": "LinkLockr - Secure Paid Links with Smart Contracts",
         "description": "Sell access to your digital content",
         "description_unused": "Create and share paid links securely using blockchain technology. LinkLockr enables content creators to monetize their links with ease and security.",
@@ -28,8 +28,73 @@
         "priceToUnencrypt": "Price to Unencrypt",
         "linkToPaymentPage": "Link to Payment Page"
 
+        ,
+        "linkInfo": "Link info",
+        "closeInfo": "Close info",
+        "codeSentTo": "Code sent to {email}",
+        "verifyAccess": "Verify Access",
+
+        "pleaseConnectWallet": "Please connect a wallet first.",
+        "missingFields": "Please fill out all required fields.",
+        "slugTaken": "Slug already taken. Please refresh to generate a new one.",
+        "ipfsUploadFailed": "IPFS upload failed. Please try again.",
+
+        "status": {
+            "connecting": "1/5 Connecting Wallet...",
+            "checking": "2/5 Checking Availability...",
+            "encrypting": "3/5 Encrypting Content...",
+            "uploading": "4/5 Uploading to IPFS...",
+            "confirming": "5/5 Confirming on Base...",
+            "success": "Success!"
+        },
+        "processing": "PROCESSING...",
+        "encryptLink": "ENCRYPT LINK",
+
+        "tab": {
+            "create": "Create",
+            "wallet": "Wallet"
+        },
+        "activeWallet": "Active Wallet",
+        "connectedCount": "{count} Connected",
+        "embedded": "Embedded",
+        "embeddedWallet": "Embedded Wallet",
+        "externalWallet": "External Wallet",
+
+        "withdrawFunds": "Withdraw Funds",
+        "sendEth": "Send ETH",
+
+        "termsAgree": "By creating this link, you agree that you have the right to sell this content and indemnify LinkLockr from any liability. Content reported 3 times is automatically removed."
+
     },
-    "Moderation": {
+    "BuyPage": {
+        "insufficientGas": "Insufficient ETH. Please ensure you have ETH for the purchase plus gas.",
+        "accessDenied": "Access Denied. The network thinks you own 0 copies of this item.",
+        "signatureInvalid": "Signature Invalid. Please ensure your wallet is on the Base network.",
+
+        "contentCardHeader": "Secure Content",
+        "unavailable": "Unavailable",
+        "getStarted": "Get Started",
+        "connectWalletPrompt": "Connect your wallet to purchase and unlock this content.",
+        "disconnectWallet": "Disconnect Wallet",
+
+        "confirmingPurchase": "Confirming Purchase...",
+        "purchaseAndUnlock": "Purchase & Unlock",
+
+        "createdBy": "Created by:",
+        "copyFullAddress": "Copy full address",
+        "yourWalletBalance": "Your wallet balance:",
+        "usdFormat": "${value}",
+        "priceUsd": "${value}",
+        "usdLabel": "USD",
+        "priceEth": "{value}",
+        "embedded": "Embedded",
+        "creatorAccess": "Creator Access",
+        "purchaseVerified": "Purchase Verified",
+        "revealSecret": "Reveal Secret Data",
+        "decryptedPayload": "Decrypted Payload",
+        "openLink": "Open Link",
+        "securedBy": "Secured by",
+
         "report_link": "Report this link",
         "report_reason_placeholder": "Reason for reporting",
         "report_submit": "Submit Report",
@@ -41,6 +106,9 @@
         "already_reported": "You have already reported this link.",
         "report_reason_too_short": "The reason for reporting is too short. Please provide at least 5 characters.",
         "under_review": "Under Review",
-        "buyer_warning": "This link is under review. Please proceed with caution."
+        "buyer_warning": "This link is under review. Please proceed with caution.",
+        "contentRemoved": "Content Removed",
+        "contentRemovedMessage": "This content has been removed due to multiple reports and is no longer available."
+        
     }
 }

@@ -123,7 +123,7 @@ export default function App() {
 }
 
 function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () => void }) {
-  const t = useTranslations('Index');
+  const t = useTranslations('CreatePage');
 
   const { authenticated, user, logout, login, ready } = usePrivy();
   const { loginWithCode, sendCode } = useLoginWithEmail();
@@ -232,8 +232,8 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
   // --- CORE LOGIC: THE "OWNERLESS" PIPELINE ---
   const handleCreateLock = async () => {
     const wallet = wallets.find(w => w.address === selectedAddress); 
-    if (!wallet) return alert("Please connect a wallet first.");
-    if (!urlToLock || !price || !slug) return alert("Missing fields.");
+    if (!wallet) return alert(t('pleaseConnectWallet'));
+    if (!urlToLock || !price || !slug) return alert(t('missingFields'));
 
     // MINIMUM PRICE ENFORCEMENT
     // if (parseFloat(price) < 2) {
@@ -243,19 +243,19 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
     setIsLoading(true);
     try {
       // 1. SETUP
-      setStatusMsg("1/5 Connecting Wallet...");
+      setStatusMsg(t('status.connecting'));
       const provider = await wallet.getEthereumProvider();
       const ethersProvider = new ethers.BrowserProvider(provider);
       const signer = await ethersProvider.getSigner();
       
       // 2. CHECK AVAILABILITY (via Supabase Indexer first for speed)
-      setStatusMsg("2/5 Checking Availability...");
+  setStatusMsg(t('status.checking'));
       const { data: existing } = await supabase.from('links').select('slug').eq('slug', slug).single();
-      if (existing) throw new Error("Slug already taken! Please click refresh to generate a new one.");
+  if (existing) throw new Error(t('slugTaken'));
 
       // 3. CALCULATE ID & ENCRYPT
       // We perform keccak256 on the client to generate the Token ID before it exists
-      setStatusMsg("3/5 Encrypting Content...");
+  setStatusMsg(t('status.encrypting'));
       const slugBytes = ethers.toUtf8Bytes(slug);
       const slugHash = ethers.keccak256(ethers.solidityPacked(['bytes'], [slugBytes]));
       const tokenId = BigInt(slugHash).toString(); // uint256 for Lit
@@ -265,12 +265,12 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
       const encryptedData = await lit.encryptLink(urlToLock, tokenId, "base");
       
       // 4. IPFS UPLOAD
-      setStatusMsg("4/5 Uploading to IPFS...");
+  setStatusMsg(t('status.uploading'));
       const ipfsHash = await uploadToIPFS(encryptedData);
-      if (!ipfsHash) throw new Error("IPFS Upload Failed");
+  if (!ipfsHash) throw new Error(t('ipfsUploadFailed'));
 
       // 5. MINT ON CHAIN
-      setStatusMsg("5/5 Confirming on Base...");
+  setStatusMsg(t('status.confirming'));
       const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
 
       // Seller enters USD-denominated price. Convert to ETH using a live oracle
@@ -304,7 +304,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
       }
 
       setCreatedSlug(slug);
-      setStatusMsg("Success!");
+  setStatusMsg(t('status.success'));
 
       generateNewSlug();
 
@@ -383,7 +383,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setIsInfoOpen(true)}
-                      aria-label="Link info"
+                      aria-label={t('linkInfo')}
                       className={`m-[0.2rem] cursor-pointer transition-all ${isDark ? "border-slate-800 text-cyan-400 hover:text-cyan-300" : "border-transparent text-sky-600 hover:text-sky-500"}`}
                     >
                       <Info size={20} />
@@ -431,14 +431,14 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                             `}
                         >
                             <Zap size={18} fill="currentColor" className="text-white/80 group-hover:text-white" />
-                            {t('connectWallet')}
+                            {t('getStarted')}
                         </button>
                    </div>
                ) : (
                    <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
-                        <div className="text-center pb-2">
-                            <p className={`text-sm ${isDark ? "text-slate-400" : "text-slate-500"}`}>Code sent to <span className={`font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>{email}</span></p>
-                        </div>
+            <div className="text-center pb-2">
+              <p className={`text-sm ${isDark ? "text-slate-400" : "text-slate-500"}`}>{t('codeSentTo', { email })}</p>
+            </div>
                         <input 
                             className={`
                                 w-full p-4 border rounded-2xl text-center text-3xl tracking-[1em] font-mono outline-none focus:ring-2
@@ -448,11 +448,11 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                             maxLength={6}
                             onChange={e => setCode(e.target.value)} 
                         />
-                        <button onClick={handleVerify} disabled={isLoading} className={`
+            <button onClick={handleVerify} disabled={isLoading} className={`
                             w-full p-4 rounded-2xl font-bold transition-all cursor-pointer 
                             ${isDark ? "bg-slate-800 text-white hover:bg-slate-700" : "bg-slate-900 text-white hover:bg-slate-800"}
                         `}>
-                            {isLoading ? <Loader2 className="animate-spin mx-auto"/> : "Verify Access"}
+              {isLoading ? <Loader2 className="animate-spin mx-auto"/> : t('verifyAccess')}
                         </button>
                    </div>
                )}
@@ -622,28 +622,28 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
         <div className="flex justify-between items-start">
           {/* TAB SWITCHER */}
           <div className={`flex gap-2 mb-8 p-1.5 rounded-full w-fit border ${isDark ? "bg-black/40 border-slate-800" : "bg-slate-100/50 border-transparent"}`}>
-              {['create', 'wallet'].map((tab) => (
-                  <button 
-                      key={tab}
-                      onClick={() => setActiveTab(tab as any)}
+        {[{id: 'create', label: t('tab.create')}, {id: 'wallet', label: t('tab.wallet')}].map(({id, label}) => (
+          <button 
+            key={id}
+            onClick={() => setActiveTab(id as any)}
                       className={`
                           px-6 py-2 rounded-full text-sm font-bold transition-all uppercase tracking-wide cursor-pointer 
-                          ${activeTab === tab 
-                              ? (isDark ? 'bg-slate-800 text-cyan-400 shadow-sm border border-slate-700' : 'bg-white text-slate-900 shadow-sm') 
-                              : (isDark ? 'text-slate-500 hover:text-slate-300' : 'text-slate-400 hover:text-slate-600')
+              ${activeTab === id 
+                ? (isDark ? 'bg-slate-800 text-cyan-400 shadow-sm border border-slate-700' : 'bg-white text-slate-900 shadow-sm') 
+                : (isDark ? 'text-slate-500 hover:text-slate-300' : 'text-slate-400 hover:text-slate-600')
                           }
                       `}
                   >
-                      {tab}
+            {label}
                   </button>
-              ))}
+        ))}
           </div>
           
           <div className="flex justify-end mb-6">
             {/* Info Modal Toggle (uses React state now) */}
             <button
               onClick={() => setIsInfoOpen(true)}
-              aria-label="Link info"
+              aria-label={t('linkInfo')}
               className={`m-[0.8rem] cursor-pointer transition-all ${isDark ? "border-slate-800 text-cyan-400 hover:text-cyan-300" : "border-transparent text-sky-600 hover:text-sky-500"}`}
             >
               <Info size={22} />
@@ -745,7 +745,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                     <Square className={`w-8 h-8 cursor-pointer ${isDark ? "text-slate-600 hover:text-slate-500" : "text-slate-400 hover:text-slate-500"}`} />
                   )}
                     <p className={`text-[10px] leading-tight text-left cursor-pointer ${isDark ? "text-slate-600" : "text-slate-400"}`}>
-                    By creating this link, you agree that you have the right to sell this content and indemnify LinkLockr from any liability. Content reported 3 times is automatically removed.
+                    {t('termsAgree')}
                     </p>
                   </button>
                 </div>
@@ -763,9 +763,9 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                   `}
                 >
                   {isLoading ? (
-                    <><Loader2 className="animate-spin" /> {statusMsg || "PROCESSING..."}</>
+                    <><Loader2 className="animate-spin" /> {statusMsg || t('processing')}</>
                   ) : (
-                    <><Zap size={20} fill="currentColor" className="text-white/80" /> ENCRYPT LINK</>
+                    <><Zap size={20} fill="currentColor" className="text-white/80" /> {t('encryptLink')}</>
                   )}
                 </button>
                 
@@ -781,14 +781,14 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                   
                   <div className="relative z-10 flex flex-col gap-2">
                       <div className="flex items-center justify-between">
-                          <p className="text-slate-500 text-xs font-bold uppercase tracking-wider flex items-center gap-2">
-                              <Wallet size={14} /> Active Wallet
-                          </p>
+              <p className="text-slate-500 text-xs font-bold uppercase tracking-wider flex items-center gap-2">
+                <Wallet size={14} /> {t('activeWallet')}
+              </p>
                           
                           {/* WALLET COUNT BADGE */}
                           {wallets.length > 1 && (
                               <span className="text-[10px] bg-white/10 px-2 py-0.5 rounded-full text-slate-400">
-                                  {wallets.length} Connected
+                                  {t('connectedCount', { count: wallets.length })}
                               </span>
                           )}
                       </div>
@@ -802,7 +802,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                           >
                               {wallets.map((w) => (
                                   <option key={w.address} value={w.address} className="bg-slate-900 text-slate-300 font-sans">
-                                      {formatAddress(w.address)} ({w.walletClientType === 'privy' ? 'Embedded' : w.walletClientType})
+                                      {formatAddress(w.address)} ({w.walletClientType === 'privy' ? t('embedded') : w.walletClientType})
                                       {/* {w.address} ({w.walletClientType}) */}
                                   </option>
                               ))}
@@ -812,15 +812,15 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                           <ChevronDown className={`absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity ${isDark ? "text-cyan-400" : "text-blue-200"}`} size={16} />
                       </div>
 
-                      <p className="text-xs text-slate-600 font-medium mt-1">
-                          {activeWallet?.walletClientType === 'privy' ? 'Embedded Wallet' : 'External Wallet'}
-                      </p>
+            <p className="text-xs text-slate-600 font-medium mt-1">
+              {activeWallet?.walletClientType === 'privy' ? t('embeddedWallet') : t('externalWallet')}
+            </p>
                   </div>
               </div>
 
               {/* WITHDRAW FORM */}
               <div className="space-y-4">
-                  <h3 className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Withdraw Funds</h3>
+                  <h3 className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-900"}`}>{t('withdrawFunds')}</h3>
                   
                   <div className="grid grid-cols-3 gap-3">
                       <input 
@@ -838,7 +838,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                       />
                   </div>
 
-                  <button 
+          <button 
                       onClick={onWithdrawClick}
                       disabled={!withdrawForm.address || !withdrawForm.amount}
                       className={`w-full py-3 font-bold rounded-xl transition-all flex items-center justify-center gap-2
@@ -847,7 +847,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                               : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-50"
                           }`}
                   >
-                      Send ETH
+            {t('sendEth')}
                   </button>
               </div>
           </div>
@@ -875,11 +875,11 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
             >
               <div className="flex justify-between items-start gap-4">
                 <h3 id="info-modal-title" className="text-lg font-bold">
-                  How to use LinkLockr
+                  {t('modalTitle')}
                 </h3>
                 <button
                     onClick={() => setIsInfoOpen(false)}
-                    aria-label="Close info"
+                    aria-label={t('closeInfo')}
                     className={`cursor-pointer transition-all ${isDark ? "border-slate-800 text-cyan-400 hover:text-cyan-300" : "border-transparent text-sky-600 hover:text-sky-500"}`}
                   >
                     <CircleX size={22} />
@@ -898,8 +898,8 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                   1
                   </div>
                   <div>
-                  <div className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>Lock your text</div>
-                  <div className="text-[13px] opacity-80">Enter the URL or text you want to sell.</div>
+                  <div className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>{t('step1')}</div>
+                  <div className="text-[13px] opacity-80">{t('step1_desc')}</div>
                   </div>
                 </li>
 
@@ -908,8 +908,8 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                   2
                   </div>
                   <div>
-                  <div className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>Set your price</div>
-                  <div className="text-[13px] opacity-80">Displayed in US Dollars, paid in Ethereum on the Base chain.</div>
+                  <div className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>{t('step2')}</div>
+                  <div className="text-[13px] opacity-80">{t('step2_desc')}</div>
                   </div>
                 </li>
 
@@ -918,8 +918,8 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                   3
                   </div>
                   <div>
-                  <div className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>Create your link</div>
-                  <div className="text-[13px] opacity-80">Enter a custom purchase link or use an auto-generated one.</div>
+                  <div className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>{t('step3')}</div>
+                  <div className="text-[13px] opacity-80">{t('step3_desc')}</div>
                   </div>
                 </li>
 
@@ -928,8 +928,8 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                   4
                   </div>
                   <div>
-                  <div className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>Share your locked link</div>
-                  <div className="text-[13px] opacity-80">Payments are instantly sent to your connected wallet on the Base chain. Platform/network fees (~{percentFeeBps}%) apply.</div>
+                  <div className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>{t('step4')}</div>
+                  <div className="text-[13px] opacity-80">{t('step4_desc', { percent: percentFeeBps })}</div>
                   </div>
                 </li>
                 </ol>

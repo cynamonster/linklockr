@@ -470,7 +470,7 @@ Expiration Time: ${expirationTime}`;
                   <div className="inline-flex items-center gap-2 px-3 py-1 bg-black/40 rounded-full border border-white/5">
                       <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
                       <span className="text-xs text-slate-400 font-mono">
-                        Created by:&nbsp;
+                        {t('createdBy')}&nbsp;
                         {linkData?.creator
                           ? `${linkData.creator.slice(0, 6)}...${linkData.creator.slice(-4)}`
                           : "—"}
@@ -480,7 +480,7 @@ Expiration Time: ${expirationTime}`;
                       <button 
                           onClick={handleCopy}
                           className="ml-1 p-1 hover:bg-white/10 rounded-md transition-colors group relative cursor-pointer"
-                          title="Copy full address"
+                          title={t('copyFullAddress')}
                       >
                           {copied ? (
                               <Check size={14} className="text-green-500" />
@@ -501,15 +501,15 @@ Expiration Time: ${expirationTime}`;
               {/* NEW: BALANCE DISPLAY */}
               {
                 authenticated && activeWallet && (
-                  <div className="flex items-center inline-flex flex-col justify-center mt-4">
-                      <span>Your wallet balance: </span>
+                      <div className="flex items-center inline-flex flex-col justify-center mt-4">
+                      <span>{t('yourWalletBalance')}</span>
                         {
                           isFetchingEthBalance ? (
                             <Loader2 className="inline-block animate-spin text-cyan-400" />
                           ) : (
                             <>
                               <span className={`text-3xl font-bold text-white`}>
-                                ${(Number(ethBalance) * ETH_PRICE).toFixed(2)}
+                                {t('usdFormat', { value: (Number(ethBalance) * ETH_PRICE).toFixed(2) })}
                               </span>
                               <span className="text-sm font-bold text-slate-500 mb-1">
                                 ({Number(ethBalance).toFixed(4)} ETH)
@@ -539,13 +539,11 @@ Expiration Time: ${expirationTime}`;
                 {/* LOCKED STATE */}
                 {!isBanned && !isOwner && (
                     <div className="bg-black/30 rounded-2xl p-6 border border-white/5 text-center space-y-4">
-                      <div className="text-4xl font-bold text-white tracking-tight">
-                        {`$${Number(linkData.price_usd).toFixed(2)}`}
-                        {/* if language == es || pt : it'll be in USDC, not USD */}
-                        <span className="text-lg text-slate-500 font-medium ml-1">USD</span>
+                        <div className="text-4xl font-bold text-white tracking-tight">
+                        {t('priceUsd', { value: Number(linkData.price_usd).toFixed(2) })}
+                        <span className="text-lg text-slate-500 font-medium ml-1">{t('usdLabel')}</span>
                         <div className="text-sm text-slate-500 mt-1">
-                          {/* if language == es || pt : it'll be in USDC, not ETH */}
-                          ( {Number(linkData?.price_eth || 0).toFixed(6)} ETH )
+                          ({t('priceEth', { value: Number(linkData?.price_eth || 0).toFixed(6) })} ETH)
                         </div>
                       </div>
                       {
@@ -557,9 +555,9 @@ Expiration Time: ${expirationTime}`;
                       }
                       
                       {!authenticated ? (
-                          <button onClick={login} className="w-full py-4 rounded-xl bg-slate-800 text-white font-bold hover:bg-slate-700 transition-all">
-                              {t('connectWallet')}
-                          </button>
+              <button onClick={login} className="w-full py-4 rounded-xl bg-slate-800 text-white font-bold hover:bg-slate-700 transition-all">
+                {t('connectWallet')}
+              </button>
                       ) : (
                           <div className="space-y-3">
                               {/* WALLET SELECTOR (NEW) */}
@@ -574,9 +572,9 @@ Expiration Time: ${expirationTime}`;
                                           className="w-full pl-9 pr-8 py-2 bg-slate-900/50 border border-slate-700 rounded-lg text-xs font-mono text-slate-300 outline-none appearance-none cursor-pointer hover:border-slate-600 transition-colors"
                                       >
                                           {wallets.map((w) => (
-                                              <option key={w.address} value={w.address} className="bg-slate-900">
-                                                  {formatAddress(w.address)} ({w.walletClientType === 'privy' ? 'Embedded' : w.walletClientType})
-                                              </option>
+                            <option key={w.address} value={w.address} className="bg-slate-900">
+                                  {formatAddress(w.address)} ({w.walletClientType === 'privy' ? t('embedded') : w.walletClientType})
+                                </option>
                                           ))}
                                       </select>
                                       <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" size={14} />
@@ -600,25 +598,25 @@ Expiration Time: ${expirationTime}`;
                 {!isBanned && isOwner && !decryptedContent && (
                     <div className="text-center space-y-4">
                         {/* THE "WHY" BADGE */}
-                        {isCreator ? (
-                            <div className="p-4 bg-indigo-500/10 border border-indigo-500/30 rounded-2xl flex items-center justify-center gap-2 text-indigo-400">
-                                <Sparkles size={20} />
-                                <span className="font-bold">Creator Access</span>
-                            </div>
-                        ) : (
-                            <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-2xl flex items-center justify-center gap-2 text-green-400">
-                                <Check size={20} />
-                                <span className="font-bold">Purchase Verified</span>
-                            </div>
-                        )}
+              {isCreator ? (
+              <div className="p-4 bg-indigo-500/10 border border-indigo-500/30 rounded-2xl flex items-center justify-center gap-2 text-indigo-400">
+                <Sparkles size={20} />
+                <span className="font-bold">{t('creatorAccess')}</span>
+              </div>
+            ) : (
+              <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-2xl flex items-center justify-center gap-2 text-green-400">
+                <Check size={20} />
+                <span className="font-bold">{t('purchaseVerified')}</span>
+              </div>
+            )}
 
                         <button 
                              onClick={handleDecrypt}
                              disabled={txStatus !== ""}
                              className="w-full py-4 rounded-xl bg-slate-800 border border-slate-700 text-cyan-400 font-bold hover:bg-slate-700 transition-all flex items-center justify-center gap-2"
                         >
-                            {txStatus === "decrypting" ? <Loader2 className="animate-spin" /> : <Shield size={18} />}
-                            Reveal Secret Data
+              {txStatus === "decrypting" ? <Loader2 className="animate-spin" /> : <Shield size={18} />}
+              {t('revealSecret')}
                         </button>
                     </div>
                 )}
@@ -627,21 +625,21 @@ Expiration Time: ${expirationTime}`;
                 {!isBanned && decryptedContent && (
                     <div className="animate-in zoom-in-95 duration-300">
                         <div className="bg-cyan-950/30 border border-cyan-500/30 rounded-2xl p-6 relative group">
-                            <h3 className="text-cyan-500 text-xs font-bold uppercase mb-2">Decrypted Payload</h3>
+                            <h3 className="text-cyan-500 text-xs font-bold uppercase mb-2">{t('decryptedPayload')}</h3>
                             <div className="bg-black/50 p-4 rounded-xl border border-black text-white font-mono text-sm break-all">
                                 {decryptedContent}
                             </div>
                             
                             {decryptedContent.startsWith('http') && (
-                                <a 
-                                    href={decryptedContent} 
-                                    target="_blank" 
-                                    rel="noreferrer"
-                                    className="mt-4 flex items-center justify-center gap-2 w-full py-3 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl font-bold transition-all"
-                                >
-                                    <ExternalLink size={18} />
-                                    Open Link
-                                </a>
+                <a 
+                  href={decryptedContent} 
+                  target="_blank" 
+                  rel="noreferrer"
+                  className="mt-4 flex items-center justify-center gap-2 w-full py-3 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl font-bold transition-all"
+                >
+                  <ExternalLink size={18} />
+                  {t('openLink')}
+                </a>
                             )}
                         </div>
                     </div>
@@ -654,10 +652,10 @@ Expiration Time: ${expirationTime}`;
                 <div className="flex items-center justify-center">
                   <button
                     onClick={handleDisconnect}
-                    title="Disconnect wallet"
+                    title={t('disconnectWallet')}
                     className="cursor-pointer mt-2 inline-flex items-center gap-2 text-xs text-slate-400 hover:text-slate-200 transition-colors"
                   >
-                    <span className="">Disconnect wallet</span>
+                    <span className="">{t('disconnectWallet')}</span>
                   </button>
                 </div>
               )}
@@ -689,9 +687,9 @@ Expiration Time: ${expirationTime}`;
               )}
             </div>
             <div className="mt-2 text-center border-t border-white/5 pt-6">
-                <p className="text-xs text-slate-500">
-                    Secured by <a href="https://linklockr.xyz" target="_blank" className="text-cyan-400 hover:text-cyan-300">LinkLockr</a>.
-                </p>
+        <p className="text-xs text-slate-500">
+          {t('securedBy')} <a href="https://linklockr.xyz" target="_blank" className="text-cyan-400 hover:text-cyan-300">LinkLockr</a>.
+        </p>
             </div>
         </div>
       </div>
