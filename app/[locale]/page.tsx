@@ -250,7 +250,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
       
       // 2. CHECK AVAILABILITY (via Supabase Indexer first for speed)
   setStatusMsg(t('status.checking'));
-      const { data: existing } = await supabase.from('links').select('slug').eq('slug', slug).single();
+      const { data: existing } = await supabase.from('links').select('slug').eq('slug', slug).maybeSingle();
   if (existing) throw new Error(t('slugTaken'));
 
       // 3. CALCULATE ID & ENCRYPT
