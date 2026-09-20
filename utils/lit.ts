@@ -7,16 +7,28 @@ class Lit {
   private async getClient() {
     if (typeof window === "undefined") return null;
 
+    // 1. The Sledgehammer: Intercept and reroute all Yellowstone traffic
+    if (!(window as any).litFetchPatched) {
+      const originalFetch = window.fetch;
+      window.fetch = async function (...args) {
+        let [resource, config] = args;
+        
+        // If the SDK tries to hit the dead node, hijack it
+        if (typeof resource === 'string' && resource.includes('yellowstone-rpc.litprotocol.com')) {
+          console.log("Hijacking Yellowstone request -> Routing to Proxy");
+          resource = '/api/lit-rpc'; 
+        }
+        
+        return originalFetch(resource, config);
+      };
+      (window as any).litFetchPatched = true;
+    }
+
+    // 2. Initialize the client normally
     if (!this.litClient) {
       this.litClient = await createLitClient({
-        network: nagaTest,
-        // Force the SDK to use the proxy for ALL blockchain communication
-        rpcUrl: "/api/lit-rpc",
-        customRpcUrl: "/api/lit-rpc",
-        contractContext: {
-          rpcUrl: "/api/lit-rpc"
-        }
-      } as any); // Cast to any to bypass strict TS enforcement on the older parameters
+        network: nagaTest, 
+      });
     }
     return this.litClient;
   }
