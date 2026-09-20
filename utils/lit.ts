@@ -1,41 +1,51 @@
 import { LitNodeClient } from "@lit-protocol/lit-node-client";
 import { encryptString, decryptToString } from "@lit-protocol/encryption";
-import { ethers } from "ethers";
-
-const CLIENT = new LitNodeClient({
-  litNetwork: "datil-test",
-  debug: false
-});
-
 
 class Lit {
-  private litNodeClient: LitNodeClient;
+  private litNodeClient: LitNodeClient | null = null;
 
-  constructor() {
-    this.litNodeClient = CLIENT;
+  /**
+   * Lazily initializes and connects the client only when needed in the browser.
+   */
+  private getClient(): LitNodeClient {
+    if (!this.litNodeClient) {
+      this.litNodeClient = new LitNodeClient({
+        litNetwork: "datil-test", // Switch to "datil" for production
+        debug: false,
+      });
+    }
+    return this.litNodeClient;
   }
 
   async connect() {
-    if (!this.litNodeClient.ready) {
-      await this.litNodeClient.connect();
+    if (typeof window === "undefined") return; // Prevent SSR crashes
+
+    const client = this.getClient();
+    if (!client.ready) {
+      try {
+        await client.connect();
+      } catch (error) {
+        console.error("Failed to connect to Lit Network:", error);
+        throw error;
+      }
     }
   }
 
   /**
    * Helper: Get the latest blockhash.
-   * Required for generating a valid SIWE message manually in the frontend.
    */
   async getLatestBlockhash() {
     await this.connect();
-    return await this.litNodeClient.getLatestBlockhash();
+    const client = this.getClient();
+    return await client.getLatestBlockhash();
   }
 
   /**
    * 1. Encrypts the URL.
-   * Expects the ALREADY calculated tokenId (uint256 string).
    */
   async encryptLink(url: string, tokenId: string, chain: string = "base") {
     await this.connect();
+    const client = this.getClient();
 
     const accessControlConditions = [
       {
@@ -44,8 +54,8 @@ class Lit {
         chain: "base",
         method: "balanceOf",
         parameters: [
-            ":userAddress", 
-            tokenId // Expecting the string of the uint256 ID
+          ":userAddress", 
+          tokenId
         ],
         returnValueTest: {
           comparator: ">",
@@ -54,15 +64,12 @@ class Lit {
       },
     ];
 
-    // Encrypt the URL
     const { ciphertext, dataToEncryptHash } = await encryptString(
       {
         accessControlConditions,
         dataToEncrypt: url,
-        // authSig,
-        // chain: "base"
       },
-      this.litNodeClient
+      client
     );
 
     return {
@@ -74,20 +81,20 @@ class Lit {
 
   /**
    * 2. Decrypts the URL.
-   * Accepts 'authSig' which we manually generated in the frontend.
    */
   async decryptLink(ciphertext: string, dataToEncryptHash: string, accessControlConditions: any[], authSig: any) {
     await this.connect();
+    const client = this.getClient();
 
     const decryptedString = await decryptToString(
       {
         accessControlConditions,
         ciphertext,
         dataToEncryptHash,
-        authSig, // <--- Key fix: Passing the authSig explicitly
+        authSig,
         chain: "base",
       },
-      this.litNodeClient
+      client
     );
 
     return decryptedString;
