@@ -9,7 +9,11 @@ class Lit {
 
     if (!this.litClient) {
       this.litClient = await createLitClient({
-        network: nagaTest, 
+        // Spread the network config and inject the proxy URL, casting to any to bypass TS
+        network: {
+          ...nagaTest,
+          rpcUrl: "/api/lit-rpc"
+        } as any, 
       });
     }
     return this.litClient;
