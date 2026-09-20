@@ -9,10 +9,19 @@ class Lit {
 
     if (!this.litClient) {
       this.litClient = await createLitClient({
-        network: nagaDev, // Naga test environment
+        network: nagaDev, // Datil testnet (v8)
       });
     }
     return this.litClient;
+  }
+
+  async getLatestBlockhash(): Promise<string> {
+    const client = await this.getClient();
+    if (!client) throw new Error("Client unavailable on server");
+    
+    // Get the latest blockhash from the Lit network for nonce generation
+    const latestBlockhash = await client.getLatestBlockhash();
+    return latestBlockhash;
   }
 
   async encryptLink(url: string, tokenId: string) {

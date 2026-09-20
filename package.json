@@ -9,7 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@lit-protocol/auth-browser": "^7.4.0",
+    "@lit-protocol/auth-browser": "^8.0.0-alpha.0",
     "@lit-protocol/constants": "^8.0.8",
     "@lit-protocol/lit-client": "^8.3.1",
     "@lit-protocol/networks": "^8.4.1",

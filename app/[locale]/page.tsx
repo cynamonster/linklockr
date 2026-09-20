@@ -261,8 +261,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
       const tokenId = BigInt(slugHash).toString(); // uint256 for Lit
 
       // Lit Protocol Encryption
-      // Note: Ensure your lit.encryptLink function accepts (url, tokenId, contractAddress)
-      const encryptedData = await lit.encryptLink(urlToLock, tokenId, "base");
+      const encryptedData = await lit.encryptLink(urlToLock, tokenId);
       
       // 4. IPFS UPLOAD
   setStatusMsg(t('status.uploading'));
