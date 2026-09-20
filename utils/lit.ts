@@ -3,7 +3,7 @@ import { encryptString, decryptToString } from "@lit-protocol/encryption";
 import { ethers } from "ethers";
 
 const CLIENT = new LitNodeClient({
-  litNetwork: "datil-dev",
+  litNetwork: "datil-test",
   debug: false
 });
 
