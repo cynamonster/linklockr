@@ -188,7 +188,7 @@ function BuyPageContent() {
         .from('links')
         .select('*')
         .eq('slug', slug)
-        .single();
+        .maybeSingle();
 
       if (error || !data) throw new Error("Link not found or has been removed.");
       if (!data.active) throw new Error("This link has been suspended due to reports.");
