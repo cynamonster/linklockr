@@ -9,12 +9,14 @@ class Lit {
 
     if (!this.litClient) {
       this.litClient = await createLitClient({
-        // Spread the network config and inject the proxy URL, casting to any to bypass TS
-        network: {
-          ...nagaTest,
+        network: nagaTest,
+        // Force the SDK to use the proxy for ALL blockchain communication
+        rpcUrl: "/api/lit-rpc",
+        customRpcUrl: "/api/lit-rpc",
+        contractContext: {
           rpcUrl: "/api/lit-rpc"
-        } as any, 
-      });
+        }
+      } as any); // Cast to any to bypass strict TS enforcement on the older parameters
     }
     return this.litClient;
   }
