@@ -9,8 +9,7 @@ class Lit {
 
     if (!this.litClient) {
       this.litClient = await createLitClient({
-        network: nagaTest.withOverrides({ rpcUrl: "/api/lit-rpc" }), // Try nagaTest if nagaDev endpoints are flaky
-        
+        network: nagaTest, 
       });
     }
     return this.litClient;
