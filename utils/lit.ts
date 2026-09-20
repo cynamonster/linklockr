@@ -1,5 +1,5 @@
 import { createLitClient } from "@lit-protocol/lit-client";
-import { nagaDev } from "@lit-protocol/networks";
+import { nagaDev, nagaTest } from "@lit-protocol/networks";
 
 class Lit {
   private litClient: any = null;
@@ -9,7 +9,7 @@ class Lit {
 
     if (!this.litClient) {
       this.litClient = await createLitClient({
-        network: nagaDev, // Datil testnet (v8)
+        network: nagaTest, // Try nagaTest if nagaDev endpoints are flaky
       });
     }
     return this.litClient;
