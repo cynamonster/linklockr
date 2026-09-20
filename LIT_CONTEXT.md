@@ -2,7 +2,7 @@
 
 ## 1. Configuration
 * **Network:** `datil-dev` (Testnet) or `datil` (Mainnet).
-* **SDK Version:** Lit JS SDK v6.
+* **SDK Version:** Lit JS SDK v8.
 * **Chain:** `base`.
 
 ## 2. Access Control Conditions (ACC)

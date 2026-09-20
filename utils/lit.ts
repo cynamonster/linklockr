@@ -1,51 +1,23 @@
-import { LitNodeClient } from "@lit-protocol/lit-node-client";
-import { encryptString, decryptToString } from "@lit-protocol/encryption";
+import { createLitClient } from "@lit-protocol/lit-client";
+import { nagaDev } from "@lit-protocol/networks";
 
 class Lit {
-  private litNodeClient: LitNodeClient | null = null;
+  private litClient: any = null;
 
-  /**
-   * Lazily initializes and connects the client only when needed in the browser.
-   */
-  private getClient(): LitNodeClient {
-    if (!this.litNodeClient) {
-      this.litNodeClient = new LitNodeClient({
-        litNetwork: "datil-test", // Switch to "datil" for production
-        debug: false,
+  private async getClient() {
+    if (typeof window === "undefined") return null;
+
+    if (!this.litClient) {
+      this.litClient = await createLitClient({
+        network: nagaDev, // Naga test environment
       });
     }
-    return this.litNodeClient;
+    return this.litClient;
   }
 
-  async connect() {
-    if (typeof window === "undefined") return; // Prevent SSR crashes
-
-    const client = this.getClient();
-    if (!client.ready) {
-      try {
-        await client.connect();
-      } catch (error) {
-        console.error("Failed to connect to Lit Network:", error);
-        throw error;
-      }
-    }
-  }
-
-  /**
-   * Helper: Get the latest blockhash.
-   */
-  async getLatestBlockhash() {
-    await this.connect();
-    const client = this.getClient();
-    return await client.getLatestBlockhash();
-  }
-
-  /**
-   * 1. Encrypts the URL.
-   */
-  async encryptLink(url: string, tokenId: string, chain: string = "base") {
-    await this.connect();
-    const client = this.getClient();
+  async encryptLink(url: string, tokenId: string) {
+    const client = await this.getClient();
+    if (!client) throw new Error("Client unavailable on server");
 
     const accessControlConditions = [
       {
@@ -53,10 +25,7 @@ class Lit {
         standardContractType: "ERC1155",
         chain: "base",
         method: "balanceOf",
-        parameters: [
-          ":userAddress", 
-          tokenId
-        ],
+        parameters: [":userAddress", tokenId],
         returnValueTest: {
           comparator: ">",
           value: "0",
@@ -64,13 +33,10 @@ class Lit {
       },
     ];
 
-    const { ciphertext, dataToEncryptHash } = await encryptString(
-      {
-        accessControlConditions,
-        dataToEncrypt: url,
-      },
-      client
-    );
+    const { ciphertext, dataToEncryptHash } = await client.encrypt({
+      dataToEncrypt: url,
+      unifiedAccessControlConditions: accessControlConditions,
+    });
 
     return {
       ciphertext,
@@ -79,23 +45,18 @@ class Lit {
     };
   }
 
-  /**
-   * 2. Decrypts the URL.
-   */
-  async decryptLink(ciphertext: string, dataToEncryptHash: string, accessControlConditions: any[], authSig: any) {
-    await this.connect();
-    const client = this.getClient();
+  async decryptLink(ciphertext: string, dataToEncryptHash: string, accessControlConditions: any[], sessionSigs: any) {
+    const client = await this.getClient();
+    if (!client) throw new Error("Client unavailable on server");
 
-    const decryptedString = await decryptToString(
-      {
-        accessControlConditions,
+    const decryptedString = await client.decrypt({
+      data: {
         ciphertext,
         dataToEncryptHash,
-        authSig,
-        chain: "base",
       },
-      client
-    );
+      unifiedAccessControlConditions: accessControlConditions,
+      authContext: sessionSigs,
+    });
 
     return decryptedString;
   }
