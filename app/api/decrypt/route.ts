@@ -2,10 +2,16 @@ import { NextResponse } from "next/server";
 import { SiweMessage } from "siwe";
 import { createClient } from "@supabase/supabase-js";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+function getSupabase() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!url || !key) {
+    throw new Error("Missing Supabase server credentials (URL or SERVICE_ROLE_KEY)");
+  }
+
+  return createClient(url, key);
+}
 
 export async function POST(req: Request) {
   try {
@@ -16,7 +22,8 @@ export async function POST(req: Request) {
     const { data: fields } = await siweMessage.verify({ signature });
     const userAddress = fields.address;
 
-    // 2. Fetch record from Supabase
+    // 2. Fetch record from Supabase inside the handler
+    const supabase = getSupabase();
     const { data: linkRecord, error: dbError } = await supabase
       .from("links")
       .select("ciphertext, token_id")
@@ -30,6 +37,10 @@ export async function POST(req: Request) {
     const apiKey = process.env.LIT_API_KEY;
     const pkpId = process.env.LIT_PKP_ID;
     const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
+
+    if (!apiKey || !pkpId || !contractAddress) {
+      return NextResponse.json({ error: "Server missing Lit or contract configuration" }, { status: 500 });
+    }
 
     // 3. Lit Action: Verify on Base & Decrypt inside TEE
     const code = `
@@ -56,7 +67,7 @@ export async function POST(req: Request) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-Api-Key": apiKey!,
+        "X-Api-Key": apiKey,
       },
       body: JSON.stringify({ code }),
     });
