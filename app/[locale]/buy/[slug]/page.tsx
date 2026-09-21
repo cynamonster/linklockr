@@ -10,7 +10,6 @@ import {useTranslations} from 'next-intl';
 // --- IMPORTS ---
 import { supabase } from "@/utils/supabase";
 import { lit } from "@/utils/lit";
-import { checkAndSignAuthMessage } from "@lit-protocol/auth-browser";
 import { LogOut } from "lucide-react";
 import { ReportButton } from "@/app/components/ReportButton";
 

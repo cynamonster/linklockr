@@ -1,50 +1,28 @@
-import { createLitClient } from "@lit-protocol/lit-client";
-import { nagaDev, nagaTest } from "@lit-protocol/networks";
+/**
+ * Lit Protocol v3 (Chipotle) Integration
+ * Uses REST API instead of SDK for encryption/decryption
+ * 
+ * API Reference: https://api.dev.litprotocol.com/docs
+ * Dashboard: https://dashboard.dev.litprotocol.com
+ */
 
+const LIT_API_BASE = "https://api.dev.litprotocol.com";
+const LIT_API_KEY = process.env.NEXT_PUBLIC_LIT_API_KEY;
+
+/**
+ * Chipotle uses HTTP API for encryption/decryption
+ * No SDK needed - just fetch() calls
+ */
 class Lit {
-  private litClient: any = null;
-
-  private async getClient() {
-    if (typeof window === "undefined") return null;
-
-    // 1. The Sledgehammer: Intercept and reroute all Yellowstone traffic
-    if (!(window as any).litFetchPatched) {
-      const originalFetch = window.fetch;
-      window.fetch = async function (...args) {
-        let [resource, config] = args;
-        
-        // If the SDK tries to hit the dead node, hijack it
-        if (typeof resource === 'string' && resource.includes('yellowstone-rpc.litprotocol.com')) {
-          console.log("Hijacking Yellowstone request -> Routing to Proxy");
-          resource = '/api/lit-rpc'; 
-        }
-        
-        return originalFetch(resource, config);
-      };
-      (window as any).litFetchPatched = true;
-    }
-
-    // 2. Initialize the client normally
-    if (!this.litClient) {
-      this.litClient = await createLitClient({
-        network: nagaTest, 
-      });
-    }
-    return this.litClient;
-  }
-
-  async getLatestBlockhash(): Promise<string> {
-    const client = await this.getClient();
-    if (!client) throw new Error("Client unavailable on server");
-    
-    // Get the latest blockhash from the Lit network for nonce generation
-    const latestBlockhash = await client.getLatestBlockhash();
-    return latestBlockhash;
-  }
-
+  /**
+   * Encrypt a URL with Chipotle using unified access control conditions
+   * @param url The URL/content to encrypt
+   * @param tokenId The ERC-1155 token ID (used in access conditions)
+   */
   async encryptLink(url: string, tokenId: string) {
-    const client = await this.getClient();
-    if (!client) throw new Error("Client unavailable on server");
+    if (!LIT_API_KEY) {
+      throw new Error("NEXT_PUBLIC_LIT_API_KEY environment variable not set");
+    }
 
     const accessControlConditions = [
       {
@@ -60,32 +38,111 @@ class Lit {
       },
     ];
 
-    const { ciphertext, dataToEncryptHash } = await client.encrypt({
-      dataToEncrypt: url,
-      unifiedAccessControlConditions: accessControlConditions,
-    });
+    try {
+      const response = await fetch(`${LIT_API_BASE}/api/v3/encrypt`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${LIT_API_KEY}`,
+        },
+        body: JSON.stringify({
+          data: url,
+          accessControlConditions,
+          chain: "base",
+        }),
+      });
 
-    return {
-      ciphertext,
-      dataToEncryptHash,
-      accessControlConditions,
-    };
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(`Chipotle encryption failed: ${error.message}`);
+      }
+
+      const result = await response.json();
+
+      return {
+        ciphertext: result.ciphertext,
+        dataToEncryptHash: result.dataToEncryptHash,
+        accessControlConditions,
+      };
+    } catch (error) {
+      console.error("Encryption error:", error);
+      throw error;
+    }
   }
 
-  async decryptLink(ciphertext: string, dataToEncryptHash: string, accessControlConditions: any[], sessionSigs: any) {
-    const client = await this.getClient();
-    if (!client) throw new Error("Client unavailable on server");
+  /**
+   * Decrypt a URL with Chipotle
+   * @param ciphertext Encrypted content
+   * @param dataToEncryptHash Hash of original data
+   * @param accessControlConditions Access control rules
+   * @param authSig Authentication signature (from signMessage)
+   */
+  async decryptLink(
+    ciphertext: string,
+    dataToEncryptHash: string,
+    accessControlConditions: any[],
+    authSig: any
+  ) {
+    if (!LIT_API_KEY) {
+      throw new Error("NEXT_PUBLIC_LIT_API_KEY environment variable not set");
+    }
 
-    const decryptedString = await client.decrypt({
-      data: {
-        ciphertext,
-        dataToEncryptHash,
-      },
-      unifiedAccessControlConditions: accessControlConditions,
-      authContext: sessionSigs,
-    });
+    try {
+      const response = await fetch(`${LIT_API_BASE}/api/v3/decrypt`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${LIT_API_KEY}`,
+        },
+        body: JSON.stringify({
+          ciphertext,
+          dataToEncryptHash,
+          accessControlConditions,
+          authSig, // SIWE signature from user
+          chain: "base",
+        }),
+      });
 
-    return decryptedString;
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(
+          `Chipotle decryption failed: ${error.message || error.error}`
+        );
+      }
+
+      const result = await response.json();
+      return result.decryptedData;
+    } catch (error) {
+      console.error("Decryption error:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get the latest blockhash for nonce generation in SIWE
+   * Chipotle gets this via a simple HTTP call
+   */
+  async getLatestBlockhash(): Promise<string> {
+    try {
+      const response = await fetch(`${LIT_API_BASE}/api/v3/blockhash`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${LIT_API_KEY}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch blockhash");
+      }
+
+      const result = await response.json();
+      return result.blockhash;
+    } catch (error) {
+      console.error("Blockhash fetch error:", error);
+      // Fallback: use current timestamp as nonce if API fails
+      return Date.now().toString();
+    }
   }
 }
 
