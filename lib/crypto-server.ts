@@ -30,5 +30,5 @@ export async function checkTokenOwnership(userAddress: string, tokenId: string):
   const contract = new ethers.Contract(process.env.NEXT_PUBLIC_CONTRACT_ADDRESS!, abi, provider);
 
   const balance: bigint = await contract.balanceOf(userAddress, BigInt(tokenId));
-  return balance > 0n;
+  return balance > BigInt(0);
 }
