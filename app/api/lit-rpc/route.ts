@@ -1,23 +1,29 @@
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
+  const targetRpcUrl = "https://litsentry.litprotocol.com/";
+
   try {
     const body = await req.json();
     
-    const response = await fetch("https://yellowstone-rpc.litprotocol.com/", {
+    const response = await fetch(targetRpcUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Accept": "application/json",
-        // Bypasses Cloudflare blocking Node.js default fetches
-        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Origin": "https://yellowstone-rpc.litprotocol.com",
-        "Referer": "https://yellowstone-rpc.litprotocol.com/"
       },
       body: JSON.stringify(body),
     });
 
-    const data = await response.json();
+    const rawText = await response.text();
+    
+    let data;
+    try {
+      data = JSON.parse(rawText);
+    } catch (parseError) {
+      return new NextResponse(rawText, { status: 502 });
+    }
+
     return NextResponse.json(data, { status: response.status });
 
   } catch (error: any) {
