@@ -235,11 +235,6 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
     if (!wallet) return alert(t('pleaseConnectWallet'));
     if (!urlToLock || !price || !slug) return alert(t('missingFields'));
 
-    // MINIMUM PRICE ENFORCEMENT
-    // if (parseFloat(price) < 2) {
-    //   return alert("Minimum price is $2.00 USD.");
-    // }
-
     setIsLoading(true);
     try {
       // 1. SETUP
@@ -249,27 +244,36 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
       const signer = await ethersProvider.getSigner();
       
       // 2. CHECK AVAILABILITY (via Supabase Indexer first for speed)
-  setStatusMsg(t('status.checking'));
+      setStatusMsg(t('status.checking'));
       const { data: existing } = await supabase.from('links').select('slug').eq('slug', slug).maybeSingle();
-  if (existing) throw new Error(t('slugTaken'));
+      if (existing) throw new Error(t('slugTaken'));
 
-      // 3. CALCULATE ID & ENCRYPT
-      // We perform keccak256 on the client to generate the Token ID before it exists
-  setStatusMsg(t('status.encrypting'));
+      // 3. CALCULATE ID & ENCRYPT VIA LIT v3 (CHIPOTLE)
+      setStatusMsg(t('status.encrypting'));
       const slugBytes = ethers.toUtf8Bytes(slug);
       const slugHash = ethers.keccak256(ethers.solidityPacked(['bytes'], [slugBytes]));
-      const tokenId = BigInt(slugHash).toString(); // uint256 for Lit
+      const tokenId = BigInt(slugHash).toString();
 
-      // Lit Protocol Encryption
-      const encryptedData = await lit.encryptLink(urlToLock, tokenId);
-      
-      // 4. IPFS UPLOAD
-  setStatusMsg(t('status.uploading'));
-      const ipfsHash = await uploadToIPFS(encryptedData);
-  if (!ipfsHash) throw new Error(t('ipfsUploadFailed'));
+      // Secure server-side call using funded Lit v3 TEE hosting
+      const encryptRes = await fetch('/api/encrypt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: urlToLock }),
+      });
+
+      if (!encryptRes.ok) {
+        const errData = await encryptRes.json();
+        throw new Error(errData.error || 'Failed to encrypt content with Lit v3');
+      }
+
+      const { ciphertext } = await encryptRes.json();
+
+      // 4. PREPARE URI REFERENCE FOR SMART CONTRACT
+      // Using an immutable reference string to preserve contract parameter expectations
+      const linkReferenceUri = `lit://chipotle/${slug}`;
 
       // 5. MINT ON CHAIN
-  setStatusMsg(t('status.confirming'));
+      setStatusMsg(t('status.confirming'));
       const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
 
       // Seller enters USD-denominated price. Convert to ETH using a live oracle
@@ -278,75 +282,45 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
       const priceEth = priceUsd / ethUsd; // decimal ETH amount
 
       // Ensure the ETH string has at most 18 decimals to satisfy ethers' fixed-point requirements
-      const priceEthFixed = priceEth.toFixed(18); // pads or truncates to 18 decimal places
+      const priceEthFixed = priceEth.toFixed(18); 
       const priceWei = ethers.parseEther(priceEthFixed);
 
-      const tx = await contract.createLink(slug, priceWei, ipfsHash);
+      const tx = await contract.createLink(slug, priceWei, linkReferenceUri);
       await tx.wait();
 
-      // 6. INDEX FOR DISCOVERY (Supabase) — store both USD and ETH representations
-      const { data: insertedLink, error: insertError } = await supabase.from('links').insert({
+      // 6. INDEX FOR DISCOVERY (Supabase)
+      const { error: insertError } = await supabase.from('links').insert({
         slug: slug,
         id_hash: slugHash,
-        creator: user?.wallet?.address,
+        token_id: tokenId,
+        ciphertext: ciphertext,
+        creator: user?.wallet?.address || selectedAddress,
         price_usd: priceUsd,
         price_eth: priceEthFixed,
         price_wei: priceWei.toString(),
-        ipfs_hash: ipfsHash,
-        active: true // Default true until reports come in
+        ipfs_hash: linkReferenceUri,
+        active: true,
       });
 
       if (insertError) {
         console.error('Supabase insert error:', insertError);
-        // Throw so the outer catch will surface the problem to the user
         throw insertError;
       }
 
       setCreatedSlug(slug);
-  setStatusMsg(t('status.success'));
-
+      setStatusMsg(t('status.success'));
+      setUrlToLock("");
+      setPrice("");
       generateNewSlug();
 
     } catch (e: any) {
       console.error(e);
-      // Clean error message
       const msg = e.reason || e.message || "Unknown error";
       alert("Error: " + msg);
     }
     setIsLoading(false);
     setStatusMsg("");
   };
-
-  // --- WITHDRAW LOGIC ---
-  const handleWithdraw = async (recipient: ConnectedWallet, address: string, amount: string) => {
-  if (!recipient) return;
-  setIsLoading(true);
-  try {
-    const provider = await recipient.getEthereumProvider();
-    const ethersProvider = new ethers.BrowserProvider(provider);
-    const signer = await ethersProvider.getSigner();
-
-    // Send native ETH to the target address
-    const tx = await signer.sendTransaction({
-      to: address,
-      value: ethers.parseEther(amount),
-    });
-    await tx.wait();
-    alert(`Sent ${amount} ETH`);
-  } catch (e: any) {
-    alert(e.message || String(e));
-  }
-  setIsLoading(false);
-  };
-
-  // if (!ready) return null; // Blink prevention
-  if (!ready) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="animate-spin mx-auto"/>
-      </div>
-    )
-  }
 
   
 
