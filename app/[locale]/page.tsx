@@ -322,6 +322,37 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
     setStatusMsg("");
   };
 
+  // --- WITHDRAW LOGIC ---
+  const handleWithdraw = async (recipient: ConnectedWallet, address: string, amount: string) => {
+  if (!recipient) return;
+  setIsLoading(true);
+  try {
+    const provider = await recipient.getEthereumProvider();
+    const ethersProvider = new ethers.BrowserProvider(provider);
+    const signer = await ethersProvider.getSigner();
+
+    // Send native ETH to the target address
+    const tx = await signer.sendTransaction({
+      to: address,
+      value: ethers.parseEther(amount),
+    });
+    await tx.wait();
+    alert(`Sent ${amount} ETH`);
+  } catch (e: any) {
+    alert(e.message || String(e));
+  }
+  setIsLoading(false);
+  };
+
+  // if (!ready) return null; // Blink prevention
+  if (!ready) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="animate-spin mx-auto"/>
+      </div>
+    )
+  }
+
   
 
   // --- VIEW: LOGIN SCREEN ---
