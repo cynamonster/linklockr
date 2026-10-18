@@ -18,9 +18,9 @@ export async function POST(req: Request) {
     // Lit Action executed securely inside the Chipotle TEE Enclave
     const code = `
       async function main() {
-        const ciphertext = await Lit.Actions.encrypt({
-          pkpId: "${pkpId}",
-          message: "${url.replace(/"/g, '\\"')}"
+        const ciphertext = await Lit.Actions.Encrypt({
+          pkpId: pkpId,
+          message: url
         });
         return { ciphertext };
       }
@@ -32,17 +32,34 @@ export async function POST(req: Request) {
         "Content-Type": "application/json",
         "X-Api-Key": apiKey,
       },
-      body: JSON.stringify({ code }),
+      body: JSON.stringify({
+        code,
+        js_params: {
+          pkpId,
+          url,
+        },
+      }),
     });
 
     if (!res.ok) {
-      const err = await res.json();
-      return NextResponse.json({ error: err.message || "Lit encryption failed" }, { status: res.status });
+      let errorMsg = "Lit encryption failed";
+      try {
+        const err = await res.json();
+        errorMsg = typeof err === "string" ? err : err.message || err.error || JSON.stringify(err);
+      } catch {
+        errorMsg = await res.text().catch(() => "Lit encryption failed");
+      }
+      return NextResponse.json({ error: errorMsg }, { status: res.status });
     }
 
-    const { response } = await res.json();
+    const data = await res.json();
+    const ciphertext = data.response?.ciphertext;
 
-    return NextResponse.json({ ciphertext: response.ciphertext });
+    if (!ciphertext) {
+      return NextResponse.json({ error: "No ciphertext returned from Lit action" }, { status: 500 });
+    }
+
+    return NextResponse.json({ ciphertext });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || "Failed to encrypt" }, { status: 500 });
   }

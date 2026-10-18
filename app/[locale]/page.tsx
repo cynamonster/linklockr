@@ -14,9 +14,6 @@ import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-
 import {useTranslations} from 'next-intl';
 
 // --- IMPORTS ---
-// Ensure these utility files exist in your project structure
-import { lit } from "../../utils/lit";
-import { uploadToIPFS } from "../../utils/ipfs";
 import { supabase } from "../../utils/supabase";
 
 // --- CONFIGURATION ---

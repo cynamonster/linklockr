@@ -9,7 +9,7 @@ import {useTranslations} from 'next-intl';
 
 // --- IMPORTS ---
 import { supabase } from "@/utils/supabase";
-import { lit } from "@/utils/lit";
+import { createSiweMessage } from "@/utils/lit";
 import { LogOut } from "lucide-react";
 import { ReportButton } from "@/app/components/ReportButton";
 
@@ -325,96 +325,56 @@ function BuyPageContent() {
     }
   };
 
-  // D. DECRYPT FLOW (Fixed: Strict SIWE Formatting)
+  // D. DECRYPT FLOW (Lit v3 Chipotle TEE)
   const handleDecrypt = async () => {
     if (!activeWallet) return;
     setTxStatus("decrypting");
     
     try {
-      // 1. Get IPFS Content
-      const ipfsUrl = `https://ipfs.io/ipfs/${linkData.ipfs_hash}`;
-      const response = await fetch(ipfsUrl);
-      const encryptedPackage = await response.json();
-
-      // 2. Prepare Signer
+      // 1. Prepare Signer
       const provider = await activeWallet.getEthereumProvider();
       const ethersProvider = new ethers.BrowserProvider(provider);
       const signer = await ethersProvider.getSigner();
-
-      // 3. Generate Strict SIWE Message
-      const latestBlockhash = await lit.getLatestBlockhash();
-      const domain = window.location.host;
-      const origin = window.location.origin;
       const rawAddress = await signer.getAddress();
-      
-      // CRITICAL: Force Checksum Address (e.g. 0xAbC... not 0xabc...)
-      const address = ethers.getAddress(rawAddress); 
-      
-      const statement = "Sign this message to prove you own the wallet to access this content.";
-      const issuedAt = new Date().toISOString();
-      const expirationTime = new Date(Date.now() + 1000 * 60 * 60 * 24).toISOString();
+      const address = ethers.getAddress(rawAddress);
 
-      // CRITICAL: DO NOT INDENT THIS STRING. IT MUST BE FLUSH LEFT.
-const siweMessage = `${domain} wants you to sign in with your Ethereum account:
-${address}
+      // 2. Generate EIP-4361 SIWE Message
+      const siweMessage = createSiweMessage({
+        address,
+        domain: window.location.host,
+        uri: window.location.origin,
+        chainId: 8453,
+      });
 
-${statement}
-
-URI: ${origin}
-Version: 1
-Chain ID: 8453
-Nonce: ${latestBlockhash}
-Issued At: ${issuedAt}
-Expiration Time: ${expirationTime}`;
-
-      // // 3. Generate AuthSig (The "Official" Way)
-      // // This handles SIWE formatting, Chain ID matching, and Expiration automatically.
-      // const authSig = await checkAndSignAuthMessage({
-      //   chain: "base", // ⚠️ Change to "baseSepolia" if you are on testnet!
-      //   signer: signer,
-      //   nonce: await lit.getLatestBlockhash(),
-      //   // Optional: Force the URI to match where you are hosted
-      //   uri: window.location.origin, 
-      //   expiration: new Date(Date.now() + 1000 * 60 * 60 * 24).toISOString(), 
-      // });
-
-      // 4. Sign
+      // 3. Request Signature from Wallet
       const signature = await signer.signMessage(siweMessage);
 
-      // const authSig = await checkAndSignAuthMessage({
-      //   chain: "base",
-   
-      const authSig = {
-        sig: signature,
-        derivedVia: "web3.eth.personal.sign",
-        signedMessage: siweMessage,
-        address: address,
-      };
+      // 4. Request Decryption via Lit v3 Chipotle TEE API
+      const res = await fetch("/api/decrypt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          slug,
+          message: siweMessage,
+          signature,
+        }),
+      });
 
-      // 5. Decrypt
-      const decryptedString = await lit.decryptLink(
-        encryptedPackage.ciphertext,
-        encryptedPackage.dataToEncryptHash,
-        encryptedPackage.accessControlConditions,
-        authSig 
-      );
+      const data = await res.json();
 
-      setDecryptedContent(decryptedString);
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to decrypt content with Lit v3");
+      }
+
+      setDecryptedContent(data.url);
 
     } catch (e: any) {
       console.error(e);
-      // Clean up the error message for the UI
-
-      // const msg = e.message?.includes("NodeInvalidAuthSig") 
-      //   ? "Signature Invalid: Please try again." 
-      //   : (e.message || "Unknown error");
-
       let msg = e.message || "Unknown error";
-        // Better Error Handling
-      if (msg.includes("NodeAccessControlConditionsReturnedNotAuthorized")) {
+      if (msg.includes("Access denied")) {
         msg = t('accessDenied');
-      } else if (msg.includes("NodeInvalidAuthSig")) {
-        msg = t('signatureInvalid');
+      } else if (msg.includes("user rejected") || msg.includes("User rejected")) {
+        msg = "Signature cancelled.";
       }
       
       alert("Decryption Failed: " + msg);

@@ -17,6 +17,10 @@ export async function POST(req: Request) {
   try {
     const { slug, message, signature } = await req.json();
 
+    if (!slug || !message || !signature) {
+      return NextResponse.json({ error: "Missing required parameters (slug, message, signature)" }, { status: 400 });
+    }
+
     // 1. Verify SIWE signature to validate wallet address
     const siweMessage = new SiweMessage(message);
     const { data: fields } = await siweMessage.verify({ signature });
@@ -47,16 +51,16 @@ export async function POST(req: Request) {
       async function main() {
         const provider = new ethers.providers.JsonRpcProvider("https://mainnet.base.org");
         const abi = ["function balanceOf(address account, uint256 id) view returns (uint256)"];
-        const contract = new ethers.Contract("${contractAddress}", abi, provider);
+        const contract = new ethers.Contract(contractAddress, abi, provider);
 
-        const balance = await contract.balanceOf("${userAddress}", "${linkRecord.token_id}");
+        const balance = await contract.balanceOf(userAddress, tokenId);
         if (balance.lte(0)) {
           return { error: "Access denied: missing required ERC-1155 token." };
         }
 
-        const plaintext = await Lit.Actions.decrypt({
-          pkpId: "${pkpId}",
-          ciphertext: "${linkRecord.ciphertext}"
+        const plaintext = await Lit.Actions.Decrypt({
+          pkpId: pkpId,
+          ciphertext: ciphertext
         });
 
         return { url: plaintext };
@@ -69,15 +73,35 @@ export async function POST(req: Request) {
         "Content-Type": "application/json",
         "X-Api-Key": apiKey,
       },
-      body: JSON.stringify({ code }),
+      body: JSON.stringify({
+        code,
+        js_params: {
+          contractAddress,
+          userAddress,
+          tokenId: linkRecord.token_id,
+          pkpId,
+          ciphertext: linkRecord.ciphertext,
+        },
+      }),
     });
 
     if (!res.ok) {
-      const err = await res.json();
-      return NextResponse.json({ error: err.message || "Lit Action failed" }, { status: res.status });
+      let errorMsg = "Lit Action failed";
+      try {
+        const err = await res.json();
+        errorMsg = typeof err === "string" ? err : err.message || err.error || JSON.stringify(err);
+      } catch {
+        errorMsg = await res.text().catch(() => "Lit Action failed");
+      }
+      return NextResponse.json({ error: errorMsg }, { status: res.status });
     }
 
-    const { response } = await res.json();
+    const data = await res.json();
+    const response = data.response;
+
+    if (!response) {
+      return NextResponse.json({ error: "No response from Lit Action" }, { status: 500 });
+    }
 
     if (response.error) {
       return NextResponse.json({ error: response.error }, { status: 403 });
