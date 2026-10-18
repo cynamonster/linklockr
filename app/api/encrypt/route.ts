@@ -17,7 +17,7 @@ export async function POST(req: Request) {
 
     // Lit Action executed securely inside the Chipotle TEE Enclave
     const code = `
-      async function main() {
+      async function main({ pkpId, url }) {
         const ciphertext = await Lit.Actions.Encrypt({
           pkpId: pkpId,
           message: url

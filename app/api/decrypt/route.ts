@@ -48,7 +48,7 @@ export async function POST(req: Request) {
 
     // 3. Lit Action: Verify on Base & Decrypt inside TEE
     const code = `
-      async function main() {
+      async function main({ contractAddress, userAddress, tokenId, pkpId, ciphertext }) {
         const provider = new ethers.providers.JsonRpcProvider("https://mainnet.base.org");
         const abi = ["function balanceOf(address account, uint256 id) view returns (uint256)"];
         const contract = new ethers.Contract(contractAddress, abi, provider);
