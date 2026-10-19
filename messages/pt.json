@@ -1,7 +1,130 @@
 {
     "Index": {
-        "title": "LinkLockr - Secure Paid Links with Smart Contracts",
-        "description": "Sell access to your digital content",
-        "description_unused": "Create and share paid links securely using blockchain technology. LinkLockr enables content creators to monetize their links with ease and security."
+        "title": "LinkLockr - Links pagos seguros com contratos inteligentes",
+        "description": "Venda acesso ao seu conteúdo digital",
+        "description_unused": "Crie e compartilhe links pagos com segurança usando a tecnologia blockchain. O LinkLockr permite que criadores de conteúdo monetizem seus links com facilidade e segurança."
+    },
+    "CreatePage": {
+        "title": "LinkLockr - Links pagos seguros com contratos inteligentes",
+        "description": "Venda acesso ao seu conteúdo digital",
+        "description_unused": "Crie e compartilhe links pagos com segurança usando a tecnologia blockchain. O LinkLockr permite que criadores de conteúdo monetizem seus links com facilidade e segurança.",
+        "connectWallet": "Conectar carteira",
+        "disconnectWallet": "Desconectar carteira",
+        "logout": "Sair",
+        "getStarted": "Começar",
+
+        "modalTitle": "Como usar o LinkLockr",
+        "modalDescription": "O LinkLockr criptografa seu texto, armazena no IPFS, e então descriptografa e entrega após o pagamento. Sem intermediários financeiros tradicionais, apenas você e seu público.",
+        "step1": "Bloqueie seu texto",
+        "step1_desc": "Insira a URL ou o texto que deseja vender.",
+        "step2": "Defina seu preço",
+        "step2_desc": "Exibido em dólares americanos (USD), pago em Ethereum na rede Base.",
+        "step3": "Crie seu link",
+        "step3_desc": "Insira um link de compra personalizado ou use um gerado automaticamente.",
+        "step4": "Compartilhe seu link bloqueado",
+        "step4_desc": "Os pagamentos são enviados instantaneamente para sua carteira conectada na rede Base. Taxas de plataforma/rede (~{percent}%) se aplicam.",
+
+        "linkCreated": "Link criado!",
+        "linkCreated_desc": "Seu conteúdo está criptografado no IPFS e o slug está registrado na Base.",
+        "linkCreated_desc_unused": "Seu link pago está pronto. Compartilhe com seu público para começar a lucrar!",
+        "createAnother": "Criar outro",
+
+        "textToEncrypt": "Texto para criptografar",
+        "priceToUnencrypt": "Preço para descriptografar",
+        "linkToPaymentPage": "Link para a página de pagamento",
+
+        "linkInfo": "Informações do link",
+        "closeInfo": "Fechar informações",
+        "codeSentTo": "Código enviado para {email}",
+        "verifyAccess": "Verificar acesso",
+
+        "pleaseConnectWallet": "Por favor, conecte uma carteira primeiro.",
+        "missingFields": "Por favor, preencha todos os campos obrigatórios.",
+        "slugTaken": "Slug já está em uso. Atualize para gerar um novo.",
+        "ipfsUploadFailed": "Falha no envio para o IPFS. Por favor, tente novamente.",
+
+        "status": {
+            "connecting": "1/5 Conectando carteira...",
+            "checking": "2/5 Verificando disponibilidade...",
+            "encrypting": "3/5 Criptografando conteúdo...",
+            "uploading": "4/5 Enviando para o IPFS...",
+            "confirming": "5/5 Confirmando na Base...",
+            "success": "Sucesso!"
+        },
+        "processing": "PROCESSANDO...",
+        "encryptLink": "CRIPTOGRAFAR LINK",
+
+        "tab": {
+            "create": "Criar",
+            "wallet": "Carteira"
+        },
+        "activeWallet": "Carteira ativa",
+        "connectedCount": "{count} Conectadas",
+        "embedded": "Integrada",
+        "embeddedWallet": "Carteira integrada",
+        "externalWallet": "Carteira externa",
+
+        "withdrawFunds": "Sacar fundos",
+        "sendEth": "Enviar ETH",
+
+        "termsAgree": "Ao criar este link, você concorda que tem o direito de vender este conteúdo e isenta o LinkLockr de qualquer responsabilidade. Conteúdo denunciado 3 vezes é removido automaticamente."
+    },
+    "BuyPage": {
+        "insufficientGas": "ETH insuficiente. Certifique-se de ter ETH para a compra mais o gás.",
+        "accessDenied": "Acesso negado. A rede indica que você possui 0 cópias deste item.",
+        "signatureInvalid": "Assinatura inválida. Certifique-se de que sua carteira está na rede Base.",
+
+        "contentCardHeader": "Conteúdo seguro",
+        "unavailable": "Indisponível",
+        "getStarted": "Começar",
+        "connectWallet": "Conectar carteira",
+        "connectWalletPrompt": "Conecte sua carteira para comprar e desbloquear este conteúdo.",
+        "disconnectWallet": "Desconectar carteira",
+
+        "confirmingPurchase": "Confirmando compra...",
+        "purchaseAndUnlock": "Comprar e desbloquear",
+
+        "createdBy": "Criado por:",
+        "copyFullAddress": "Copiar endereço completo",
+        "yourWalletBalance": "Saldo da sua carteira:",
+        "usdFormat": "${value}",
+        "priceUsd": "${value}",
+        "usdLabel": "USD",
+        "priceEth": "{value}",
+        "embedded": "Integrada",
+        "creatorAccess": "Acesso do criador",
+        "purchaseVerified": "Compra verificada",
+        "revealSecret": "Revelar dados secretos",
+        "decryptedPayload": "Conteúdo descriptografado",
+        "openLink": "Abrir link",
+        "securedBy": "Protegido por",
+        "safety_first": "Segurança em primeiro lugar",
+
+        "report_link": "Denunciar este link",
+        "report_reason_placeholder": "Motivo da denúncia",
+        "report_submit": "Enviar denúncia",
+        "report_success": "Obrigado pela sua denúncia. Nossa equipe irá analisá-la em breve.",
+        "report_error": "Ocorreu um erro ao enviar sua denúncia. Por favor, tente novamente mais tarde.",
+        "report_button": "Denunciar link",
+        "connect_to_report": "Você precisa conectar sua carteira para denunciar este link.",
+        "report_reason_prompt": "Por favor, forneça um motivo para denunciar este link (pelo menos 5 caracteres).",
+        "already_reported": "Você já denunciou este link.",
+        "report_reason_too_short": "O motivo da denúncia é muito curto. Por favor, forneça pelo menos 5 caracteres.",
+        "under_review": "Em análise",
+        "buyer_warning": "Este link está em análise. Por favor, prossiga com cuidado.",
+        "contentRemoved": "Conteúdo removido",
+        "contentRemovedMessage": "Este conteúdo foi removido devido a múltiplas denúncias e não está mais disponível."
+    },
+    "Moderation": {
+        "connect_to_report": "Você precisa conectar sua carteira para denunciar este link.",
+        "report_reason_prompt": "Por favor, forneça um motivo para denunciar este link (pelo menos 5 caracteres).",
+        "report_reason_too_short": "O motivo da denúncia é muito curto. Por favor, forneça pelo menos 5 caracteres.",
+        "already_reported": "Você já denunciou este link.",
+        "report_error": "Ocorreu um erro ao enviar sua denúncia. Por favor, tente novamente mais tarde.",
+        "report_success": "Obrigado pela sua denúncia. Nossa equipe irá analisá-la em breve.",
+        "report_link": "Denunciar este link",
+        "report_button": "Denunciar link",
+        "report_submit": "Enviar denúncia",
+        "report_reason_placeholder": "Motivo da denúncia"
     }
 }

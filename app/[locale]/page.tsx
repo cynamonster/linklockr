@@ -240,9 +240,13 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
       const ethersProvider = new ethers.BrowserProvider(provider);
       const signer = await ethersProvider.getSigner();
       
-      // 2. CHECK AVAILABILITY (via Supabase Indexer first for speed)
+      // 2. CHECK AVAILABILITY & DB CONNECTION
       setStatusMsg(t('status.checking'));
-      const { data: existing } = await supabase.from('links').select('slug').eq('slug', slug).maybeSingle();
+      const { data: existing, error: checkError } = await supabase.from('links').select('slug').eq('slug', slug).maybeSingle();
+      if (checkError) {
+        console.error("Database connection check failed:", checkError);
+        throw new Error(`Database connection failed: ${checkError.message || "Failed to reach database"}. Check your Supabase configuration before minting.`);
+      }
       if (existing) throw new Error(t('slugTaken'));
 
       // 3. CALCULATE ID & ENCRYPT VIA LIT v3 (CHIPOTLE)
@@ -269,6 +273,21 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
       // Using an immutable reference string to preserve contract parameter expectations
       const linkReferenceUri = `lit://chipotle/${slug}`;
 
+      // Save backup payload in localStorage in case network drops during/after minting
+      const recoveryKey = `linklockr_recovery_${slug}`;
+      const linkPayload = {
+        slug,
+        id_hash: slugHash,
+        token_id: tokenId,
+        ciphertext,
+        creator: user?.wallet?.address || selectedAddress,
+        price_usd: 0, // will populate with final price
+        price_eth: "0",
+        price_wei: "0",
+        ipfs_hash: linkReferenceUri,
+        active: true,
+      };
+
       // 5. MINT ON CHAIN
       setStatusMsg(t('status.confirming'));
       const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
@@ -282,27 +301,28 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
       const priceEthFixed = priceEth.toFixed(18); 
       const priceWei = ethers.parseEther(priceEthFixed);
 
+      linkPayload.price_usd = priceUsd;
+      linkPayload.price_eth = priceEthFixed;
+      linkPayload.price_wei = priceWei.toString();
+      try {
+        localStorage.setItem(recoveryKey, JSON.stringify(linkPayload));
+      } catch {}
+
       const tx = await contract.createLink(slug, priceWei, linkReferenceUri);
       await tx.wait();
 
       // 6. INDEX FOR DISCOVERY (Supabase)
-      const { error: insertError } = await supabase.from('links').insert({
-        slug: slug,
-        id_hash: slugHash,
-        token_id: tokenId,
-        ciphertext: ciphertext,
-        creator: user?.wallet?.address || selectedAddress,
-        price_usd: priceUsd,
-        price_eth: priceEthFixed,
-        price_wei: priceWei.toString(),
-        ipfs_hash: linkReferenceUri,
-        active: true,
-      });
+      const { error: insertError } = await supabase.from('links').insert(linkPayload);
 
       if (insertError) {
-        console.error('Supabase insert error:', insertError);
+        console.error('Supabase insert error after on-chain mint:', insertError);
+        alert(`Transaction succeeded on-chain, but indexing in Supabase failed: ${insertError.message || "Failed to reach database"}. Your link record is saved in local storage.`);
         throw insertError;
       }
+
+      try {
+        localStorage.removeItem(recoveryKey);
+      } catch {}
 
       setCreatedSlug(slug);
       setStatusMsg(t('status.success'));

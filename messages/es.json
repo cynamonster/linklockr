@@ -1,7 +1,130 @@
 {
     "Index": {
-        "title": "LinkLockr - Secure Paid Links with Smart Contracts",
-        "description": "Sell access to your digital content",
-        "description_unused": "Create and share paid links securely using blockchain technology. LinkLockr enables content creators to monetize their links with ease and security."
+        "title": "LinkLockr - Enlaces de pago seguros con contratos inteligentes",
+        "description": "Vende acceso a tu contenido digital",
+        "description_unused": "Crea y comparte enlaces de pago de forma segura mediante tecnología blockchain. LinkLockr permite a los creadores de contenido monetizar sus enlaces con facilidad y seguridad."
+    },
+    "CreatePage": {
+        "title": "LinkLockr - Enlaces de pago seguros con contratos inteligentes",
+        "description": "Vende acceso a tu contenido digital",
+        "description_unused": "Crea y comparte enlaces de pago de forma segura mediante tecnología blockchain. LinkLockr permite a los creadores de contenido monetizar sus enlaces con facilidad y seguridad.",
+        "connectWallet": "Conectar billetera",
+        "disconnectWallet": "Desconectar billetera",
+        "logout": "Cerrar sesión",
+        "getStarted": "Comenzar",
+
+        "modalTitle": "Cómo usar LinkLockr",
+        "modalDescription": "LinkLockr cifra tu texto, lo almacena en IPFS, luego lo descifra y lo entrega tras el pago. Sin intermediarios financieros tradicionales, solo tú y tu audiencia.",
+        "step1": "Bloquea tu texto",
+        "step1_desc": "Ingresa la URL o el texto que deseas vender.",
+        "step2": "Establece tu precio",
+        "step2_desc": "Mostrado en dólares estadounidenses (USD), pagado en Ethereum en la red Base.",
+        "step3": "Crea tu enlace",
+        "step3_desc": "Ingresa un enlace de compra personalizado o utiliza uno generado automáticamente.",
+        "step4": "Comparte tu enlace bloqueado",
+        "step4_desc": "Los pagos se envían instantáneamente a tu billetera conectada en la red Base. Se aplican tarifas de plataforma/red (~{percent}%).",
+
+        "linkCreated": "¡Enlace creado!",
+        "linkCreated_desc": "Tu contenido está cifrado en IPFS y el slug está registrado en Base.",
+        "linkCreated_desc_unused": "Tu enlace de pago está listo. ¡Compártelo con tu audiencia para comenzar a ganar!",
+        "createAnother": "Crear otro",
+
+        "textToEncrypt": "Texto para cifrar",
+        "priceToUnencrypt": "Precio para descifrar",
+        "linkToPaymentPage": "Enlace a la página de pago",
+
+        "linkInfo": "Información del enlace",
+        "closeInfo": "Cerrar información",
+        "codeSentTo": "Código enviado a {email}",
+        "verifyAccess": "Verificar acceso",
+
+        "pleaseConnectWallet": "Por favor conecta una billetera primero.",
+        "missingFields": "Por favor completa todos los campos requeridos.",
+        "slugTaken": "El slug ya está en uso. Por favor actualiza para generar uno nuevo.",
+        "ipfsUploadFailed": "Error al subir a IPFS. Por favor inténtalo de nuevo.",
+
+        "status": {
+            "connecting": "1/5 Conectando billetera...",
+            "checking": "2/5 Comprobando disponibilidad...",
+            "encrypting": "3/5 Cifrando contenido...",
+            "uploading": "4/5 Subiendo a IPFS...",
+            "confirming": "5/5 Confirmando en Base...",
+            "success": "¡Éxito!"
+        },
+        "processing": "PROCESANDO...",
+        "encryptLink": "CIFRAR ENLACE",
+
+        "tab": {
+            "create": "Crear",
+            "wallet": "Billetera"
+        },
+        "activeWallet": "Billetera activa",
+        "connectedCount": "{count} Conectadas",
+        "embedded": "Integrada",
+        "embeddedWallet": "Billetera integrada",
+        "externalWallet": "Billetera externa",
+
+        "withdrawFunds": "Retirar fondos",
+        "sendEth": "Enviar ETH",
+
+        "termsAgree": "Al crear este enlace, aceptas que tienes el derecho de vender este contenido y eximes a LinkLockr de cualquier responsabilidad. El contenido reportado 3 veces se elimina automáticamente."
+    },
+    "BuyPage": {
+        "insufficientGas": "ETH insuficiente. Asegúrate de tener ETH para la compra más el gas.",
+        "accessDenied": "Acceso denegado. La red indica que posees 0 copias de este artículo.",
+        "signatureInvalid": "Firma inválida. Asegúrate de que tu billetera esté en la red Base.",
+
+        "contentCardHeader": "Contenido seguro",
+        "unavailable": "No disponible",
+        "getStarted": "Comenzar",
+        "connectWallet": "Conectar billetera",
+        "connectWalletPrompt": "Conecta tu billetera para comprar y desbloquear este contenido.",
+        "disconnectWallet": "Desconectar billetera",
+
+        "confirmingPurchase": "Confirmando compra...",
+        "purchaseAndUnlock": "Comprar y desbloquear",
+
+        "createdBy": "Creado por:",
+        "copyFullAddress": "Copiar dirección completa",
+        "yourWalletBalance": "Saldo de tu billetera:",
+        "usdFormat": "${value}",
+        "priceUsd": "${value}",
+        "usdLabel": "USD",
+        "priceEth": "{value}",
+        "embedded": "Integrada",
+        "creatorAccess": "Acceso de creador",
+        "purchaseVerified": "Compra verificada",
+        "revealSecret": "Revelar datos secretos",
+        "decryptedPayload": "Contenido descifrado",
+        "openLink": "Abrir enlace",
+        "securedBy": "Asegurado por",
+        "safety_first": "La seguridad primero",
+
+        "report_link": "Reportar este enlace",
+        "report_reason_placeholder": "Motivo del reporte",
+        "report_submit": "Enviar reporte",
+        "report_success": "Gracias por tu reporte. Nuestro equipo lo revisará en breve.",
+        "report_error": "Hubo un error al enviar tu reporte. Por favor inténtalo de nuevo más tarde.",
+        "report_button": "Reportar enlace",
+        "connect_to_report": "Debes conectar tu billetera para reportar este enlace.",
+        "report_reason_prompt": "Por favor proporciona un motivo para reportar este enlace (al menos 5 caracteres).",
+        "already_reported": "Ya has reportado este enlace.",
+        "report_reason_too_short": "El motivo del reporte es demasiado corto. Proporciona al menos 5 caracteres.",
+        "under_review": "En revisión",
+        "buyer_warning": "Este enlace está en revisión. Por favor procede con precaución.",
+        "contentRemoved": "Contenido eliminado",
+        "contentRemovedMessage": "Este contenido ha sido eliminado debido a múltiples reportes y ya no está disponible."
+    },
+    "Moderation": {
+        "connect_to_report": "Debes conectar tu billetera para reportar este enlace.",
+        "report_reason_prompt": "Por favor proporciona un motivo para reportar este enlace (al menos 5 caracteres).",
+        "report_reason_too_short": "El motivo del reporte es demasiado corto. Proporciona al menos 5 caracteres.",
+        "already_reported": "Ya has reportado este enlace.",
+        "report_error": "Hubo un error al enviar tu reporte. Por favor inténtalo de nuevo más tarde.",
+        "report_success": "Gracias por tu reporte. Nuestro equipo lo revisará en breve.",
+        "report_link": "Reportar este enlace",
+        "report_button": "Reportar enlace",
+        "report_submit": "Enviar reporte",
+        "report_reason_placeholder": "Motivo del reporte"
     }
 }

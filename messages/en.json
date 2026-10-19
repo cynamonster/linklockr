@@ -1,4 +1,9 @@
 {
+    "Index": {
+        "title": "LinkLockr - Secure Paid Links with Smart Contracts",
+        "description": "Sell access to your digital content",
+        "description_unused": "Create and share paid links securely using blockchain technology. LinkLockr enables content creators to monetize their links with ease and security."
+    },
     "CreatePage": {
         "title": "LinkLockr - Secure Paid Links with Smart Contracts",
         "description": "Sell access to your digital content",
@@ -6,17 +11,17 @@
         "connectWallet": "Connect Wallet",
         "disconnectWallet": "Disconnect Wallet",
         "logout": "Logout",
+        "getStarted": "Get Started",
 
         "modalTitle": "How to use LinkLockr",
         "modalDescription": "LinkLockr encrypts your text, stores it on IPFS, then unencrypts and delivers it upon payment. No traditional financial intermediaries, just you and your audience.",
         "step1": "Lock your text",
         "step1_desc": "Enter the URL or text you want to sell.",
         "step2": "Set your price",
-        "step2_desc": "Displayed in US Dollars, paid in Etheruem on the Base chain.",
+        "step2_desc": "Displayed in US Dollars, paid in Ethereum on the Base chain.",
         "step3": "Create your link",
         "step3_desc": "Enter a custom purchase link or use an auto-generated one.",
         "step4": "Share your locked link",
-        "TODO": "TODO: link fee percentage should be from .env.local",
         "step4_desc": "Payments are instantly sent to your connected wallet on the Base chain. Platform/network fees (~{percent}%) apply.",
 
         "linkCreated": "Link Created!",
@@ -26,9 +31,8 @@
 
         "textToEncrypt": "Text to Encrypt",
         "priceToUnencrypt": "Price to Unencrypt",
-        "linkToPaymentPage": "Link to Payment Page"
+        "linkToPaymentPage": "Link to Payment Page",
 
-        ,
         "linkInfo": "Link info",
         "closeInfo": "Close info",
         "codeSentTo": "Code sent to {email}",
@@ -64,7 +68,6 @@
         "sendEth": "Send ETH",
 
         "termsAgree": "By creating this link, you agree that you have the right to sell this content and indemnify LinkLockr from any liability. Content reported 3 times is automatically removed."
-
     },
     "BuyPage": {
         "insufficientGas": "Insufficient ETH. Please ensure you have ETH for the purchase plus gas.",
@@ -74,6 +77,7 @@
         "contentCardHeader": "Secure Content",
         "unavailable": "Unavailable",
         "getStarted": "Get Started",
+        "connectWallet": "Connect Wallet",
         "connectWalletPrompt": "Connect your wallet to purchase and unlock this content.",
         "disconnectWallet": "Disconnect Wallet",
 
@@ -94,6 +98,7 @@
         "decryptedPayload": "Decrypted Payload",
         "openLink": "Open Link",
         "securedBy": "Secured by",
+        "safety_first": "Safety First",
 
         "report_link": "Report this link",
         "report_reason_placeholder": "Reason for reporting",
@@ -109,6 +114,17 @@
         "buyer_warning": "This link is under review. Please proceed with caution.",
         "contentRemoved": "Content Removed",
         "contentRemovedMessage": "This content has been removed due to multiple reports and is no longer available."
-        
+    },
+    "Moderation": {
+        "connect_to_report": "You need to connect your wallet to report this link.",
+        "report_reason_prompt": "Please provide a reason for reporting this link (at least 5 characters).",
+        "report_reason_too_short": "The reason for reporting is too short. Please provide at least 5 characters.",
+        "already_reported": "You have already reported this link.",
+        "report_error": "There was an error submitting your report. Please try again later.",
+        "report_success": "Thank you for your report. Our team will review it shortly.",
+        "report_link": "Report this link",
+        "report_button": "Report Link",
+        "report_submit": "Submit Report",
+        "report_reason_placeholder": "Reason for reporting"
     }
 }
