@@ -9,8 +9,6 @@ import {
   CircleX
 } from "lucide-react";
 import { PrivyProvider, usePrivy, useLoginWithEmail, useWallets, ConnectedWallet } from "@privy-io/react-auth";
-import { ethers } from "ethers";
-import { uniqueNamesGenerator, adjectives, colors, animals } from 'unique-names-generator';
 import {useTranslations} from 'next-intl';
 
 // --- IMPORTS ---
@@ -187,9 +185,12 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
   }, [isInfoOpen]);
 
   // Auto-generate slug on mount
-  useEffect(() => { generateNewSlug(); }, []);
+  useEffect(() => { 
+    generateNewSlug(); 
+  }, []);
 
-  const generateNewSlug = () => {
+  const generateNewSlug = async () => {
+    const { uniqueNamesGenerator, adjectives, colors, animals } = await import('unique-names-generator');
     const randomName = uniqueNamesGenerator({
       dictionaries: [adjectives, colors, animals],
       separator: '-',
@@ -223,6 +224,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
 
     setIsLoading(true);
     try {
+      const { ethers } = await import("ethers");
       // 1. SETUP
       setStatusMsg(t('status.connecting'));
       const provider = await wallet.getEthereumProvider();
@@ -328,6 +330,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
   if (!recipient) return;
   setIsLoading(true);
   try {
+    const { ethers } = await import("ethers");
     const provider = await recipient.getEthereumProvider();
     const ethersProvider = new ethers.BrowserProvider(provider);
     const signer = await ethersProvider.getSigner();

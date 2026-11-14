@@ -5,6 +5,8 @@ const withNextIntl = createNextIntlPlugin('./i18n.ts');
 console.log('withNextIntl plugin loaded', withNextIntl);
 
 const nextConfig: NextConfig = {
+  poweredByHeader: false,
+  compress: true,
   experimental: {
     optimizePackageImports: ['lucide-react', 'ethers', '@privy-io/react-auth'],
   },
