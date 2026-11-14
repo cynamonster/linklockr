@@ -288,6 +288,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
       const priceUnits = ethers.parseUnits(priceUsd.toFixed(6), 6);
 
       linkPayload.price_usd = priceUsd;
+      linkPayload.price_usdc = priceUsd;
       linkPayload.price_eth = priceUsd.toFixed(2); // backward compat representation
       linkPayload.price_wei = priceUnits.toString(); // 6-decimal units for USDC contract
       try {
