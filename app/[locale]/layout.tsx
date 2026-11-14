@@ -22,14 +22,12 @@ export default async function LocaleLayout({
   const messages = await getMessages();
 
   return (
-    <html lang={locale}>
-      <body className="min-h-screen bg-slate-950 text-slate-50 antialiased">
-        <NextIntlClientProvider messages={messages} locale={locale}>
-            <LanguageSwitcher />
-            {children}
-        </NextIntlClientProvider>
-      </body>
-    </html>
+    <NextIntlClientProvider messages={messages} locale={locale}>
+      <div className="min-h-screen bg-slate-950 text-slate-50 antialiased">
+        <LanguageSwitcher />
+        {children}
+      </div>
+    </NextIntlClientProvider>
   );
 }
 

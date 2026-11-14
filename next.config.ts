@@ -5,6 +5,9 @@ const withNextIntl = createNextIntlPlugin('./i18n.ts');
 console.log('withNextIntl plugin loaded', withNextIntl);
 
 const nextConfig: NextConfig = {
+  experimental: {
+    optimizePackageImports: ['lucide-react', 'ethers', '@privy-io/react-auth'],
+  },
   // 1. Keep the Webpack fix for compatibility
   webpack: (config) => {
     config.resolve.fallback = {
