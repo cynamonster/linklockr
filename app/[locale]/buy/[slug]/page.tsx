@@ -23,26 +23,19 @@ const NEXT_PUBLIC_FEE_BPS = process.env.NEXT_PUBLIC_FEE_BPS
   ? parseInt(process.env.NEXT_PUBLIC_FEE_BPS)
   : 500; // Default to 500 bps (5%);
 
+const USDC_ADDRESS = process.env.NEXT_PUBLIC_USDC_ADDRESS || "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+
 const LINK_ABI = [
   "function balanceOf(address account, uint256 id) view returns (uint256)",
-  "function buyLink(string _slug, address _recipient, address _feeRecipient, uint256 _feeBps) external payable"
+  "function buyLink(string _slug, address _recipient, address _feeRecipient, uint256 _feeBps) external"
 ];
 
-async function fetchEthPriceUsd() {
-  try {
-      const res = await fetch(
-      "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd"
-      );
-      if (!res.ok) throw new Error("Bad response");
-      const data = await res.json();
-      return data.ethereum.usd;
-  } catch (err) {
-      // Fallback to conservative default eth price
-      console.warn("Could not fetch real-time ETH price, using fallback.");
-      return 3500;
-  }
-}
-const ETH_PRICE = await fetchEthPriceUsd(); 
+const ERC20_ABI = [
+  "function balanceOf(address account) view returns (uint256)",
+  "function allowance(address owner, address spender) view returns (uint256)",
+  "function approve(address spender, uint256 amount) returns (bool)",
+  "function decimals() view returns (uint8)"
+]; 
 
 // --- 1. THE WRAPPER (Fixes the "Uncaught Error") ---
 export default function BuyPage() {    
@@ -107,25 +100,32 @@ function BuyPageContent() {
   };
 
   const [ethBalance, setEthBalance] = useState("0.0000");
-  const [isFetchingEthBalance, setIsFetchingEthBalance] = useState(false);
+  const [usdcBalance, setUsdcBalance] = useState("0.00");
+  const [isFetchingBalance, setIsFetchingBalance] = useState(false);
 
-  // Fetch native ETH balance for the connected wallet
+  // Fetch USDC and ETH balances for the connected wallet
   useEffect(() => {
     const fetchBalance = async () => {
-      setIsFetchingEthBalance(true);
+      setIsFetchingBalance(true);
 
       if (!wallets[0]) return;
 
       try {
           const address = wallets[0].address;
           const provider = new ethers.JsonRpcProvider("https://mainnet.base.org");
-          const rawBalance = await provider.getBalance(address);
-          const formatted = ethers.formatEther(rawBalance);
-          setEthBalance(formatted);
+          
+          // ETH balance for gas
+          const rawEth = await provider.getBalance(address);
+          setEthBalance(ethers.formatEther(rawEth));
+
+          // Base Native USDC balance
+          const usdc = new ethers.Contract(USDC_ADDRESS, ERC20_ABI, provider);
+          const rawUsdc = await usdc.balanceOf(address);
+          setUsdcBalance(ethers.formatUnits(rawUsdc, 6));
       } catch (err) {
-          console.error("Error fetching ETH balance:", err);
+          console.error("Error fetching balance:", err);
       } finally {
-          setIsFetchingEthBalance(false);
+          setIsFetchingBalance(false);
       }
     };
 
@@ -233,78 +233,54 @@ function BuyPageContent() {
       const userAddress = await signer.getAddress();
 
       // --- CHECK 1: GAS (ETH) ---
-      // Prevent the "Missing Revert Data" crash by checking ETH first
+      // Need a tiny amount of ETH on Base for gas (~$0.002)
       const ethBalance = await ethersProvider.getBalance(userAddress);
       const estimatedEthForGas = ethers.parseEther("0.00003");
-      const estimatedUsdForGas = (Number(ethers.formatEther(estimatedEthForGas)) * ETH_PRICE).toFixed(2);
 
       if (ethBalance < estimatedEthForGas) {
-        // throw new Error(`Insufficient ETH. You need about $${estimatedUsdForGas} of ETH on Base to pay for gas fees.`);
         throw new Error(t('insufficientGas'));
       }
 
-      // --- CHECK 2: MONEY (native ETH) ---
-      // Price is stored in the index as `price_eth` (e.g. "0.01") — convert to wei
-      // Safe parse: ensure we don't pass a string with >18 decimals to ethers.parseUnits
-      const safeParseEther = (value: string | number) => {
-        let s = typeof value === 'number' ? String(value) : (value || '0');
+      // --- CHECK 2: PRICE & USDC BALANCE ---
+      let priceUnits: bigint;
+      if (linkData.price_wei && BigInt(linkData.price_wei) > BigInt(0) && BigInt(linkData.price_wei) < BigInt("1000000000000000")) {
+        priceUnits = BigInt(linkData.price_wei);
+      } else {
+        priceUnits = ethers.parseUnits(Number(linkData.price_usd || 0).toFixed(6), 6);
+      }
 
-        // Handle scientific notation by expanding to fixed decimals
-        if (s.includes('e') || s.includes('E')) {
-          // Use a reasonably high fixed precision then trim
-          s = Number(s).toFixed(20);
-        }
+      const usdcContract = new ethers.Contract(USDC_ADDRESS, ERC20_ABI, signer);
+      const userUsdcBalance: bigint = await usdcContract.balanceOf(userAddress);
 
-        // Normalize and truncate fractional part to <= 18 decimals
-        if (s.includes('.')) {
-          const [intPart, fracPart] = s.split('.');
-          const frac = (fracPart || '').replace(/[^0-9]/g, '');
-          const truncated = frac.slice(0, 18);
-          s = truncated.length > 0 ? `${intPart}.${truncated}` : intPart;
-        }
+      if (userUsdcBalance < priceUnits) {
+        const currentUsdc = ethers.formatUnits(userUsdcBalance, 6);
+        const requiredUsdc = ethers.formatUnits(priceUnits, 6);
+        throw new Error(`Insufficient USDC balance. You have $${Number(currentUsdc).toFixed(2)} USDC, but this item costs $${Number(requiredUsdc).toFixed(2)} USDC.`);
+      }
 
-        return ethers.parseUnits(s, 18);
-      };
-
-      // const priceWei = safeParseEther(linkData.price_eth);
-      const priceWei = BigInt(linkData.price_wei);
-
-      // Ensure buyer has enough ETH to cover price + gas
-      const totalNeeded = priceWei + ethers.parseEther("0.00003");
-      if (ethBalance < totalNeeded) {
-        throw new Error(t('insufficientGas'));
+      // --- CHECK 3: ALLOWANCE & APPROVE ---
+      const currentAllowance: bigint = await usdcContract.allowance(userAddress, CONTRACT_ADDRESS);
+      if (currentAllowance < priceUnits) {
+        setTxStatus("approving USDC...");
+        const txApprove = await usdcContract.approve(CONTRACT_ADDRESS, priceUnits);
+        await txApprove.wait();
       }
 
       // --- ACTION: BUY ---
       setTxStatus("buying"); // UI: "Purchasing..."
       const contract = new ethers.Contract(CONTRACT_ADDRESS, LINK_ABI, signer);
-      
-      // Manual gas estimate to catch "Item Paused" or other contract errors cleanly
-      try {
-        await contract["buyLink(string,address,address,uint256)"].estimateGas(
-            slug, 
-            userAddress, 
-            PLATFORM_FEE_RECIPIENT, 
-            NEXT_PUBLIC_FEE_BPS,
-            { value: priceWei }
-        );
-      } catch (err) {
-        console.error("Gas estimation failed", err);
-        throw new Error("Transaction likely to fail. Is the item still available?");
-      }
 
       const txBuy = await contract.buyLink(
         slug, 
         userAddress, 
         PLATFORM_FEE_RECIPIENT, 
-        NEXT_PUBLIC_FEE_BPS,
-        { value: priceWei }
+        NEXT_PUBLIC_FEE_BPS
       );
       await txBuy.wait();
 
       // --- SUCCESS ---
       setIsOwner(true);
-      setTxStatus("indexing..."); // UI: "Veryfying..."
+      setTxStatus("indexing..."); // UI: "Verifying..."
 
       // Wait 2s before decrypting to let Lit nodes sync with the blockchain
       await new Promise((resolve) => setTimeout(resolve, 2000)); 
@@ -318,7 +294,7 @@ function BuyPageContent() {
       
       // Translate weird wallet errors into human text
       if (msg.includes("user rejected")) msg = "Transaction cancelled.";
-      else if (msg.includes("insufficient funds")) msg = "Insufficient ETH for gas.";
+      else if (msg.includes("insufficient funds")) msg = "Insufficient ETH for gas or insufficient USDC.";
       
       alert(msg);
       setTxStatus("");
@@ -457,21 +433,21 @@ function BuyPageContent() {
                   </div>
               </div>
 
-              {/* NEW: BALANCE DISPLAY */}
+              {/* BALANCE DISPLAY */}
               {
                 authenticated && activeWallet && (
                       <div className="flex items-center inline-flex flex-col justify-center mt-4">
                       <span>{t('yourWalletBalance')}</span>
                         {
-                          isFetchingEthBalance ? (
-                            <Loader2 className="inline-block animate-spin text-cyan-400" />
+                          isFetchingBalance ? (
+                            <Loader2 className="inline-block animate-spin text-cyan-400 mt-2" />
                           ) : (
                             <>
                               <span className={`text-3xl font-bold text-white`}>
-                                {t('usdFormat', { value: (Number(ethBalance) * ETH_PRICE).toFixed(2) })}
+                                ${Number(usdcBalance).toFixed(2)} <span className="text-base text-cyan-400 font-semibold">USDC</span>
                               </span>
-                              <span className="text-sm font-bold text-slate-500 mb-1">
-                                ({Number(ethBalance).toFixed(4)} ETH)
+                              <span className="text-xs font-semibold text-slate-400 mt-0.5">
+                                Gas: {Number(ethBalance).toFixed(4)} ETH
                               </span>
                             </>
                           )
@@ -499,11 +475,8 @@ function BuyPageContent() {
                 {!isBanned && !isOwner && (
                     <div className="bg-black/30 rounded-2xl p-6 border border-white/5 text-center space-y-4">
                         <div className="text-4xl font-bold text-white tracking-tight">
-                        {t('priceUsd', { value: Number(linkData.price_usd).toFixed(2) })}
-                        <span className="text-lg text-slate-500 font-medium ml-1">{t('usdLabel')}</span>
-                        <div className="text-sm text-slate-500 mt-1">
-                          ({t('priceEth', { value: Number(linkData?.price_eth || 0).toFixed(6) })} ETH)
-                        </div>
+                        ${Number(linkData.price_usd).toFixed(2)}
+                        <span className="text-lg text-cyan-400 font-medium ml-1">USDC</span>
                       </div>
                       {
                         activeWallet ? null : (

@@ -18,7 +18,7 @@
         "step1": "Lock your text",
         "step1_desc": "Enter the URL or text you want to sell.",
         "step2": "Set your price",
-        "step2_desc": "Displayed in US Dollars, paid in Ethereum on the Base chain.",
+        "step2_desc": "Displayed in US Dollars, paid in USDC on the Base chain.",
         "step3": "Create your link",
         "step3_desc": "Enter a custom purchase link or use an auto-generated one.",
         "step4": "Share your locked link",
@@ -70,7 +70,7 @@
         "termsAgree": "By creating this link, you agree that you have the right to sell this content and indemnify LinkLockr from any liability. Content reported 3 times is automatically removed."
     },
     "BuyPage": {
-        "insufficientGas": "Insufficient ETH. Please ensure you have ETH for the purchase plus gas.",
+        "insufficientGas": "Insufficient balance. Please ensure you have enough USDC for the purchase and a tiny amount of ETH for Base gas.",
         "accessDenied": "Access Denied. The network thinks you own 0 copies of this item.",
         "signatureInvalid": "Signature Invalid. Please ensure your wallet is on the Base network.",
 

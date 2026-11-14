@@ -19,7 +19,7 @@ import { supabase } from "../../utils/supabase";
 // --- CONFIGURATION ---
 const PRIVY_APP_ID = process.env.NEXT_PUBLIC_PRIVY_APP_ID || ""; 
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || ""; 
-// ABI for the Ownerless Contract (price is in wei for native ETH)
+// ABI for the USDC Smart Contract (price is in 6-decimal units for Base Native USDC)
 const CONTRACT_ABI = [
   "function createLink(string _slug, uint256 _price, string _ipfsHash) external"
 ];
@@ -292,23 +292,18 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
       setStatusMsg(t('status.confirming'));
       const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
 
-      // Seller enters USD-denominated price. Convert to ETH using a live oracle
-      const ethUsd = await fetchEthPriceUsd();
+      // Seller enters USD-denominated price. Converted to 6-decimal Base Native USDC units
       const priceUsd = parseFloat(price);
-      const priceEth = priceUsd / ethUsd; // decimal ETH amount
-
-      // Ensure the ETH string has at most 18 decimals to satisfy ethers' fixed-point requirements
-      const priceEthFixed = priceEth.toFixed(18); 
-      const priceWei = ethers.parseEther(priceEthFixed);
+      const priceUnits = ethers.parseUnits(priceUsd.toFixed(6), 6);
 
       linkPayload.price_usd = priceUsd;
-      linkPayload.price_eth = priceEthFixed;
-      linkPayload.price_wei = priceWei.toString();
+      linkPayload.price_eth = priceUsd.toFixed(2); // backward compat representation
+      linkPayload.price_wei = priceUnits.toString(); // 6-decimal units for USDC contract
       try {
         localStorage.setItem(recoveryKey, JSON.stringify(linkPayload));
       } catch {}
 
-      const tx = await contract.createLink(slug, priceWei, linkReferenceUri);
+      const tx = await contract.createLink(slug, priceUnits, linkReferenceUri);
       await tx.wait();
 
       // 6. INDEX FOR DISCOVERY (Supabase)

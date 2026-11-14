@@ -18,7 +18,7 @@
         "step1": "Bloquea tu texto",
         "step1_desc": "Ingresa la URL o el texto que deseas vender.",
         "step2": "Establece tu precio",
-        "step2_desc": "Mostrado en dólares estadounidenses (USD), pagado en Ethereum en la red Base.",
+        "step2_desc": "Mostrado en dólares estadounidenses (USD), pagado en USDC en la red Base.",
         "step3": "Crea tu enlace",
         "step3_desc": "Ingresa un enlace de compra personalizado o utiliza uno generado automáticamente.",
         "step4": "Comparte tu enlace bloqueado",
@@ -70,7 +70,7 @@
         "termsAgree": "Al crear este enlace, aceptas que tienes el derecho de vender este contenido y eximes a LinkLockr de cualquier responsabilidad. El contenido reportado 3 veces se elimina automáticamente."
     },
     "BuyPage": {
-        "insufficientGas": "ETH insuficiente. Asegúrate de tener ETH para la compra más el gas.",
+        "insufficientGas": "Saldo insuficiente. Asegúrate de tener suficiente USDC para la compra y una pequeña cantidad de ETH para el gas.",
         "accessDenied": "Acceso denegado. La red indica que posees 0 copias de este artículo.",
         "signatureInvalid": "Firma inválida. Asegúrate de que tu billetera esté en la red Base.",
 
