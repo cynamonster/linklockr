@@ -2,6 +2,9 @@ import { supabase } from "@/utils/supabase";
 import BuyClientWrapper from "./BuyClientWrapper";
 import type { Metadata } from "next";
 
+// Cache rendered link pages on Vercel's global edge network for 60s
+export const revalidate = 60;
+
 export async function generateMetadata({
   params,
 }: {

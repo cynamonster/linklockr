@@ -50,18 +50,7 @@ function ThemeToggle({ isDark, toggle }: { isDark: boolean, toggle: () => void }
 const BLURB = `LinkLockr is an authenticated vending protocol that allows creators to sell access to encrypted content via blockchain.`;
 // const INFO_TEXT = `LinkLockr encrypts your text, stores it on IPFS, then unencrypts and delivers it upon payment. No traditional financial intermediaries, just you and your audience.`;
 
-async function fetchEthPriceUsd() {
-  try {
-    const res = await fetch(
-      "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd"
-    );
-    if (!res.ok) throw new Error("Bad response");
-    const data = await res.json();
-    return data.ethereum.usd;
-  } catch (err) {
-    return 3500; // conservative fallback
-  }
-}
+
 
 export default function App() {
   // Default to Dark Mode (The "Tactical/Aero" look)
@@ -355,17 +344,6 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
   }
   setIsLoading(false);
   };
-
-  // if (!ready) return null; // Blink prevention
-  if (!ready) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="animate-spin mx-auto"/>
-      </div>
-    )
-  }
-
-  
 
   // --- VIEW: LOGIN SCREEN ---
   if (!authenticated) {
