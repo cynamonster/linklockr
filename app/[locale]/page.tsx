@@ -266,13 +266,14 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
 
       // Save backup payload in localStorage in case network drops during/after minting
       const recoveryKey = `linklockr_recovery_${slug}`;
-      const linkPayload = {
+      const linkPayload: Record<string, any> = {
         slug,
         id_hash: slugHash,
         token_id: tokenId,
         ciphertext,
         creator: user?.wallet?.address || selectedAddress,
         price_usd: 0, // will populate with final price
+        price_usdc: 0,
         price_eth: "0",
         price_wei: "0",
         ipfs_hash: linkReferenceUri,
