@@ -822,7 +822,6 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                         </div>
 
                         <p className="text-[10px] font-mono text-slate-500 text-center">
-                          Decrypted via Lit Protocol Chipotle TEE
                         </p>
                       </div>
                     </div>
