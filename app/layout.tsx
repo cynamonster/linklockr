@@ -36,7 +36,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://auth.privy.io" />
       </head>
       <body
-        className={`${geistSans.variable} bg-slate-950 text-slate-50 antialiased overflow-x-hidden`}
+        className={`${geistSans.variable} antialiased overflow-x-hidden`}
       >
         {children}
       </body>

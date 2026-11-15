@@ -7,8 +7,8 @@ body {
 }
 
 :root {
-  --background: #0B0C15;
-  --foreground: #ededed;
+  --background: #f8fafc;
+  --foreground: #0f172a;
 }
 
 @theme inline {
@@ -20,7 +20,7 @@ body {
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #0B0C15;
     --foreground: #ededed;
   }
 }
