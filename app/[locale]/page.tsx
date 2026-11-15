@@ -575,8 +575,8 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
               <div className="flex items-center justify-between pb-6 border-b border-slate-800/40">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-cyan-400 animate-pulse"></div>
-                  <h3 className={`text-sm font-bold uppercase tracking-wider ${isDark ? "text-white" : "text-slate-900"}`}>
-                    Create Paywalled Link
+                  <h3 className={`text-sm font-bold tracking-wider ${isDark ? "text-white" : "text-slate-900"}`}>
+                    LinkLockr.xyz
                   </h3>
                 </div>
                 <span className="text-[11px] font-mono font-medium px-2.5 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
