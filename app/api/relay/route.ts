@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { ethers } from "ethers";
 
 // CONFIG
@@ -24,7 +24,7 @@ async function fetchEthPriceUsd() {
     }
 }        
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     const { slug, userAddress, price } = await req.json();
 
@@ -78,12 +78,27 @@ export async function POST(req: Request) {
     }
 
     // 5. Execute if Profitable
-    // 5. Execute if Profitable
     const tx = await contract.buyLink(
         slug, userAddress, PLATFORM_FEE_RECIPIENT, NEXT_PUBLIC_FEE_BPS,
         { value: priceWei }
     );
     
+    // Notify Discord sales feed (non-blocking)
+    try {
+        const origin = req.nextUrl.origin || "https://linklockr.xyz";
+        const estimatedUsd = (priceEth * ETH_PRICE).toFixed(2);
+        fetch(`${origin}/api/notify-sale`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                slug,
+                buyer: userAddress,
+                priceUsd: estimatedUsd,
+                txHash: tx.hash,
+            }),
+        }).catch(() => {});
+    } catch {}
+
     return NextResponse.json({ success: true, txHash: tx.hash });
 
   } catch (error: any) {

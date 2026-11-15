@@ -265,6 +265,18 @@ function BuyPageContent({ slug, initialLinkData, initialError }: BuyClientWrappe
       );
       await txBuy.wait();
 
+      // Trigger Discord sales feed notification (non-blocking)
+      fetch('/api/notify-sale', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          slug,
+          buyer: userAddress,
+          priceUsd: linkData.price_usd || ethers.formatUnits(priceUnits, 6),
+          txHash: txBuy.hash,
+        }),
+      }).catch(err => console.warn("Discord sales notification warning:", err));
+
       setIsOwner(true);
       setTxStatus("indexing...");
 
