@@ -125,6 +125,19 @@
         "report_link": "Report this link",
         "report_button": "Report Link",
         "report_submit": "Submit Report",
-        "report_reason_placeholder": "Reason for reporting"
+        "report_reason_placeholder": "Reason for reporting",
+        "dmca_claim": "Copyright / DMCA Claim",
+        "dmca_title": "Submit DMCA Copyright Notice",
+        "dmca_desc": "If you hold copyright rights to content sold under this link, submit a formal takedown notice below.",
+        "claimant_name": "Copyright Owner / Authorized Agent Name",
+        "claimant_email": "Your Contact Email",
+        "work_url": "URL of Original Work or Proof of Ownership",
+        "infringement_details": "Description of Infringement",
+        "good_faith_checkbox": "I state under penalty of perjury that I am the copyright owner or authorized agent, and believe in good faith that this content infringes my rights.",
+        "electronic_signature": "Electronic Signature (Type Full Legal Name)",
+        "submit_dmca": "Send DMCA Notice",
+        "dmca_success": "Your copyright notice has been logged and forwarded to our compliance agent.",
+        "tab_report": "Flag Issue",
+        "tab_dmca": "Copyright (DMCA)"
     }
 }

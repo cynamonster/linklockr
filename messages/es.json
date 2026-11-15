@@ -125,6 +125,19 @@
         "report_link": "Reportar este enlace",
         "report_button": "Reportar enlace",
         "report_submit": "Enviar reporte",
-        "report_reason_placeholder": "Motivo del reporte"
+        "report_reason_placeholder": "Motivo del reporte",
+        "dmca_claim": "Reclamo de Copyright / DMCA",
+        "dmca_title": "Enviar Aviso de DMCA",
+        "dmca_desc": "Si posees los derechos de autor del contenido vendido en este enlace, envía un aviso formal a continuación.",
+        "claimant_name": "Propietario de derechos / Nombre del agente",
+        "claimant_email": "Tu correo de contacto",
+        "work_url": "URL de la obra original o prueba de derechos",
+        "infringement_details": "Descripción de la infracción",
+        "good_faith_checkbox": "Declaro bajo pena de perjurio que soy el propietario o agente autorizado, y creo de buena fe que este contenido infringe mis derechos.",
+        "electronic_signature": "Firma electrónica (Escribe tu nombre legal completo)",
+        "submit_dmca": "Enviar aviso de DMCA",
+        "dmca_success": "Tu aviso de derechos de autor ha sido registrado y enviado a nuestro agente de cumplimiento.",
+        "tab_report": "Reportar problema",
+        "tab_dmca": "Copyright (DMCA)"
     }
 }
