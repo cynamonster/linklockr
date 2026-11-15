@@ -1,4 +1,5 @@
 import React from 'react';
+import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import { FolderLock } from 'lucide-react';
 
@@ -16,6 +17,54 @@ const NEXT_PUBLIC_FEE_BPS = process.env.NEXT_PUBLIC_FEE_BPS
   ? parseInt(process.env.NEXT_PUBLIC_FEE_BPS)
   : 250; // Default to 250 bps (2.5%);
 const percentFeeBps = NEXT_PUBLIC_FEE_BPS / 100;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const url = `https://linklockr.xyz/${locale}`;
+  const ogImageUrl = `https://linklockr.xyz/api/og`;
+
+  return {
+    title: 'LinkLockr | Create Paywalled Links',
+    description:
+      'Sell access to content with instant settlement in USDC on the Base network. Zero chargebacks. Gas fees less than one penny. Decentralized encryption on Lit Protocol TEEs.',
+    openGraph: {
+      title: 'LinkLockr | Create Paywalled Links',
+      description:
+        'Sell access to content with instant settlement in USDC on Base. Zero chargebacks. Sub-cent gas fees. Decentralized encryption on Lit Protocol TEEs.',
+      url,
+      siteName: 'LinkLockr',
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: 'LinkLockr - Create Paywalled Links on Base',
+        },
+      ],
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: 'LinkLockr | Create Paywalled Links',
+      description:
+        'Sell access to content with instant settlement in USDC on Base. Zero chargebacks. Gas fees less than one penny. Decentralized encryption on Lit Protocol TEEs.',
+      images: [ogImageUrl],
+      creator: '@LinkLockr',
+      site: '@LinkLockr',
+    },
+    other: {
+      'fc:frame': 'vNext',
+      'fc:frame:image': ogImageUrl,
+      'fc:frame:button:1': 'Lock a Link on Base',
+      'fc:frame:button:1:action': 'link',
+      'fc:frame:button:1:target': url,
+    },
+  };
+}
 
 export default async function HomePage({
   params,
