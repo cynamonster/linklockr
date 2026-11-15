@@ -67,9 +67,9 @@
         "withdrawFunds": "Sacar fundos",
         "sendEth": "Enviar ETH",
 
-        "termsAgree": "Ao criar este link, você concorda que tem o direito de vender este conteúdo e isenta o LinkLockr de qualquer responsabilidade. Conteúdo denunciado 3 vezes é removido automaticamente.",
+        "termsAgree": "Ao criar este link, você concorda que tem o direito de vender este conteúdo e isenta o LinkLockr de qualquer responsabilidade. Conteúdo sujeito a denúncias ou reivindicações de direitos autorais pode ser removido.",
 
-        "heroTitle": "Links com Paywall",
+        "heroTitle": "Crie Links com Paywall",
         "heroSubtitle": "Venda acesso a conteúdo com liquidação instantânea em USDC na rede Base. Sem estornos. Taxas de gas inferiores a um centavo. Criptografia descentralizada em TEEs do Lit Protocol.",
         "finePrintFee": "Taxa de plataforma e rede: ~{percent}% no desbloqueio bem-sucedido pelo comprador.",
         "connectAndMint": "Conectar Carteira e Bloquear Link",

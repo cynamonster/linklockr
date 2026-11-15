@@ -67,9 +67,9 @@
         "withdrawFunds": "Retirar fondos",
         "sendEth": "Enviar ETH",
 
-        "termsAgree": "Al crear este enlace, aceptas que tienes el derecho de vender este contenido y eximes a LinkLockr de cualquier responsabilidad. El contenido reportado 3 veces se elimina automáticamente.",
+        "termsAgree": "Al crear este enlace, aceptas que tienes el derecho de vender este contenido y eximes a LinkLockr de cualquier responsabilidad. El contenido sujeto a reportes o reclamos de derechos de autor puede ser eliminado.",
 
-        "heroTitle": "Enlaces con Pago Previo",
+        "heroTitle": "Crea Enlaces con Pago Previo",
         "heroSubtitle": "Vende acceso a contenido con liquidación instantánea en USDC en la red Base. Sin devoluciones de cargo. Comisiones de red de menos de un centavo. Cifrado descentralizado en TEE de Lit Protocol.",
         "finePrintFee": "Comisión de plataforma y red: ~{percent}% tras el desbloqueo exitoso del comprador.",
         "connectAndMint": "Conectar Billetera y Bloquear Enlace",

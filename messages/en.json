@@ -67,9 +67,9 @@
         "withdrawFunds": "Withdraw Funds",
         "sendEth": "Send ETH",
 
-        "termsAgree": "By creating this link, you agree that you have the right to sell this content and indemnify LinkLockr from any liability. Content reported 3 times is automatically removed.",
+        "termsAgree": "By creating this link, you agree that you have the right to sell this content and indemnify LinkLockr from any liability. Content subject to reports or copyright claims may be removed.",
 
-        "heroTitle": "Paywalled Links",
+        "heroTitle": "Create Paywalled Links",
         "heroSubtitle": "Sell access to content with instant settlement in USDC on the Base network. No chargebacks. Gas fees less than one penny. Decentralized encryption on Lit Protocol TEEs.",
         "finePrintFee": "Platform & network fee: ~{percent}% upon successful buyer unlock.",
         "connectAndMint": "Connect Wallet & Lock Link",

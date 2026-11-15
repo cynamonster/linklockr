@@ -67,9 +67,9 @@
         "withdrawFunds": "提取资金",
         "sendEth": "发送 ETH",
 
-        "termsAgree": "创建此链接即表示您确认拥有出售该内容的合法权利，并免除 LinkLockr 的任何法律责任。被举报 3 次的内容将被自动下架。",
+        "termsAgree": "创建此链接即表示您确认拥有出售该内容的合法权利，并免除 LinkLockr 的任何法律责任。受到举报或版权申诉的内容可能会被下架。",
 
-        "heroTitle": "付费内容链接",
+        "heroTitle": "创建付费内容链接",
         "heroSubtitle": "在 Base 网络上出售内容访问权限，使用 USDC 即时结算。零拒付风险。Gas 费用低于 1 美分。基于 Lit Protocol TEE 的去中心化加密保护。",
         "finePrintFee": "买家成功解锁后收取约 ~{percent}% 的平台与网络费用。",
         "connectAndMint": "连接钱包并锁定链接",
