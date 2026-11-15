@@ -36,7 +36,7 @@ export default async function HomePage({
   return (
     <Web3Provider>
       {/* MASTER WRAPPER */}
-      <div className="min-h-screen transition-colors duration-700 font-sans selection:bg-cyan-500/30 overflow-x-hidden bg-gradient-to-br from-sky-50 via-white to-blue-50 text-slate-900 dark:bg-[#0B0C15] dark:text-slate-200">
+      <div className="min-h-screen transition-colors duration-700 font-sans selection:bg-cyan-500/30 overflow-x-hidden bg-gradient-to-br from-sky-50 via-white to-blue-50 text-slate-900 dark:bg-none dark:bg-[#0B0C15] dark:text-slate-200">
         {/* LIGHT MODE: SKY AURORA */}
         <div className="fixed top-[-20%] left-[-10%] w-[600px] h-[600px] bg-sky-300/30 rounded-full blur-[100px] pointer-events-none transition-opacity duration-700 opacity-100 dark:opacity-0" />
 
@@ -49,7 +49,7 @@ export default async function HomePage({
           <header className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-4 flex items-center justify-between gap-2">
             {/* BRAND LOGO (Pure Server-Rendered HTML) */}
             <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
-              <div className="p-2.5 rounded-2xl border transition-all bg-gradient-to-tr from-sky-400 to-blue-600 text-white shadow-md shadow-blue-500/20 dark:bg-slate-900/60 dark:border-cyan-500/30 dark:text-cyan-400 dark:shadow-[0_0_15px_rgba(34,211,238,0.2)]">
+              <div className="p-2.5 rounded-2xl border transition-all bg-gradient-to-tr from-sky-400 to-blue-600 text-white shadow-md shadow-blue-500/20 dark:bg-none dark:bg-slate-900/60 dark:border-cyan-500/30 dark:text-cyan-400 dark:shadow-[0_0_15px_rgba(34,211,238,0.2)]">
                 <FolderLock className="w-5 h-5" />
               </div>
               <div>

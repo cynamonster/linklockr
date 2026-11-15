@@ -30,13 +30,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="dark" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://auth.privy.io" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://auth.privy.io" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var m=window.matchMedia('(prefers-color-scheme: light)').matches;if(m){document.documentElement.classList.remove('dark')}else{document.documentElement.classList.add('dark')}}catch(e){}})();`,
+          }}
+        />
       </head>
       <body
-        className={`${geistSans.variable} antialiased overflow-x-hidden`}
+        className={`${geistSans.variable} bg-slate-950 text-slate-50 antialiased overflow-x-hidden`}
       >
         {children}
       </body>

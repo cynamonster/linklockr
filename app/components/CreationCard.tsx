@@ -520,7 +520,7 @@ export default function CreationCard({
                     : 'opacity-0 scale-95 invisible pointer-events-none z-0'
                 }`}
               >
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cyan-950/40 border border-cyan-500/30 text-cyan-400 text-[10px] font-semibold uppercase tracking-wider mx-auto">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cyan-100/80 dark:bg-cyan-950/40 border border-cyan-300 dark:border-cyan-500/30 text-cyan-800 dark:text-cyan-400 text-[10px] font-semibold uppercase tracking-wider mx-auto">
                   <FolderLock size={12} />
                   <span>Secure Content</span>
                 </div>
@@ -558,17 +558,17 @@ export default function CreationCard({
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 text-[10px] font-semibold uppercase tracking-wider">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100/80 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-400 text-[10px] font-semibold uppercase tracking-wider">
                     <CheckCircle2 size={12} />
                     <span>Purchase Verified</span>
                   </div>
-                  <span className="text-[10px] font-mono text-emerald-400 font-semibold">
+                  <span className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 font-semibold">
                     Decrypted
                   </span>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                     Decrypted Secret Payload:
                   </label>
                   <div className="p-2.5 rounded-xl border font-mono text-xs break-all line-clamp-2 bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-blue-600 dark:text-cyan-300">
@@ -579,7 +579,7 @@ export default function CreationCard({
                 <div
                   role="button"
                   tabIndex={-1}
-                  className="py-1.5 px-3 rounded-xl border text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer select-none hover:opacity-90 active:scale-[0.99] transition-all bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-300"
+                  className="py-1.5 px-3 rounded-xl border text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer select-none hover:opacity-90 active:scale-[0.99] transition-all bg-emerald-100 dark:bg-emerald-950/30 border-emerald-300 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-300"
                 >
                   <ExternalLink size={12} />
                   <span>Open Decrypted Link</span>
