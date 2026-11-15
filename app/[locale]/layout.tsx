@@ -1,7 +1,6 @@
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
-import LanguageSwitcher from '@/app/components/LanguageSwitcher'; // Adjust path if needed
 
 const locales = ['en', 'es', 'pt', 'zh'];
 
@@ -24,7 +23,6 @@ export default async function LocaleLayout({
   return (
     <NextIntlClientProvider messages={messages} locale={locale}>
       <div className="min-h-screen bg-slate-950 text-slate-50 antialiased">
-        <LanguageSwitcher />
         {children}
       </div>
     </NextIntlClientProvider>

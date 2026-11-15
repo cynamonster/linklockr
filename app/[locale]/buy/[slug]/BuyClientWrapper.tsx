@@ -10,6 +10,7 @@ import { useTranslations } from 'next-intl';
 import { supabase } from "@/utils/supabase";
 import { createSiweMessage } from "@/utils/lit";
 import { ReportButton } from "@/app/components/ReportButton";
+import LanguageSwitcher from "@/app/components/LanguageSwitcher";
 
 // --- CONFIG ---
 const PRIVY_APP_ID = process.env.NEXT_PUBLIC_PRIVY_APP_ID || "";
@@ -330,6 +331,11 @@ function BuyPageContent({ slug, initialLinkData, initialError }: BuyClientWrappe
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-4 relative overflow-hidden font-sans selection:bg-cyan-500 selection:text-white">
+      {/* Top Bar with Language Switcher */}
+      <div className="fixed top-4 right-4 z-40">
+        <LanguageSwitcher />
+      </div>
+
       {/* Background Ambience */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/4 left-1/3 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
