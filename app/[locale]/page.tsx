@@ -626,14 +626,10 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
               </div>
 
               {/* CARD BODY CONTENT WITH STABLE CONTAINER & SMOOTH CROSSFADE */}
-              <div className="py-4 text-left flex-1 relative min-h-[268px]">
-                {/* TAB 1: LOCK A LINK */}
-                <div className={`transition-all duration-300 ease-in-out ${
-                  cardTab === 'create' 
-                    ? 'opacity-100 translate-y-0 pointer-events-auto' 
-                    : 'opacity-0 -translate-y-1 pointer-events-none absolute inset-x-0 top-4'
-                }`}>
-                  <div className="space-y-3.5">
+              <div className="py-4 text-left flex-1 min-h-[268px]">
+                {cardTab === 'create' ? (
+                  /* TAB 1: LOCK A LINK */
+                  <div className="space-y-3.5 animate-fadeIn">
                     {/* 1. URL / SECRET INPUT */}
                     <div className="space-y-1">
                       <label className={`text-xs font-bold uppercase tracking-wider ml-1 ${isDark ? "text-slate-400" : "text-slate-500"}`}>
@@ -665,10 +661,14 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                         <span className={`absolute left-3.5 top-2 font-bold text-base ${isDark ? "text-slate-500" : "text-slate-400"}`}>$</span>
                         <input 
                           value={price}
-                          onChange={(e) => setPrice(e.target.value)}
-                          type="number" 
-                          step="0.01"
-                          min="0.01"
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                              setPrice(val);
+                            }
+                          }}
+                          type="text"
+                          inputMode="decimal"
                           placeholder="5.00" 
                           className={`
                             w-full p-2 pl-8 outline-none transition-all font-bold text-base rounded-xl border
@@ -721,15 +721,9 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                       </span>
                     </div>
                   </div>
-                </div>
-
-                {/* TAB 2: WHAT BUYERS SEE */}
-                <div className={`transition-all duration-300 ease-in-out ${
-                  cardTab === 'preview' 
-                    ? 'opacity-100 translate-y-0 pointer-events-auto' 
-                    : 'opacity-0 translate-y-1 pointer-events-none absolute inset-x-0 top-4'
-                }`}>
-                  <div className="space-y-2.5">
+                ) : (
+                  /* TAB 2: WHAT BUYERS SEE */
+                  <div className="space-y-2.5 animate-fadeIn">
                     {/* TOGGLE: SHOW LOCKED VS SHOW UNLOCKED */}
                     <div className="flex items-center justify-between pb-1">
                       <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
@@ -763,80 +757,78 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                       </div>
                     </div>
 
-                    {/* MOCK BUYER CARD PREVIEW WITH STABLE HEIGHT & FADE */}
-                    <div className={`h-[200px] p-4 rounded-2xl border transition-all duration-300 relative overflow-hidden ${
+                    {/* MOCK BUYER CARD PREVIEW WITH FIXED HEIGHT */}
+                    <div className={`h-[200px] p-4 rounded-2xl border transition-all duration-200 relative overflow-hidden ${
                       isDark ? "bg-black/50 border-slate-800/80" : "bg-slate-50 border-slate-200"
                     }`}>
-                      {/* LOCKED STATE PREVIEW */}
-                      <div className={`transition-all duration-300 ease-in-out h-full flex flex-col justify-between text-center ${
-                        previewMode === 'locked' 
-                          ? 'opacity-100 scale-100 pointer-events-auto' 
-                          : 'opacity-0 scale-95 pointer-events-none absolute inset-4'
-                      }`}>
-                        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cyan-950/40 border border-cyan-500/30 text-cyan-400 text-[10px] font-semibold uppercase tracking-wider mx-auto">
-                          <FolderLock size={12} />
-                          <span>Secure Content</span>
-                        </div>
-
-                        <h4 className={`text-base font-extrabold capitalize tracking-tight truncate px-2 ${isDark ? "text-white" : "text-slate-900"}`}>
-                          {slug ? slug.replace(/-/g, ' ') : "your link title"}
-                        </h4>
-
-                        <div className="text-2xl font-black text-white">
-                          ${price ? parseFloat(price).toFixed(2) : "5.00"} 
-                          <span className="text-xs font-semibold text-cyan-400 ml-1">USDC</span>
-                        </div>
-
-                        <div className={`py-2 px-3 rounded-xl border text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 ${
-                          isDark ? "bg-slate-800/70 border-slate-700 text-slate-300" : "bg-slate-200/80 border-slate-300 text-slate-700"
-                        }`}>
-                          <Lock size={12} />
-                          <span>Purchase & Unlock</span>
-                        </div>
-
-                        <p className="text-[10px] font-mono text-slate-500">
-                          Base Network • Sub-Cent Gas • No Account Required
-                        </p>
-                      </div>
-
-                      {/* UNLOCKED STATE PREVIEW */}
-                      <div className={`transition-all duration-300 ease-in-out h-full flex flex-col justify-between text-left ${
-                        previewMode === 'unlocked' 
-                          ? 'opacity-100 scale-100 pointer-events-auto' 
-                          : 'opacity-0 scale-95 pointer-events-none absolute inset-4'
-                      }`}>
-                        <div className="flex items-center justify-between">
-                          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 text-[10px] font-semibold uppercase tracking-wider">
-                            <CheckCircle2 size={12} />
-                            <span>Purchase Verified</span>
+                      {previewMode === 'locked' ? (
+                        /* LOCKED STATE PREVIEW */
+                        <div className="h-full flex flex-col justify-between text-center animate-fadeIn">
+                          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cyan-950/40 border border-cyan-500/30 text-cyan-400 text-[10px] font-semibold uppercase tracking-wider mx-auto">
+                            <FolderLock size={12} />
+                            <span>Secure Content</span>
                           </div>
-                          <span className="text-[10px] font-mono text-emerald-400 font-semibold">Decrypted</span>
-                        </div>
 
-                        <div className="space-y-1">
-                          <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                            Decrypted Secret Payload:
-                          </label>
-                          <div className={`p-2.5 rounded-xl border font-mono text-xs break-all line-clamp-2 ${
-                            isDark ? "bg-slate-950 border-slate-800 text-cyan-300" : "bg-white border-slate-200 text-blue-600"
+                          <h4 className={`text-base font-extrabold capitalize tracking-tight truncate px-2 ${isDark ? "text-white" : "text-slate-900"}`}>
+                            {slug ? slug.replace(/-/g, ' ') : "your link title"}
+                          </h4>
+
+                          <div className="text-2xl font-black text-white">
+                            ${price && !isNaN(parseFloat(price)) ? parseFloat(price).toFixed(2) : "5.00"} 
+                            <span className="text-xs font-semibold text-cyan-400 ml-1">USDC</span>
+                          </div>
+
+                          <div className={`py-2 px-3 rounded-xl border text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 ${
+                            isDark ? "bg-slate-800/70 border-slate-700 text-slate-300" : "bg-slate-200/80 border-slate-300 text-slate-700"
                           }`}>
-                            {urlToLock || "https://drive.google.com/file/d/your-secret-content"}
+                            <Lock size={12} />
+                            <span>Purchase & Unlock</span>
                           </div>
-                        </div>
 
-                        <div className={`py-1.5 px-3 rounded-xl border text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 ${
-                          isDark ? "bg-emerald-950/30 border-emerald-500/30 text-emerald-300" : "bg-emerald-50 border-emerald-200 text-emerald-700"
-                        }`}>
-                          <ExternalLink size={12} />
-                          <span>Open Decrypted Link</span>
+                          <p className="text-[10px] font-mono text-slate-500">
+                            Base Network • Sub-Cent Gas • No Account Required
+                          </p>
                         </div>
+                      ) : (
+                        /* UNLOCKED STATE PREVIEW */
+                        <div className="h-full flex flex-col justify-between text-left animate-fadeIn">
+                          <div className="flex items-center justify-between">
+                            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 text-[10px] font-semibold uppercase tracking-wider">
+                              <CheckCircle2 size={12} />
+                              <span>Purchase Verified</span>
+                            </div>
+                            <span className="text-[10px] font-mono text-emerald-400 font-semibold">Decrypted</span>
+                          </div>
 
-                        <p className="text-[10px] font-mono text-slate-500 text-center">
-                        </p>
-                      </div>
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                              Decrypted Secret Payload:
+                            </label>
+                            <div className={`p-2.5 rounded-xl border font-mono text-xs break-all line-clamp-2 ${
+                              isDark ? "bg-slate-950 border-slate-800 text-cyan-300" : "bg-white border-slate-200 text-blue-600"
+                            }`}>
+                              {urlToLock || "https://drive.google.com/file/d/your-secret-content"}
+                            </div>
+                          </div>
+
+                          <div 
+                            role="button"
+                            tabIndex={-1}
+                            className={`py-1.5 px-3 rounded-xl border text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer select-none hover:opacity-90 active:scale-[0.99] transition-all ${
+                              isDark ? "bg-emerald-950/30 border-emerald-500/30 text-emerald-300" : "bg-emerald-50 border-emerald-200 text-emerald-700"
+                            }`}
+                          >
+                            <ExternalLink size={12} />
+                            <span>Open Decrypted Link</span>
+                          </div>
+
+                          <p className="text-[10px] font-mono text-slate-500 text-center">
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
-                </div>
+                )}
               </div>
 
               {/* PERSISTENT BOTTOM CTA (Always visible & interactive across both tabs) */}
