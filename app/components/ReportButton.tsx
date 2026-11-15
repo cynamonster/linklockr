@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { usePrivy } from '@privy-io/react-auth';
 import { AlertCircle, ShieldAlert, X, CheckCircle2, Mail, Flag, ExternalLink } from 'lucide-react';
 
-const DMCA_EMAIL = process.env.NEXT_PUBLIC_DMCA_EMAIL || "dmca@linklockr.xyz";
+const DMCA_EMAIL = process.env.NEXT_PUBLIC_COPYRIGHT_EMAIL || process.env.NEXT_PUBLIC_DMCA_EMAIL || "copyright@linklockr.xyz";
 
 interface ReportButtonProps {
   slug: string;
