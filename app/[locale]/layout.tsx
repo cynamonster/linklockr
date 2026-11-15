@@ -22,7 +22,7 @@ export default async function LocaleLayout({
 
   return (
     <NextIntlClientProvider messages={messages} locale={locale}>
-      <div className="min-h-screen bg-slate-950 text-slate-50 antialiased">
+      <div className="min-h-screen bg-slate-950 text-slate-50 antialiased overflow-x-hidden">
         {children}
       </div>
     </NextIntlClientProvider>

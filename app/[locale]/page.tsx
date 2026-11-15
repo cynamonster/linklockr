@@ -4,8 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import { 
   Lock, ArrowRight, Loader2, Zap, RefreshCw, 
   Copy, CheckCircle2, Shield, AlertCircle,
-  Sun, Moon, FolderLock, ChevronDown, Wallet,
-  Square, SquareCheckBig, Info, CircleX, X,
+  FolderLock, ChevronDown, Wallet,
+  Square, SquareCheckBig, X,
   ExternalLink, Share2, Sparkles, Check, LogOut
 } from "lucide-react";
 import { PrivyProvider, usePrivy, useWallets, ConnectedWallet } from "@privy-io/react-auth";
@@ -28,39 +28,28 @@ const NEXT_PUBLIC_FEE_BPS = process.env.NEXT_PUBLIC_FEE_BPS
         : 250; // Default to 250 bps (2.5%);
 const percentFeeBps = NEXT_PUBLIC_FEE_BPS / 100;
 
-// --- THEME TOGGLE (Aero Style) ---
-function ThemeToggle({ isDark, toggle }: { isDark: boolean, toggle: () => void }) {
-  return (
-    <button 
-      onClick={toggle}
-      aria-label="Toggle theme"
-      className={`
-        p-2 rounded-xl transition-all duration-300 border backdrop-blur-md cursor-pointer 
-        ${isDark 
-          ? "bg-slate-900/60 border-slate-700/80 text-cyan-400 hover:bg-slate-800 shadow-[0_0_15px_rgba(34,211,238,0.15)]" 
-          : "bg-white/60 border-slate-200 text-sky-600 hover:bg-white shadow-sm"
-        }
-      `}
-    >
-      {isDark ? <Sun size={17} /> : <Moon size={17} />}
-    </button>
-  );
-}
-
 export default function App() {
   const [isDark, setIsDark] = useState(true);
 
-  const toggleTheme = () => {
-    setIsDark(!isDark);
-    if (!isDark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  };
-
   useEffect(() => {
-    document.documentElement.classList.add('dark');
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const updateTheme = (matches: boolean) => {
+      setIsDark(matches);
+      if (matches) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    };
+
+    updateTheme(mediaQuery.matches);
+
+    const handleChange = (e: MediaQueryListEvent) => {
+      updateTheme(e.matches);
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
   return (
@@ -82,7 +71,7 @@ export default function App() {
       }}
     >
       {/* MASTER WRAPPER */}
-      <div className={`min-h-screen transition-colors duration-700 font-sans selection:bg-cyan-500/30
+      <div className={`min-h-screen transition-colors duration-700 font-sans selection:bg-cyan-500/30 overflow-x-hidden
         ${isDark 
             ? 'bg-[#0B0C15] text-slate-200' 
             : 'bg-gradient-to-br from-sky-50 via-white to-blue-50 text-slate-900'
@@ -95,13 +84,13 @@ export default function App() {
         <div className={`fixed bottom-[-20%] right-[-10%] w-[600px] h-[600px] bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none transition-opacity duration-700 ${isDark ? 'opacity-100' : 'opacity-0'}`} />
         <div className={`fixed top-[10%] left-[20%] w-[400px] h-[400px] bg-cyan-500/10 rounded-full blur-[100px] pointer-events-none transition-opacity duration-700 ${isDark ? 'opacity-100' : 'opacity-0'}`} />
         
-        <MainLogic isDark={isDark} toggleTheme={toggleTheme} />
+        <MainLogic isDark={isDark} />
       </div>
     </PrivyProvider>
   );
 }
 
-function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () => void }) {
+function MainLogic({ isDark }: { isDark: boolean }) {
   const t = useTranslations('CreatePage');
 
   const { authenticated, user, logout, login } = usePrivy();
@@ -141,10 +130,6 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
   const [createdSlug, setCreatedSlug] = useState<string | null>(null);
   const [isCopied, setIsCopied] = useState(false);
 
-  // Info Modal State
-  const [isInfoOpen, setIsInfoOpen] = useState(false);
-  const infoModalRef = useRef<HTMLDivElement | null>(null);
-
   // Draft persistence across session/Privy popup
   useEffect(() => {
     try {
@@ -165,11 +150,10 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
     } catch {}
   }, [urlToLock, price, slug, isTermsChecked]);
 
-  // Close modals on outside click or Escape key
+  // Close wallet drawer on Escape key
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        setIsInfoOpen(false);
         setIsWalletDrawerOpen(false);
       }
     };
@@ -451,11 +435,11 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
 
   // --- VIEW: HYBRID HERO + IN-PLACE CREATION ---
   return (
-    <div className="relative min-h-screen">
+    <div className="relative min-h-screen overflow-x-hidden">
       {/* TOP NAVIGATION BAR */}
-      <header className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-4 flex items-center justify-between">
+      <header className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-4 flex items-center justify-between gap-2">
         {/* BRAND LOGO */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
           <div className={`
             p-2.5 rounded-2xl border transition-all
             ${isDark 
@@ -477,25 +461,8 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
           </div>
         </div>
 
-        {/* CONTROLS & WALLET PILL */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          <LanguageSwitcher />
-          
-          <button
-            onClick={() => setIsInfoOpen(true)}
-            aria-label={t('linkInfo')}
-            className={`p-2 rounded-xl transition-all cursor-pointer border ${
-              isDark 
-                ? "bg-slate-900/60 border-slate-700/80 text-cyan-400 hover:text-cyan-300 hover:bg-slate-800" 
-                : "bg-white/60 border-slate-200 text-sky-600 hover:text-sky-500 hover:bg-white"
-            }`}
-          >
-            <Info size={17} />
-          </button>
-
-          <ThemeToggle isDark={isDark} toggle={toggleTheme} />
-
-          {/* AUTH WALLET BUTTON */}
+        {/* WALLET BUTTON */}
+        <div className="flex items-center shrink-0">
           {authenticated && activeWallet ? (
             <button
               onClick={() => setIsWalletDrawerOpen(true)}
@@ -505,9 +472,9 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                   : "bg-white border-slate-200 text-slate-800 hover:bg-slate-50 shadow-sm"
               }`}
             >
-              <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-              <span>{formatAddress(selectedAddress || activeWallet.address)}</span>
-              <ChevronDown size={14} className="opacity-60" />
+              <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
+              <span className="truncate">{formatAddress(selectedAddress || activeWallet.address)}</span>
+              <ChevronDown size={14} className="opacity-60 shrink-0" />
             </button>
           ) : (
             <button
@@ -518,7 +485,7 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                   : "bg-gradient-to-r from-sky-500 to-blue-600 text-white hover:shadow-md hover:scale-[1.02]"
               }`}
             >
-              <Zap size={14} fill="currentColor" />
+              <Zap size={14} fill="currentColor" className="shrink-0" />
               <span>{t('connectWallet')}</span>
             </button>
           )}
@@ -1029,14 +996,16 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
         </section>
 
         {/* FOOTER */}
-        <footer className="mt-32 pt-10 border-t border-slate-800/40 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+        <footer className="mt-32 pt-10 border-t border-slate-800/40 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-slate-500">
           <div className="flex items-center gap-2">
             <FolderLock size={15} className="text-cyan-400" />
             <span className="font-bold text-slate-300">LinkLockr</span>
             <span>• Base Smart Contract USDC</span>
           </div>
 
-          <div className="flex items-center gap-6">
+          <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-6 gap-y-3">
+            <LanguageSwitcher />
+
             <a 
               href={`https://basescan.org/address/${CONTRACT_ADDRESS}`} 
               target="_blank" 
@@ -1155,86 +1124,6 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                 <LogOut size={15} />
                 <span>{t('logout')}</span>
               </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* INFO MODAL */}
-      {isInfoOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={() => setIsInfoOpen(false)}
-          />
-          <div
-            ref={infoModalRef}
-            className={`
-              w-full max-w-xl p-6 sm:p-8 rounded-3xl shadow-2xl relative z-10 text-left border animate-in fade-in zoom-in-95 duration-200
-              ${isDark ? "bg-slate-900 text-slate-100 border-slate-800" : "bg-white text-slate-900 border-slate-200"}
-            `}
-            role="dialog"
-            aria-modal="true"
-          >
-            <div className="flex justify-between items-start gap-4 pb-3 border-b border-slate-800/40">
-              <h3 className="text-lg font-bold">
-                {t('modalTitle')}
-              </h3>
-              <button
-                onClick={() => setIsInfoOpen(false)}
-                aria-label="Close info"
-                className={`p-1 rounded-lg cursor-pointer transition-all ${isDark ? "text-slate-400 hover:text-white" : "text-slate-500 hover:text-slate-900"}`}
-              >
-                <CircleX size={20} />
-              </button>
-            </div>
-
-            <div className="mt-4 text-sm leading-relaxed space-y-4">
-              <p className={isDark ? "text-slate-300" : "text-slate-600"}>
-                {t('modalDescription')}
-              </p>
-
-              <ol className="space-y-3">
-                <li className="flex items-start gap-3">
-                  <div className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs ${isDark ? "bg-cyan-600 text-black" : "bg-sky-100 text-sky-700"}`}>
-                    1
-                  </div>
-                  <div>
-                    <div className={`font-semibold ${isDark ? "text-white" : "text-slate-800"}`}>{t('step1')}</div>
-                    <div className="text-xs opacity-80 mt-0.5">{t('step1_desc')}</div>
-                  </div>
-                </li>
-
-                <li className="flex items-start gap-3">
-                  <div className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs ${isDark ? "bg-cyan-600 text-black" : "bg-sky-100 text-sky-700"}`}>
-                    2
-                  </div>
-                  <div>
-                    <div className={`font-semibold ${isDark ? "text-white" : "text-slate-800"}`}>{t('step2')}</div>
-                    <div className="text-xs opacity-80 mt-0.5">{t('step2_desc')}</div>
-                  </div>
-                </li>
-
-                <li className="flex items-start gap-3">
-                  <div className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs ${isDark ? "bg-cyan-600 text-black" : "bg-sky-100 text-sky-700"}`}>
-                    3
-                  </div>
-                  <div>
-                    <div className={`font-semibold ${isDark ? "text-white" : "text-slate-800"}`}>{t('step3')}</div>
-                    <div className="text-xs opacity-80 mt-0.5">{t('step3_desc')}</div>
-                  </div>
-                </li>
-
-                <li className="flex items-start gap-3">
-                  <div className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs ${isDark ? "bg-cyan-600 text-black" : "bg-sky-100 text-sky-700"}`}>
-                    4
-                  </div>
-                  <div>
-                    <div className={`font-semibold ${isDark ? "text-white" : "text-slate-800"}`}>{t('step4')}</div>
-                    <div className="text-xs opacity-80 mt-0.5">{t('step4_desc', { percent: percentFeeBps })}</div>
-                  </div>
-                </li>
-              </ol>
             </div>
           </div>
         </div>
