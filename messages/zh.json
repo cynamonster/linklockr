@@ -1,0 +1,143 @@
+{
+    "Index": {
+        "title": "LinkLockr - 基于智能合约的安全付费链接",
+        "description": "出售您的数字内容访问权限",
+        "description_unused": "使用区块链技术安全地创建和分享付费链接。LinkLockr 让创作者轻松安全地实现链接变现。"
+    },
+    "CreatePage": {
+        "title": "LinkLockr - 基于智能合约的安全付费链接",
+        "description": "出售您的数字内容访问权限",
+        "description_unused": "使用区块链技术安全地创建和分享付费链接。LinkLockr 让创作者轻松安全地实现链接变现。",
+        "connectWallet": "连接钱包",
+        "disconnectWallet": "断开连接",
+        "logout": "退出登录",
+        "getStarted": "立即开始",
+
+        "modalTitle": "如何使用 LinkLockr",
+        "modalDescription": "LinkLockr 会加密您的文本并存储在 IPFS 上，在用户付款后自动解密交付。无需传统金融中介，仅属于您和您的受众。",
+        "step1": "锁定文本",
+        "step1_desc": "输入您想要出售的网址或文本内容。",
+        "step2": "设定价格",
+        "step2_desc": "以美元显示，在 Base 链上使用 USDC 结算。",
+        "step3": "生成链接",
+        "step3_desc": "输入自定义购买链接后缀或使用系统自动生成的链接。",
+        "step4": "分享锁定链接",
+        "step4_desc": "款项将即时转入您在 Base 链上连接的钱包。收取约 {percent}% 的平台与网络费用。",
+
+        "linkCreated": "链接创建成功！",
+        "linkCreated_desc": "您的内容已加密存储于 IPFS，链接后缀已在 Base 上注册。",
+        "linkCreated_desc_unused": "您的付费链接已就绪。分享给您的受众即可开始赚取收益！",
+        "createAnother": "创建新链接",
+
+        "textToEncrypt": "待加密文本",
+        "priceToUnencrypt": "解密价格",
+        "linkToPaymentPage": "支付页面链接",
+
+        "linkInfo": "链接信息",
+        "closeInfo": "关闭信息",
+        "codeSentTo": "验证码已发送至 {email}",
+        "verifyAccess": "验证访问权限",
+
+        "pleaseConnectWallet": "请先连接钱包。",
+        "missingFields": "请填写所有必填字段。",
+        "slugTaken": "该链接后缀已被占用，请刷新以生成新后缀。",
+        "ipfsUploadFailed": "上传至 IPFS 失败，请重试。",
+
+        "status": {
+            "connecting": "1/5 正在连接钱包...",
+            "checking": "2/5 正在检查可用性...",
+            "encrypting": "3/5 正在加密内容...",
+            "uploading": "4/5 正在上传至 IPFS...",
+            "confirming": "5/5 正在 Base 上确认...",
+            "success": "成功！"
+        },
+        "processing": "处理中...",
+        "encryptLink": "加密链接",
+
+        "tab": {
+            "create": "创建",
+            "wallet": "钱包"
+        },
+        "activeWallet": "当前钱包",
+        "connectedCount": "已连接 {count} 个",
+        "embedded": "内置",
+        "embeddedWallet": "内置钱包",
+        "externalWallet": "外部钱包",
+
+        "withdrawFunds": "提取资金",
+        "sendEth": "发送 ETH",
+
+        "termsAgree": "创建此链接即表示您确认拥有出售该内容的合法权利，并免除 LinkLockr 的任何法律责任。被举报 3 次的内容将被自动下架。"
+    },
+    "BuyPage": {
+        "insufficientGas": "余额不足。请确保您有足够的 USDC 用于购买，并留有少量 ETH 支付 Base 链的 Gas 费用。",
+        "accessDenied": "访问被拒绝。链上记录显示您尚未购买此内容。",
+        "signatureInvalid": "签名无效。请确保您的钱包已切换至 Base 网络。",
+
+        "contentCardHeader": "加密保护内容",
+        "unavailable": "不可用",
+        "getStarted": "立即开始",
+        "connectWallet": "连接钱包",
+        "connectWalletPrompt": "连接您的钱包以购买并解锁此内容。",
+        "disconnectWallet": "断开连接",
+
+        "confirmingPurchase": "正在确认购买...",
+        "purchaseAndUnlock": "购买并解锁",
+
+        "createdBy": "创建者：",
+        "copyFullAddress": "复制完整地址",
+        "yourWalletBalance": "钱包余额：",
+        "usdFormat": "${value}",
+        "priceUsd": "${value}",
+        "usdLabel": "USD",
+        "priceEth": "{value}",
+        "embedded": "内置",
+        "creatorAccess": "创作者权限",
+        "purchaseVerified": "购买已验证",
+        "revealSecret": "查看机密内容",
+        "decryptedPayload": "已解密内容",
+        "openLink": "打开链接",
+        "securedBy": "技术支持",
+        "safety_first": "安全第一",
+
+        "report_link": "举报此链接",
+        "report_reason_placeholder": "举报原因",
+        "report_submit": "提交举报",
+        "report_success": "感谢您的反馈，我们的团队将尽快审核。",
+        "report_error": "提交举报时出错，请稍后重试。",
+        "report_button": "举报链接",
+        "connect_to_report": "您需要连接钱包才能举报此链接。",
+        "report_reason_prompt": "请提供举报原因（至少 5 个字符）。",
+        "already_reported": "您已经举报过此链接。",
+        "report_reason_too_short": "举报原因过短，请输入至少 5 个字符。",
+        "under_review": "审核中",
+        "buyer_warning": "此链接正在审核中，请谨慎操作。",
+        "contentRemoved": "内容已移除",
+        "contentRemovedMessage": "该内容因多次被举报已被下架，不再可用。"
+    },
+    "Moderation": {
+        "connect_to_report": "您需要连接钱包才能举报此链接。",
+        "report_reason_prompt": "请提供举报原因（至少 5 个字符）。",
+        "report_reason_too_short": "举报原因过短，请输入至少 5 个字符。",
+        "already_reported": "您已经举报过此链接。",
+        "report_error": "提交举报时出错，请稍后重试。",
+        "report_success": "感谢您的反馈，我们的团队将尽快审核。",
+        "report_link": "举报此链接",
+        "report_button": "举报链接",
+        "report_submit": "提交举报",
+        "report_reason_placeholder": "举报原因",
+        "dmca_claim": "侵权 / DMCA 申诉",
+        "dmca_title": "提交 DMCA 版权申诉",
+        "dmca_desc": "如果您拥有此链接所售内容的版权，请在下方提交正式的侵权下架通知。",
+        "claimant_name": "版权所有者或授权代理人姓名",
+        "claimant_email": "联系邮箱",
+        "work_url": "原创作品链接或权利证明",
+        "infringement_details": "侵权详情说明",
+        "good_faith_checkbox": "本人在知悉做伪证将受处罚的前提下声明，本人确为版权所有者或授权代理人，且善意确信该内容侵犯了本人的合法权益。",
+        "electronic_signature": "电子签名（请输入法定全名）",
+        "submit_dmca": "发送 DMCA 通知",
+        "dmca_success": "您的版权申诉已记录并转交至合规部门。",
+        "tab_report": "内容举报",
+        "tab_dmca": "版权申诉 (DMCA)"
+    }
+}

@@ -2,7 +2,7 @@ import {defineRouting} from 'next-intl/routing';
 import {createNavigation} from 'next-intl/navigation';
 
 export const routing = defineRouting({
-  locales: ['en', 'es', 'pt'], // import from shared config?
+  locales: ['en', 'es', 'pt', 'zh'], // import from shared config?
   defaultLocale: 'en',
   
   pathnames: {
@@ -11,7 +11,8 @@ export const routing = defineRouting({
     '/buy/[slug]': {
       en: '/buy/[slug]',
       es: '/comprar/[slug]',
-      pt: '/comprar/[slug]'
+      pt: '/comprar/[slug]',
+      zh: '/buy/[slug]'
     }
   }
 });

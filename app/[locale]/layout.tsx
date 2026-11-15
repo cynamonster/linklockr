@@ -3,7 +3,7 @@ import { getMessages, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import LanguageSwitcher from '@/app/components/LanguageSwitcher'; // Adjust path if needed
 
-const locales = ['en', 'es', 'pt'];
+const locales = ['en', 'es', 'pt', 'zh'];
 
 export default async function LocaleLayout({
   children,

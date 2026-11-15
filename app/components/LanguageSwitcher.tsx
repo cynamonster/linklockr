@@ -42,6 +42,7 @@ export default function LanguageSwitcher() {
           <option value="en" className="bg-slate-900">English (EN)</option>
           <option value="es" className="bg-slate-900">Español (ES)</option>
           <option value="pt" className="bg-slate-900">Português (PT)</option>
+          <option value="zh" className="bg-slate-900">中文 (ZH)</option>
         </select>
 
         {/* Down Arrow for Visual Cue */}

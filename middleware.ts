@@ -15,7 +15,7 @@ export const config = {
   // Match only internationalized pathnames
   matcher: [
     '/',                          // Match root
-    '/(en|es|pt)/:path*',         // Match localized paths
+    '/(en|es|pt|zh)/:path*',         // Match localized paths
     '/((?!api|_next|_vercel|.*\\..*).*)' // Exclude internal files/static assets
   ]
 };
