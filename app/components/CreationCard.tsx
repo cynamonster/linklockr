@@ -223,6 +223,18 @@ export default function CreationCard({
         localStorage.removeItem(recoveryKey);
       } catch {}
 
+      // Trigger Discord mod mint feed notification (non-blocking)
+      fetch('/api/notify-mint', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          slug,
+          creator: linkPayload.creator,
+          priceUsd: priceUsd,
+          txHash: tx.hash,
+        }),
+      }).catch((err) => console.warn('Discord mint notification warning:', err));
+
       setCreatedSlug(slug);
       setStatusMsg(t('status.success'));
       setUrlToLock('');
