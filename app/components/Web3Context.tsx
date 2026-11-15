@@ -24,6 +24,8 @@ export interface Web3ContextType {
   activeWallet: any;
   login: () => void;
   logout: () => void;
+  preloadPrivy: () => void;
+  isConnecting: boolean;
   isWalletDrawerOpen: boolean;
   setIsWalletDrawerOpen: (open: boolean) => void;
   isPrivyReady: boolean;
@@ -43,7 +45,8 @@ export function useWeb3() {
 
 export function Web3Provider({ children }: { children: ReactNode }) {
   const [isDark, setIsDark] = useState(true);
-  const [mounted, setMounted] = useState(false);
+  const [shouldLoadPrivy, setShouldLoadPrivy] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
   const [privyData, setPrivyData] = useState<PrivySyncData | null>(null);
   const [selectedAddress, setSelectedAddress] = useState('');
   const [isWalletDrawerOpen, setIsWalletDrawerOpen] = useState(false);
@@ -51,7 +54,6 @@ export function Web3Provider({ children }: { children: ReactNode }) {
 
   // Sync theme with system settings
   useEffect(() => {
-    setMounted(true);
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const updateTheme = (matches: boolean) => {
       setIsDark(matches);
@@ -68,8 +70,28 @@ export function Web3Provider({ children }: { children: ReactNode }) {
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
+  // ONLY load Privy on startup if the user has an active session from a previous visit.
+  // Otherwise, Privy stays completely unmounted until the user taps "Connect Wallet".
+  useEffect(() => {
+    try {
+      const hasPrivySession =
+        !!localStorage.getItem('privy:token') ||
+        !!localStorage.getItem('privy:refresh_token') ||
+        !!localStorage.getItem('privy:id_token') ||
+        document.cookie.includes('privy-token') ||
+        document.cookie.includes('privy-session');
+
+      if (hasPrivySession) {
+        setShouldLoadPrivy(true);
+      }
+    } catch {}
+  }, []);
+
   const handleSync = useCallback((data: PrivySyncData) => {
     setPrivyData(data);
+    if (data.isReady && data.authenticated) {
+      setIsConnecting(false);
+    }
   }, []);
 
   const wallets = privyData?.wallets || [];
@@ -81,10 +103,16 @@ export function Web3Provider({ children }: { children: ReactNode }) {
 
   const activeWallet = wallets.find((w) => w.address === selectedAddress) || wallets[0] || null;
 
+  const preloadPrivy = useCallback(() => {
+    setShouldLoadPrivy(true);
+  }, []);
+
   const login = useCallback(() => {
+    setShouldLoadPrivy(true);
     if (privyData?.isReady && privyData?.login) {
       privyData.login();
     } else {
+      setIsConnecting(true);
       setTriggerLogin(true);
     }
   }, [privyData]);
@@ -97,6 +125,7 @@ export function Web3Provider({ children }: { children: ReactNode }) {
 
   const onLoginTriggered = useCallback(() => {
     setTriggerLogin(false);
+    setIsConnecting(false);
   }, []);
 
   const formatAddress = useCallback((addr: string) => {
@@ -113,6 +142,8 @@ export function Web3Provider({ children }: { children: ReactNode }) {
     activeWallet,
     login,
     logout,
+    preloadPrivy,
+    isConnecting,
     isWalletDrawerOpen,
     setIsWalletDrawerOpen,
     isPrivyReady: !!privyData?.isReady,
@@ -123,7 +154,7 @@ export function Web3Provider({ children }: { children: ReactNode }) {
   return (
     <Web3Context.Provider value={value}>
       {children}
-      {mounted && (
+      {shouldLoadPrivy && (
         <DynamicPrivyBridge
           isDark={isDark}
           onSync={handleSync}

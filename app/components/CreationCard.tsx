@@ -37,7 +37,15 @@ export default function CreationCard({
   percentFeeBps,
 }: CreationCardProps) {
   const t = useTranslations('CreatePage');
-  const { authenticated, wallets, selectedAddress, login, user, isDark } = useWeb3();
+  const {
+    authenticated,
+    wallets,
+    selectedAddress,
+    login,
+    preloadPrivy,
+    user,
+    isDark,
+  } = useWeb3();
 
   // Create Form State
   const [urlToLock, setUrlToLock] = useState('');
@@ -618,6 +626,8 @@ export default function CreationCard({
         {/* SUBMIT BUTTON */}
         <button
           onClick={handleCreateLock}
+          onMouseEnter={preloadPrivy}
+          onTouchStart={preloadPrivy}
           disabled={isLoading}
           className="w-full font-bold py-3.5 transition-all flex items-center justify-center gap-2 rounded-2xl cursor-pointer text-xs uppercase tracking-wider bg-gradient-to-r from-sky-400 to-blue-600 dark:from-cyan-600 dark:to-blue-700 text-white hover:shadow-lg hover:shadow-sky-500/30 dark:hover:shadow-[0_0_25px_rgba(34,211,238,0.4)] hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed"
         >

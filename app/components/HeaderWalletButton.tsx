@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ChevronDown, Zap } from 'lucide-react';
+import { ChevronDown, Loader2, Zap } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useWeb3 } from './Web3Context';
 
@@ -14,6 +14,8 @@ export default function HeaderWalletButton() {
     formatAddress,
     setIsWalletDrawerOpen,
     login,
+    preloadPrivy,
+    isConnecting,
   } = useWeb3();
 
   return (
@@ -30,10 +32,17 @@ export default function HeaderWalletButton() {
       ) : (
         <button
           onClick={login}
-          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl font-bold text-xs transition-all cursor-pointer bg-gradient-to-r from-sky-500 to-blue-600 dark:from-cyan-600 dark:to-blue-600 text-white hover:shadow-md dark:hover:shadow-[0_0_15px_rgba(34,211,238,0.3)] hover:scale-[1.02]"
+          onMouseEnter={preloadPrivy}
+          onTouchStart={preloadPrivy}
+          disabled={isConnecting}
+          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl font-bold text-xs transition-all cursor-pointer bg-gradient-to-r from-sky-500 to-blue-600 dark:from-cyan-600 dark:to-blue-600 text-white hover:shadow-md dark:hover:shadow-[0_0_15px_rgba(34,211,238,0.3)] hover:scale-[1.02] disabled:opacity-75"
         >
-          <Zap size={14} fill="currentColor" className="shrink-0" />
-          <span>{t('connectWallet')}</span>
+          {isConnecting ? (
+            <Loader2 size={14} className="animate-spin shrink-0" />
+          ) : (
+            <Zap size={14} fill="currentColor" className="shrink-0" />
+          )}
+          <span>{isConnecting ? 'Connecting...' : t('connectWallet')}</span>
         </button>
       )}
     </div>
