@@ -615,25 +615,29 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                 </span>
               </div>
 
-              {/* CARD BODY CONTENT */}
-              <div className="py-4 text-left flex-1">
-                {cardTab === 'create' ? (
-                  /* TAB 1: LOCK A LINK */
-                  <div className="space-y-4 animate-in fade-in duration-200">
+              {/* CARD BODY CONTENT WITH STABLE CONTAINER & SMOOTH CROSSFADE */}
+              <div className="py-4 text-left flex-1 relative min-h-[268px]">
+                {/* TAB 1: LOCK A LINK */}
+                <div className={`transition-all duration-300 ease-in-out ${
+                  cardTab === 'create' 
+                    ? 'opacity-100 translate-y-0 pointer-events-auto' 
+                    : 'opacity-0 -translate-y-1 pointer-events-none absolute inset-x-0 top-4'
+                }`}>
+                  <div className="space-y-3.5">
                     {/* 1. URL / SECRET INPUT */}
-                    <div className="space-y-1.5">
+                    <div className="space-y-1">
                       <label className={`text-xs font-bold uppercase tracking-wider ml-1 ${isDark ? "text-slate-400" : "text-slate-500"}`}>
                         {t('textToEncrypt')}
                       </label>
                       <div className="relative">
-                        <Shield className={`absolute left-3.5 top-3.5 w-4 h-4 ${isDark ? "text-slate-600" : "text-slate-400"}`} />
+                        <Shield className={`absolute left-3.5 top-3 w-4 h-4 ${isDark ? "text-slate-600" : "text-slate-400"}`} />
                         <input 
                           value={urlToLock}
                           onChange={(e) => setUrlToLock(e.target.value)}
                           type="text" 
                           placeholder="https://... or secret payload text" 
                           className={`
-                            w-full p-3 pl-10 outline-none transition-all rounded-xl border text-sm
+                            w-full p-2.5 pl-10 outline-none transition-all rounded-xl border text-sm
                             ${isDark 
                               ? "bg-black/50 border-slate-800 text-slate-200 placeholder:text-slate-600 focus:border-cyan-500/60 focus:bg-slate-900/80" 
                               : "bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-sky-400"}
@@ -643,12 +647,12 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                     </div>
 
                     {/* 2. PRICE INPUT */}
-                    <div className="space-y-1.5">
+                    <div className="space-y-1">
                       <label className={`text-xs font-bold uppercase tracking-wider ml-1 ${isDark ? "text-slate-400" : "text-slate-500"}`}>
                         {t('priceToUnencrypt')} ($ USDC)
                       </label>
                       <div className="relative">
-                        <span className={`absolute left-3.5 top-2.5 font-bold text-base ${isDark ? "text-slate-500" : "text-slate-400"}`}>$</span>
+                        <span className={`absolute left-3.5 top-2 font-bold text-base ${isDark ? "text-slate-500" : "text-slate-400"}`}>$</span>
                         <input 
                           value={price}
                           onChange={(e) => setPrice(e.target.value)}
@@ -657,18 +661,18 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                           min="0.01"
                           placeholder="5.00" 
                           className={`
-                            w-full p-2.5 pl-8 outline-none transition-all font-bold text-base rounded-xl border
+                            w-full p-2 pl-8 outline-none transition-all font-bold text-base rounded-xl border
                             ${isDark 
                               ? "bg-black/50 border-slate-800 text-white placeholder:text-slate-600 focus:border-cyan-500/60 focus:bg-slate-900/80" 
                               : "bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-sky-400"}
                           `}
                         />
-                        <span className="absolute right-3.5 top-3 text-xs font-bold font-mono text-cyan-400">USDC</span>
+                        <span className="absolute right-3.5 top-2.5 text-xs font-bold font-mono text-cyan-400">USDC</span>
                       </div>
                     </div>
 
                     {/* 3. SLUG INPUT */}
-                    <div className="space-y-1.5">
+                    <div className="space-y-1">
                       <div className="flex justify-between items-center ml-1">
                         <label className={`text-xs font-bold uppercase tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>
                           {t('linkToPaymentPage')}
@@ -676,13 +680,13 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                       </div>
                       <div className="flex gap-2">
                         <div className="relative flex-1 group">
-                          <span className={`absolute left-3 top-2.5 font-mono select-none text-sm ${isDark ? "text-slate-600" : "text-slate-400"}`}>/</span>
+                          <span className={`absolute left-3 top-2 font-mono select-none text-sm ${isDark ? "text-slate-600" : "text-slate-400"}`}>/</span>
                           <input 
                             value={slug}
                             onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/\s+/g, '-'))}
                             type="text" 
                             className={`
-                              w-full p-2.5 pl-6 outline-none transition-all font-mono text-sm rounded-xl border
+                              w-full p-2 pl-6 outline-none transition-all font-mono text-sm rounded-xl border
                               ${isDark 
                                 ? "bg-black/50 border-slate-800 text-cyan-400 focus:border-cyan-500/60 focus:bg-slate-900/80" 
                                 : "bg-slate-50 border-slate-200 text-blue-600 focus:bg-white focus:ring-2 focus:ring-sky-400"}
@@ -693,13 +697,13 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                           onClick={generateNewSlug}
                           aria-label="Generate new slug"
                           className={`
-                            p-2.5 rounded-xl transition-all border cursor-pointer
+                            p-2 rounded-xl transition-all border cursor-pointer
                             ${isDark 
                               ? "bg-slate-800/60 border-slate-800 text-slate-400 hover:text-cyan-400 hover:bg-slate-800" 
                               : "bg-slate-100 border-slate-200 text-slate-500 hover:text-sky-600 hover:bg-white"}
                           `}
                         >
-                          <RefreshCw size={16} />
+                          <RefreshCw size={15} />
                         </button>
                       </div>
                       <span className={`text-[11px] block font-mono pl-1 opacity-70 ${isDark ? "text-cyan-400" : "text-blue-600"}`}>
@@ -707,23 +711,29 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                       </span>
                     </div>
                   </div>
-                ) : (
-                  /* TAB 2: WHAT BUYERS SEE */
-                  <div className="space-y-3 animate-in fade-in duration-200">
+                </div>
+
+                {/* TAB 2: WHAT BUYERS SEE */}
+                <div className={`transition-all duration-300 ease-in-out ${
+                  cardTab === 'preview' 
+                    ? 'opacity-100 translate-y-0 pointer-events-auto' 
+                    : 'opacity-0 translate-y-1 pointer-events-none absolute inset-x-0 top-4'
+                }`}>
+                  <div className="space-y-2.5">
                     {/* TOGGLE: SHOW LOCKED VS SHOW UNLOCKED */}
                     <div className="flex items-center justify-between pb-1">
                       <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
                         Buyer Preview:
                       </span>
-                      <div className={`inline-flex items-center p-0.5 rounded-xl border ${
+                      <div className={`inline-flex items-center p-0.5 rounded-xl border transition-colors ${
                         isDark ? "bg-black/40 border-slate-800" : "bg-slate-100 border-slate-200"
                       }`}>
                         <button
                           type="button"
                           onClick={() => setPreviewMode('locked')}
-                          className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all cursor-pointer ${
+                          className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all duration-200 cursor-pointer ${
                             previewMode === 'locked'
-                              ? (isDark ? "bg-slate-800 text-cyan-400 border border-slate-700" : "bg-white text-slate-900 shadow-xs")
+                              ? (isDark ? "bg-slate-800 text-cyan-400 border border-slate-700 shadow-xs" : "bg-white text-slate-900 shadow-xs")
                               : "text-slate-400 hover:text-slate-200"
                           }`}
                         >
@@ -732,9 +742,9 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                         <button
                           type="button"
                           onClick={() => setPreviewMode('unlocked')}
-                          className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all cursor-pointer ${
+                          className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all duration-200 cursor-pointer ${
                             previewMode === 'unlocked'
-                              ? (isDark ? "bg-slate-800 text-emerald-400 border border-slate-700" : "bg-white text-slate-900 shadow-xs")
+                              ? (isDark ? "bg-slate-800 text-emerald-400 border border-slate-700 shadow-xs" : "bg-white text-slate-900 shadow-xs")
                               : "text-slate-400 hover:text-slate-200"
                           }`}
                         >
@@ -743,71 +753,81 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
                       </div>
                     </div>
 
-                    {/* MOCK BUYER CARD PREVIEW */}
-                    <div className={`p-4 rounded-2xl border transition-all ${
+                    {/* MOCK BUYER CARD PREVIEW WITH STABLE HEIGHT & FADE */}
+                    <div className={`h-[200px] p-4 rounded-2xl border transition-all duration-300 relative overflow-hidden ${
                       isDark ? "bg-black/50 border-slate-800/80" : "bg-slate-50 border-slate-200"
                     }`}>
-                      {previewMode === 'locked' ? (
-                        /* LOCKED STATE PREVIEW */
-                        <div className="space-y-3 text-center py-2">
-                          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cyan-950/40 border border-cyan-500/30 text-cyan-400 text-[10px] font-semibold uppercase tracking-wider">
-                            <FolderLock size={12} />
-                            <span>Secure Content</span>
+                      {/* LOCKED STATE PREVIEW */}
+                      <div className={`transition-all duration-300 ease-in-out h-full flex flex-col justify-between text-center ${
+                        previewMode === 'locked' 
+                          ? 'opacity-100 scale-100 pointer-events-auto' 
+                          : 'opacity-0 scale-95 pointer-events-none absolute inset-4'
+                      }`}>
+                        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cyan-950/40 border border-cyan-500/30 text-cyan-400 text-[10px] font-semibold uppercase tracking-wider mx-auto">
+                          <FolderLock size={12} />
+                          <span>Secure Content</span>
+                        </div>
+
+                        <h4 className={`text-base font-extrabold capitalize tracking-tight truncate px-2 ${isDark ? "text-white" : "text-slate-900"}`}>
+                          {slug ? slug.replace(/-/g, ' ') : "your link title"}
+                        </h4>
+
+                        <div className="text-2xl font-black text-white">
+                          ${price ? parseFloat(price).toFixed(2) : "5.00"} 
+                          <span className="text-xs font-semibold text-cyan-400 ml-1">USDC</span>
+                        </div>
+
+                        <div className={`py-2 px-3 rounded-xl border text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 ${
+                          isDark ? "bg-slate-800/70 border-slate-700 text-slate-300" : "bg-slate-200/80 border-slate-300 text-slate-700"
+                        }`}>
+                          <Lock size={12} />
+                          <span>Purchase & Unlock</span>
+                        </div>
+
+                        <p className="text-[10px] font-mono text-slate-500">
+                          Base Network • Sub-Cent Gas • No Account Required
+                        </p>
+                      </div>
+
+                      {/* UNLOCKED STATE PREVIEW */}
+                      <div className={`transition-all duration-300 ease-in-out h-full flex flex-col justify-between text-left ${
+                        previewMode === 'unlocked' 
+                          ? 'opacity-100 scale-100 pointer-events-auto' 
+                          : 'opacity-0 scale-95 pointer-events-none absolute inset-4'
+                      }`}>
+                        <div className="flex items-center justify-between">
+                          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 text-[10px] font-semibold uppercase tracking-wider">
+                            <CheckCircle2 size={12} />
+                            <span>Purchase Verified</span>
                           </div>
+                          <span className="text-[10px] font-mono text-emerald-400 font-semibold">Decrypted</span>
+                        </div>
 
-                          <h4 className={`text-base font-extrabold capitalize tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
-                            {slug ? slug.replace(/-/g, ' ') : "your link title"}
-                          </h4>
-
-                          <div className="text-2xl font-black text-white py-0.5">
-                            ${price ? parseFloat(price).toFixed(2) : "5.00"} 
-                            <span className="text-xs font-semibold text-cyan-400 ml-1">USDC</span>
-                          </div>
-
-                          <div className={`py-2 px-3 rounded-xl border text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 ${
-                            isDark ? "bg-slate-800/70 border-slate-700 text-slate-300" : "bg-slate-200/80 border-slate-300 text-slate-700"
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                            Decrypted Secret Payload:
+                          </label>
+                          <div className={`p-2.5 rounded-xl border font-mono text-xs break-all line-clamp-2 ${
+                            isDark ? "bg-slate-950 border-slate-800 text-cyan-300" : "bg-white border-slate-200 text-blue-600"
                           }`}>
-                            <Lock size={12} />
-                            <span>Purchase & Unlock</span>
-                          </div>
-
-                          <p className="text-[10px] font-mono text-slate-500 pt-1">
-                            Base Network • Sub-Cent Gas • No Account Required
-                          </p>
-                        </div>
-                      ) : (
-                        /* UNLOCKED STATE PREVIEW */
-                        <div className="space-y-3 py-2 text-left">
-                          <div className="flex items-center justify-between">
-                            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 text-[10px] font-semibold uppercase tracking-wider">
-                              <CheckCircle2 size={12} />
-                              <span>Purchase Verified</span>
-                            </div>
-                            <span className="text-[10px] font-mono text-slate-400">Instant Access</span>
-                          </div>
-
-                          <div className="space-y-1">
-                            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                              Decrypted Secret Payload:
-                            </label>
-                            <div className={`p-2.5 rounded-xl border font-mono text-xs break-all ${
-                              isDark ? "bg-slate-950 border-slate-800 text-cyan-300" : "bg-white border-slate-200 text-blue-600"
-                            }`}>
-                              {urlToLock || "https://drive.google.com/file/d/your-secret-content"}
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-2 pt-1">
-                            <div className="flex-1 py-1.5 px-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-medium flex items-center gap-1.5">
-                              <Sparkles size={12} />
-                              <span>Decrypted via Lit Protocol TEE</span>
-                            </div>
+                            {urlToLock || "https://drive.google.com/file/d/your-secret-content"}
                           </div>
                         </div>
-                      )}
+
+                        <div className={`py-1.5 px-3 rounded-xl border text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 ${
+                          isDark ? "bg-emerald-950/30 border-emerald-500/30 text-emerald-300" : "bg-emerald-50 border-emerald-200 text-emerald-700"
+                        }`}>
+                          <ExternalLink size={12} />
+                          <span>Open Decrypted Link</span>
+                        </div>
+
+                        <p className="text-[10px] font-mono text-slate-500 text-center">
+                          Decrypted via Lit Protocol Chipotle TEE
+                        </p>
+                      </div>
                     </div>
                   </div>
-                )}
+                </div>
               </div>
 
               {/* PERSISTENT BOTTOM CTA (Always visible & interactive across both tabs) */}
