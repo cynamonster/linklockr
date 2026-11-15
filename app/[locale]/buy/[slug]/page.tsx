@@ -13,13 +13,56 @@ export async function generateMetadata({
   const { slug } = await params;
   const formattedTitle = slug ? slug.replace(/-/g, " ") : "Content";
 
+  let priceFormatted = "5.00";
+  try {
+    const { data } = await supabase
+      .from("links")
+      .select("price_usd")
+      .eq("slug", slug)
+      .maybeSingle();
+    if (data?.price_usd) {
+      priceFormatted = Number(data.price_usd).toFixed(2);
+    }
+  } catch {}
+
+  const title = `Unlock ${formattedTitle} ($${priceFormatted} USDC) | LinkLockr`;
+  const description = `Instant paywall on Base L2. Unlock with Base Native USDC. Sub-cent gas, zero chargebacks, encrypted via Lit Protocol TEEs.`;
+  const pageUrl = `https://linklockr.xyz/buy/${slug}`;
+  const ogImageUrl = `https://linklockr.xyz/api/og?slug=${encodeURIComponent(slug)}&price=${encodeURIComponent(priceFormatted)}`;
+
   return {
-    title: `${formattedTitle} | LinkLockr`,
-    description: `Purchase and unlock secure content on Base L2 with LinkLockr.`,
+    title,
+    description,
     openGraph: {
-      title: `${formattedTitle} | LinkLockr`,
-      description: `Purchase and unlock secure content on Base L2 with LinkLockr.`,
-      url: `https://linklockr.xyz/buy/${slug}`,
+      title,
+      description,
+      url: pageUrl,
+      siteName: "LinkLockr",
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: `Unlock ${formattedTitle} on LinkLockr`,
+        },
+      ],
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [ogImageUrl],
+      creator: "@LinkLockr",
+    },
+    other: {
+      // Farcaster Frame vNext / v2 metadata
+      "fc:frame": "vNext",
+      "fc:frame:image": ogImageUrl,
+      "fc:frame:image:aspect_ratio": "1.91:1",
+      "fc:frame:button:1": `Unlock ($${priceFormatted} USDC)`,
+      "fc:frame:button:1:action": "link",
+      "fc:frame:button:1:target": pageUrl,
     },
   };
 }

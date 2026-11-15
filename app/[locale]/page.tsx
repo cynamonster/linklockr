@@ -342,8 +342,9 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
   // --- VIEW: SUCCESS CELEBRATION SCREEN ---
   if (createdSlug) {
     const shareUrl = typeof window !== 'undefined' ? `${window.location.origin}/buy/${createdSlug}` : `https://linklockr.xyz/buy/${createdSlug}`;
-    const warpcastShareUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(`Check out my paywalled link on LinkLockr:\n${shareUrl}`)}`;
-    const twitterShareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(`Check out my paywalled link on LinkLockr:\n${shareUrl}`)}`;
+    const warpcastShareUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent("Unlock my paywalled content on Base L2 via @linklockr:")}&embeds[]=${encodeURIComponent(shareUrl)}`;
+    const twitterShareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent("Unlock my paywalled content on Base L2 via @LinkLockr:")}&url=${encodeURIComponent(shareUrl)}`;
+    const telegramShareUrl = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent("Unlock my paywalled content on Base L2 via LinkLockr:")}`;
 
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
@@ -385,25 +386,34 @@ function MainLogic({ isDark, toggleTheme }: { isDark: boolean, toggleTheme: () =
             </button>
           </div>
 
-          {/* 1-CLICK SOCIAL SHARING */}
-          <div className="grid grid-cols-2 gap-3 pt-2">
+          {/* 1-CLICK VIRAL SOCIAL SHARING */}
+          <div className="grid grid-cols-3 gap-2.5 pt-2">
             <a 
               href={warpcastShareUrl} 
               target="_blank" 
               rel="noopener noreferrer"
-              className="py-3 px-4 rounded-2xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 bg-[#472a91] hover:bg-[#5835b0] text-white transition-all shadow-md hover:scale-[1.02]"
+              className="py-3 px-3 rounded-2xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 bg-[#472a91] hover:bg-[#5835b0] text-white transition-all shadow-md hover:scale-[1.02]"
             >
-              <Share2 size={15} />
-              {t('shareWarpcast')}
+              <Share2 size={14} />
+              <span>Warpcast</span>
             </a>
             <a 
               href={twitterShareUrl} 
               target="_blank" 
               rel="noopener noreferrer"
-              className="py-3 px-4 rounded-2xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 bg-black hover:bg-slate-900 text-white border border-slate-800 transition-all shadow-md hover:scale-[1.02]"
+              className="py-3 px-3 rounded-2xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 bg-black hover:bg-slate-900 text-white border border-slate-800 transition-all shadow-md hover:scale-[1.02]"
             >
-              <Share2 size={15} />
-              {t('shareTwitter')}
+              <Share2 size={14} />
+              <span>X</span>
+            </a>
+            <a 
+              href={telegramShareUrl} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="py-3 px-3 rounded-2xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 bg-[#229ED9] hover:bg-[#1d8ec4] text-white transition-all shadow-md hover:scale-[1.02]"
+            >
+              <Share2 size={14} />
+              <span>Telegram</span>
             </a>
           </div>
 
