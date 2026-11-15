@@ -67,6 +67,11 @@
         "withdrawFunds": "Retirar fondos",
         "sendEth": "Enviar ETH",
 
+        "tabLockLink": "Bloquear Enlace",
+        "tabBuyerPreview": "Vista del Comprador",
+        "previewLocked": "Bloqueado",
+        "previewUnlocked": "Desbloqueado",
+
         "termsAgree": "Al crear este enlace, aceptas que tienes el derecho de vender este contenido y eximes a LinkLockr de cualquier responsabilidad. El contenido sujeto a reportes o reclamos de derechos de autor puede ser eliminado.",
 
         "heroTitle": "Crea Enlaces con Pago Previo",

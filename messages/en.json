@@ -67,6 +67,11 @@
         "withdrawFunds": "Withdraw Funds",
         "sendEth": "Send ETH",
 
+        "tabLockLink": "Lock a Link",
+        "tabBuyerPreview": "What Buyers See",
+        "previewLocked": "Locked",
+        "previewUnlocked": "Unlocked",
+
         "termsAgree": "By creating this link, you agree that you have the right to sell this content and indemnify LinkLockr from any liability. Content subject to reports or copyright claims may be removed.",
 
         "heroTitle": "Create Paywalled Links",

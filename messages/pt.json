@@ -67,6 +67,11 @@
         "withdrawFunds": "Sacar fundos",
         "sendEth": "Enviar ETH",
 
+        "tabLockLink": "Bloquear Link",
+        "tabBuyerPreview": "Visualização do Comprador",
+        "previewLocked": "Bloqueado",
+        "previewUnlocked": "Desbloqueado",
+
         "termsAgree": "Ao criar este link, você concorda que tem o direito de vender este conteúdo e isenta o LinkLockr de qualquer responsabilidade. Conteúdo sujeito a denúncias ou reivindicações de direitos autorais pode ser removido.",
 
         "heroTitle": "Crie Links com Paywall",
