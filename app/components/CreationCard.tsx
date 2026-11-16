@@ -20,6 +20,7 @@ import {
 import { useTranslations } from 'next-intl';
 import { useWeb3 } from './Web3Context';
 import { supabase } from '../../utils/supabase';
+import { ensureBaseChain } from '../../utils/chainGuard';
 import { generateSlugAction } from '../actions/slug';
 
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || '';
@@ -125,8 +126,9 @@ export default function CreationCard({
     setIsLoading(true);
     try {
       const { ethers } = await import('ethers');
-      // 1. SETUP
+      // 1. SETUP & CHAIN GUARD
       setStatusMsg(t('status.connecting'));
+      await ensureBaseChain(wallet);
       const provider = await wallet.getEthereumProvider();
       const ethersProvider = new ethers.BrowserProvider(provider);
       const signer = await ethersProvider.getSigner();

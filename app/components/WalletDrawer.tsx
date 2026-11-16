@@ -35,6 +35,8 @@ export default function WalletDrawer() {
     if (!activeWallet || !withdrawForm.address || !withdrawForm.amount) return;
     setIsWithdrawing(true);
     try {
+      const { ensureBaseChain } = await import('../../utils/chainGuard');
+      await ensureBaseChain(activeWallet);
       const { ethers } = await import('ethers');
       const provider = await activeWallet.getEthereumProvider();
       const ethersProvider = new ethers.BrowserProvider(provider);

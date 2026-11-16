@@ -9,6 +9,7 @@ import { useTranslations } from 'next-intl';
 // --- IMPORTS ---
 import { supabase } from "@/utils/supabase";
 import { createSiweMessage } from "@/utils/lit";
+import { ensureBaseChain } from "@/utils/chainGuard";
 import { ReportButton } from "@/app/components/ReportButton";
 import LanguageSwitcher from "@/app/components/LanguageSwitcher";
 
@@ -25,7 +26,8 @@ const USDC_ADDRESS = process.env.NEXT_PUBLIC_USDC_ADDRESS || "0x833589fCD6eDb6E0
 
 const LINK_ABI = [
   "function balanceOf(address account, uint256 id) view returns (uint256)",
-  "function buyLink(string _slug, address _recipient, address _feeRecipient, uint256 _feeBps) external"
+  "function buyLink(string _slug, address _recipient, address _feeRecipient, uint256 _feeBps) external",
+  "function links(bytes32) view returns (uint256 price, address creator, bool active, string ipfsHash, string slug)"
 ];
 
 const ERC20_ABI = [
@@ -215,10 +217,22 @@ function BuyPageContent({ slug, initialLinkData, initialError }: BuyClientWrappe
     setError("");
 
     try {
+      await ensureBaseChain(activeWallet);
       const provider = await activeWallet.getEthereumProvider();
       const ethersProvider = new ethers.BrowserProvider(provider);
       const signer = await ethersProvider.getSigner();
       const userAddress = await signer.getAddress();
+
+      // Check 0: On-chain Link Verification
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, LINK_ABI, signer);
+      const normalizedSlug = (slug || "").trim();
+      const slugBytes = ethers.toUtf8Bytes(normalizedSlug);
+      const slugHash = ethers.keccak256(ethers.solidityPacked(['bytes'], [slugBytes]));
+
+      const linkOnChain = await contract.links(slugHash);
+      if (!linkOnChain.active) {
+        throw new Error("This link is not active on Base Mainnet. The creator may have deployed it on another network or it was not confirmed on-chain.");
+      }
 
       // Check 1: Gas (ETH)
       const ethBalance = await ethersProvider.getBalance(userAddress);
@@ -255,10 +269,9 @@ function BuyPageContent({ slug, initialLinkData, initialError }: BuyClientWrappe
 
       // Action: Buy
       setTxStatus("buying");
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, LINK_ABI, signer);
 
       const txBuy = await contract.buyLink(
-        slug, 
+        normalizedSlug, 
         userAddress, 
         PLATFORM_FEE_RECIPIENT, 
         NEXT_PUBLIC_FEE_BPS
@@ -304,6 +317,7 @@ function BuyPageContent({ slug, initialLinkData, initialError }: BuyClientWrappe
     setError("");
 
     try {
+      await ensureBaseChain(activeWallet);
       const provider = await activeWallet.getEthereumProvider();
       const ethersProvider = new ethers.BrowserProvider(provider);
       const signer = await ethersProvider.getSigner();
