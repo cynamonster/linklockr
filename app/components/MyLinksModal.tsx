@@ -182,19 +182,19 @@ export default function MyLinksModal() {
                   key={item.slug}
                   className="p-3.5 rounded-2xl border bg-slate-50/80 dark:bg-black/40 border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between gap-3 transition-colors hover:border-slate-300 dark:hover:border-slate-700"
                 >
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="text-sm font-bold capitalize text-slate-900 dark:text-white truncate">
-                        {item.slug.replace(/-/g, ' ')}
-                      </span>
-                      {item.active && (
+                  <div className="min-w-0 flex-1 space-y-1">
+                    <h4 className="text-sm font-bold capitalize text-slate-900 dark:text-white truncate">
+                      {item.slug.replace(/-/g, ' ')}
+                    </h4>
+                    {item.active && (
+                      <div>
                         <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                           <Check size={10} />
                           {t('verifiedOnBase')}
                         </span>
-                      )}
-                    </div>
-                    <div className="text-xs font-mono text-slate-500 dark:text-slate-400 mt-1">
+                      </div>
+                    )}
+                    <div className="text-xs font-mono text-slate-500 dark:text-slate-400">
                       ${Number(item.price_usd || 0).toFixed(2)} USDC
                     </div>
                   </div>
