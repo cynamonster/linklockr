@@ -68,7 +68,13 @@
         "sendEth": "Enviar ETH",
 
         "tabLockLink": "Bloquear Link",
+        "tabMyLinks": "Meus Links",
         "tabBuyerPreview": "Visualização do Comprador",
+        "noLinksFound": "Nenhum link encontrado para esta carteira.",
+        "connectToViewLinks": "Conecte sua carteira para ver seus links criados.",
+        "refreshLinks": "Atualizar",
+        "copyLink": "Copiar link",
+        "verifiedOnBase": "Ativo na Base",
         "previewLocked": "Bloqueado",
         "previewUnlocked": "Desbloqueado",
 
@@ -118,6 +124,16 @@
 
         "confirmingPurchase": "Confirmando compra...",
         "purchaseAndUnlock": "Comprar e desbloquear",
+        "needUsdc": "Precisa de USDC na Base?",
+        "needUsdcDesc": "Transfira de outras redes (Arbitrum, OP, Solana, Ethereum) ou compre com cartão / Apple Pay em segundos.",
+        "bridgeOrCard": "Transferir ou pagar com cartão",
+        "shortBy": "Faltam",
+        "stepApproving": "Aprovando USDC (1/2)...",
+        "stepPurchasing": "Desbloqueando conteúdo (2/2)...",
+        "stepIndexing": "Confirmando acesso...",
+        "linkInactiveWarning": "Link inativo na rede",
+        "linkInactiveDesc": "Este link existe no banco de dados mas não foi confirmado na Base Mainnet.",
+        "verifiedOnBase": "Verificado na Base",
 
         "createdBy": "Criado por:",
         "copyFullAddress": "Copiar endereço completo",

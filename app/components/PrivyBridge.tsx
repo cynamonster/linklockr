@@ -73,6 +73,11 @@ export default function PrivyBridge({
           theme: isDark ? 'dark' : 'light',
           accentColor: isDark ? '#22d3ee' : '#3b82f6',
         },
+        fundingMethodConfig: {
+          moonpay: {
+            useSandbox: false,
+          },
+        },
         defaultChain: {
           id: 8453,
           name: 'Base',
@@ -80,6 +85,15 @@ export default function PrivyBridge({
           nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
           rpcUrls: { default: { http: ['https://mainnet.base.org'] } },
         },
+        supportedChains: [
+          {
+            id: 8453,
+            name: 'Base',
+            network: 'base',
+            nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+            rpcUrls: { default: { http: ['https://mainnet.base.org'] } },
+          },
+        ],
       }}
     >
       <PrivyBridgeInner

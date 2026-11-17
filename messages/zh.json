@@ -68,7 +68,13 @@
         "sendEth": "发送 ETH",
 
         "tabLockLink": "锁定链接",
+        "tabMyLinks": "我的链接",
         "tabBuyerPreview": "买家视角预览",
+        "noLinksFound": "此钱包暂未创建任何链接。",
+        "connectToViewLinks": "连接钱包以查看您创建的链接。",
+        "refreshLinks": "刷新",
+        "copyLink": "复制链接",
+        "verifiedOnBase": "Base 链已激活",
         "previewLocked": "未解锁",
         "previewUnlocked": "已解锁",
 
@@ -118,6 +124,16 @@
 
         "confirmingPurchase": "正在确认购买...",
         "purchaseAndUnlock": "购买并解锁",
+        "needUsdc": "需要 Base 链 USDC？",
+        "needUsdcDesc": "可从其他链（Arbitrum、OP、Solana、以太坊）跨链转账，或使用信用卡 / Apple Pay 快速充值。",
+        "bridgeOrCard": "跨链转账或信用卡充值",
+        "shortBy": "缺少",
+        "stepApproving": "正在授权 USDC (1/2)...",
+        "stepPurchasing": "正在解锁内容 (2/2)...",
+        "stepIndexing": "正在确认权限...",
+        "linkInactiveWarning": "链接尚未在链上激活",
+        "linkInactiveDesc": "此链接在数据库中存在，但尚未在 Base 主网上确认。",
+        "verifiedOnBase": "Base 链已验证",
 
         "createdBy": "创建者：",
         "copyFullAddress": "复制完整地址",

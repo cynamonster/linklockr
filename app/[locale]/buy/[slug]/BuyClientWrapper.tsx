@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { ethers } from "ethers";
-import { PrivyProvider, usePrivy, useWallets } from "@privy-io/react-auth";
-import { FolderLock, Unlock, Loader2, AlertCircle, ExternalLink, Check, Shield, Sparkles, Copy, ChevronDown, Wallet, LogOut } from "lucide-react";
+import { PrivyProvider, usePrivy, useWallets, useFundWallet } from "@privy-io/react-auth";
+import { FolderLock, Unlock, Loader2, AlertCircle, ExternalLink, Check, Shield, Sparkles, Copy, ChevronDown, Wallet, LogOut, CreditCard } from "lucide-react";
 import { useTranslations } from 'next-intl';
 
 // --- IMPORTS ---
@@ -54,13 +54,27 @@ export default function BuyClientWrapper({ slug, initialLinkData, initialError }
             accentColor: '#22d3ee', 
             logo: 'https://linklockr.xyz/logo.png'
         },
+        fundingMethodConfig: {
+          moonpay: {
+            useSandbox: false,
+          },
+        },
         defaultChain: {
           id: 8453,
           name: 'Base',
           network: 'base',
           nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
           rpcUrls: { default: { http: ['https://mainnet.base.org'] } }
-        }
+        },
+        supportedChains: [
+          {
+            id: 8453,
+            name: 'Base',
+            network: 'base',
+            nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+            rpcUrls: { default: { http: ['https://mainnet.base.org'] } }
+          }
+        ]
       }}
     >
       <BuyPageContent slug={slug} initialLinkData={initialLinkData} initialError={initialError} />
@@ -71,6 +85,7 @@ export default function BuyClientWrapper({ slug, initialLinkData, initialError }
 function BuyPageContent({ slug, initialLinkData, initialError }: BuyClientWrapperProps) {
   const { authenticated, login, logout } = usePrivy();
   const { wallets } = useWallets();
+  const { fundWallet } = useFundWallet();
   
   const t = useTranslations('BuyPage');
 
@@ -97,31 +112,31 @@ function BuyPageContent({ slug, initialLinkData, initialError }: BuyClientWrappe
   const [usdcBalance, setUsdcBalance] = useState("0.00");
   const [isFetchingBalance, setIsFetchingBalance] = useState(false);
 
-  // Fetch balances non-blocking in background
+  // Fetch balances for active address
+  const fetchBalance = useCallback(async () => {
+    const targetAddr = selectedAddress || wallets[0]?.address;
+    if (!targetAddr) return;
+    setIsFetchingBalance(true);
+
+    try {
+      const provider = new ethers.JsonRpcProvider("https://mainnet.base.org");
+      
+      const rawEth = await provider.getBalance(targetAddr);
+      setEthBalance(ethers.formatEther(rawEth));
+
+      const usdc = new ethers.Contract(USDC_ADDRESS, ERC20_ABI, provider);
+      const rawUsdc = await usdc.balanceOf(targetAddr);
+      setUsdcBalance(ethers.formatUnits(rawUsdc, 6));
+    } catch (err) {
+      console.error("Error fetching balance:", err);
+    } finally {
+      setIsFetchingBalance(false);
+    }
+  }, [selectedAddress, wallets]);
+
   useEffect(() => {
-    const fetchBalance = async () => {
-      if (!wallets[0]) return;
-      setIsFetchingBalance(true);
-
-      try {
-          const address = wallets[0].address;
-          const provider = new ethers.JsonRpcProvider("https://mainnet.base.org");
-          
-          const rawEth = await provider.getBalance(address);
-          setEthBalance(ethers.formatEther(rawEth));
-
-          const usdc = new ethers.Contract(USDC_ADDRESS, ERC20_ABI, provider);
-          const rawUsdc = await usdc.balanceOf(address);
-          setUsdcBalance(ethers.formatUnits(rawUsdc, 6));
-      } catch (err) {
-          console.error("Error fetching balance:", err);
-      } finally {
-          setIsFetchingBalance(false);
-      }
-    };
-
     fetchBalance();
-  }, [wallets]);
+  }, [fetchBalance]);
 
   const activeWallet = wallets.find(w => w.address === selectedAddress) || wallets[0];
 
@@ -136,8 +151,35 @@ function BuyPageContent({ slug, initialLinkData, initialError }: BuyClientWrappe
   const [error, setError] = useState(initialError || "");
   const [isBanned, setIsBanned] = useState(initialLinkData?.status === 'banned');
 
+  // On-Chain Link Status State
+  const [isOnChainActive, setIsOnChainActive] = useState<boolean | null>(null);
+  const [isVerifyingOnChain, setIsVerifyingOnChain] = useState<boolean>(true);
+
+  useEffect(() => {
+    const verifyOnChain = async () => {
+      if (!slug) return;
+      try {
+        const provider = new ethers.JsonRpcProvider("https://mainnet.base.org");
+        const contract = new ethers.Contract(CONTRACT_ADDRESS, LINK_ABI, provider);
+        const normalized = slug.trim();
+        const slugBytes = ethers.toUtf8Bytes(normalized);
+        const slugHash = ethers.keccak256(ethers.solidityPacked(['bytes'], [slugBytes]));
+        const link = await contract.links(slugHash);
+        setIsOnChainActive(Boolean(link.active));
+      } catch (err) {
+        console.warn("On-chain verification warning:", err);
+        setIsOnChainActive(null);
+      } finally {
+        setIsVerifyingOnChain(false);
+      }
+    };
+
+    verifyOnChain();
+  }, [slug]);
+
   // Transaction State
   const [txStatus, setTxStatus] = useState("");
+  const [txStep, setTxStep] = useState<"" | "approving" | "buying" | "indexing" | "decrypting">("");
   const [isOwner, setIsOwner] = useState(false);
   const [decryptedUrl, setDecryptedUrl] = useState<string | null>(null);
   
@@ -209,11 +251,39 @@ function BuyPageContent({ slug, initialLinkData, initialError }: BuyClientWrappe
     }
   };
 
+  // FUNDING FLOW (Cross-Chain Bridging & Card Onramp)
+  const handleFundWallet = async () => {
+    const targetAddr = activeWallet?.address;
+    if (!targetAddr) return login();
+
+    try {
+      const priceNum = Number(linkData?.price_usd || 0);
+      const formattedAmount = priceNum > 0 ? priceNum.toFixed(2) : "5.00";
+
+      await fundWallet({
+        address: targetAddr,
+        options: {
+          chain: { id: 8453 },
+          amount: formattedAmount,
+          asset: 'USDC',
+        },
+      });
+
+      // Re-fetch balance after funding flow completes
+      setTimeout(() => {
+        fetchBalance();
+      }, 1500);
+    } catch (err: any) {
+      console.warn("Funding flow notice:", err);
+    }
+  };
+
   // C. PURCHASE FLOW
   const handleBuy = async () => {
     if (!activeWallet) return login();
     
     setTxStatus("preparing");
+    setTxStep("approving");
     setError("");
 
     try {
@@ -231,14 +301,14 @@ function BuyPageContent({ slug, initialLinkData, initialError }: BuyClientWrappe
 
       const linkOnChain = await contract.links(slugHash);
       if (!linkOnChain.active) {
-        throw new Error("This link is not active on Base Mainnet. The creator may have deployed it on another network or it was not confirmed on-chain.");
+        throw new Error(t('linkInactiveDesc'));
       }
 
       // Check 1: Gas (ETH)
-      const ethBalance = await ethersProvider.getBalance(userAddress);
+      const ethBalanceVal = await ethersProvider.getBalance(userAddress);
       const estimatedEthForGas = ethers.parseEther("0.00003");
 
-      if (ethBalance < estimatedEthForGas) {
+      if (ethBalanceVal < estimatedEthForGas) {
         throw new Error(t('insufficientGas'));
       }
 
@@ -262,13 +332,15 @@ function BuyPageContent({ slug, initialLinkData, initialError }: BuyClientWrappe
       // Check 3: Allowance
       const currentAllowance: bigint = await usdcContract.allowance(userAddress, CONTRACT_ADDRESS);
       if (currentAllowance < priceUnits) {
-        setTxStatus("approving USDC...");
+        setTxStep("approving");
+        setTxStatus("approving USDC (1/2)...");
         const txApprove = await usdcContract.approve(CONTRACT_ADDRESS, priceUnits);
         await txApprove.wait();
       }
 
       // Action: Buy
-      setTxStatus("buying");
+      setTxStep("buying");
+      setTxStatus("unlocking content (2/2)...");
 
       const txBuy = await contract.buyLink(
         normalizedSlug, 
@@ -291,11 +363,14 @@ function BuyPageContent({ slug, initialLinkData, initialError }: BuyClientWrappe
       }).catch(err => console.warn("Discord sales notification warning:", err));
 
       setIsOwner(true);
+      setTxStep("indexing");
       setTxStatus("indexing...");
 
       await new Promise((resolve) => setTimeout(resolve, 2000)); 
 
+      setTxStep("");
       setTxStatus("");
+      fetchBalance();
       handleDecrypt();
 
     } catch (e: any) {
@@ -306,6 +381,7 @@ function BuyPageContent({ slug, initialLinkData, initialError }: BuyClientWrappe
       else if (msg.includes("insufficient funds")) msg = "Insufficient ETH for gas or insufficient USDC.";
       
       alert(msg);
+      setTxStep("");
       setTxStatus("");
     }
   };
@@ -371,9 +447,17 @@ function BuyPageContent({ slug, initialLinkData, initialError }: BuyClientWrappe
         
         {/* HEADER */}
         <div className="text-center space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/50 border border-cyan-500/30 text-cyan-400 text-xs font-semibold tracking-wide uppercase">
-            <FolderLock className="w-3.5 h-3.5" />
-            <span>{t('contentCardHeader')}</span>
+          <div className="flex items-center justify-center gap-2 flex-wrap">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/50 border border-cyan-500/30 text-cyan-400 text-xs font-semibold tracking-wide uppercase">
+              <FolderLock className="w-3.5 h-3.5" />
+              <span>{t('contentCardHeader')}</span>
+            </div>
+            {isOnChainActive === true && (
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-950/60 border border-emerald-500/30 text-emerald-400 text-xs font-medium">
+                <Check className="w-3 h-3" />
+                <span>{t('verifiedOnBase')}</span>
+              </div>
+            )}
           </div>
           
           <h1 className="text-3xl font-extrabold tracking-tight text-white capitalize break-words">
@@ -408,6 +492,17 @@ function BuyPageContent({ slug, initialLinkData, initialError }: BuyClientWrappe
               <AlertCircle className="w-10 h-10 text-red-500 mx-auto" />
               <h2 className="text-white font-bold text-xl">{t('contentRemoved')}</h2>
               <p className="text-red-200">{t('contentRemovedMessage')}</p>
+            </div>
+          )}
+
+          {/* ON-CHAIN INACTIVE WARNING */}
+          {isOnChainActive === false && !loading && !error && !isBanned && (
+            <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 flex items-start gap-3 text-amber-300 text-sm">
+              <AlertCircle className="w-5 h-5 shrink-0 text-amber-400 mt-0.5" />
+              <div className="space-y-1 text-left">
+                <p className="font-semibold text-amber-200">{t('linkInactiveWarning')}</p>
+                <p className="text-xs text-amber-300/80 leading-relaxed">{t('linkInactiveDesc')}</p>
+              </div>
             </div>
           )}
 
@@ -484,12 +579,60 @@ function BuyPageContent({ slug, initialLinkData, initialError }: BuyClientWrappe
                     </div>
                   )}
 
+                  {/* SMART FUNDING / CARD / BRIDGE MODAL TRIGGER */}
+                  {Number(usdcBalance) < Number(linkData.price_usd) && (
+                    <div className="p-4 rounded-2xl bg-cyan-950/30 border border-cyan-500/20 text-left space-y-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="space-y-1">
+                          <p className="text-sm font-semibold text-cyan-300 flex items-center gap-1.5">
+                            <CreditCard className="w-4 h-4 text-cyan-400 shrink-0" />
+                            <span>{t('needUsdc')}</span>
+                          </p>
+                          <p className="text-xs text-slate-300/85 leading-relaxed">
+                            {t('needUsdcDesc')}
+                          </p>
+                        </div>
+                        <span className="shrink-0 px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-[11px] font-mono text-amber-300">
+                          {t('shortBy')} ${(Math.max(0, Number(linkData.price_usd) - Number(usdcBalance))).toFixed(2)}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleFundWallet}
+                        className="w-full py-2.5 px-3 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 hover:text-white border border-cyan-500/40 text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer"
+                      >
+                        <CreditCard className="w-3.5 h-3.5" />
+                        <span>{t('bridgeOrCard')}</span>
+                      </button>
+                    </div>
+                  )}
+
                   <button
                     onClick={handleBuy}
-                    disabled={!!txStatus}
+                    disabled={!!txStatus || isOnChainActive === false}
                     className="w-full py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold hover:from-cyan-400 hover:to-blue-500 transition-all shadow-lg shadow-cyan-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    {txStatus ? (
+                    {isOnChainActive === false ? (
+                      <>
+                        <AlertCircle className="w-5 h-5 text-amber-300" />
+                        <span>{t('linkInactiveWarning')}</span>
+                      </>
+                    ) : txStep === "approving" ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <span>{t('stepApproving')}</span>
+                      </>
+                    ) : txStep === "buying" ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <span>{t('stepPurchasing')}</span>
+                      </>
+                    ) : txStep === "indexing" ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <span>{t('stepIndexing')}</span>
+                      </>
+                    ) : txStatus ? (
                       <>
                         <Loader2 className="w-5 h-5 animate-spin" />
                         <span className="capitalize">{txStatus}</span>

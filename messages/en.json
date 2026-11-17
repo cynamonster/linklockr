@@ -68,7 +68,13 @@
         "sendEth": "Send ETH",
 
         "tabLockLink": "Lock a Link",
+        "tabMyLinks": "My Links",
         "tabBuyerPreview": "What Buyers See",
+        "noLinksFound": "No links found for this wallet.",
+        "connectToViewLinks": "Connect your wallet to view your created links.",
+        "refreshLinks": "Refresh",
+        "copyLink": "Copy Link",
+        "verifiedOnBase": "Active on Base",
         "previewLocked": "Locked",
         "previewUnlocked": "Unlocked",
 
@@ -118,6 +124,16 @@
 
         "confirmingPurchase": "Confirming Purchase...",
         "purchaseAndUnlock": "Purchase & Unlock",
+        "needUsdc": "Need USDC on Base?",
+        "needUsdcDesc": "Bridge from other chains (Arbitrum, OP, Solana, Ethereum) or buy with Card / Apple Pay in seconds.",
+        "bridgeOrCard": "Bridge or Pay with Card",
+        "shortBy": "Short by",
+        "stepApproving": "Approving USDC (1/2)...",
+        "stepPurchasing": "Unlocking Content (2/2)...",
+        "stepIndexing": "Confirming Access...",
+        "linkInactiveWarning": "Link Not Active On-Chain",
+        "linkInactiveDesc": "This link is recorded in the database but has not been confirmed on Base Mainnet.",
+        "verifiedOnBase": "Verified on Base",
 
         "createdBy": "Created by:",
         "copyFullAddress": "Copy full address",
