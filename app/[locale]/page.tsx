@@ -59,6 +59,7 @@ export async function generateMetadata({
     other: {
       'fc:frame': 'vNext',
       'fc:frame:image': ogImageUrl,
+      'fc:frame:image:aspect_ratio': '1.91:1',
       'fc:frame:button:1': 'Lock a Link on Base',
       'fc:frame:button:1:action': 'link',
       'fc:frame:button:1:target': url,
