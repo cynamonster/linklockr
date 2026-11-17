@@ -73,8 +73,9 @@ export function Web3Provider({ children }: { children: ReactNode }) {
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
-  // ONLY load Privy on startup if the user has an active session from a previous visit.
-  // Otherwise, Privy stays completely unmounted until the user taps "Connect Wallet".
+  // Auto-preload Privy:
+  // 1. If an active session exists, load immediately to restore wallet.
+  // 2. Otherwise, preload in idle time so it is 100% warmed up when the user clicks "Connect Wallet".
   useEffect(() => {
     try {
       const hasPrivySession =
@@ -86,13 +87,42 @@ export function Web3Provider({ children }: { children: ReactNode }) {
 
       if (hasPrivySession) {
         setShouldLoadPrivy(true);
+        return;
       }
     } catch {}
+
+    // Idle-preload so first click opens immediately without gesture-timeout or popup blocking
+    if (typeof window !== 'undefined') {
+      if ('requestIdleCallback' in window) {
+        const id = (window as any).requestIdleCallback(
+          () => {
+            setShouldLoadPrivy(true);
+          },
+          { timeout: 2000 }
+        );
+        return () => (window as any).cancelIdleCallback?.(id);
+      } else {
+        const timer = setTimeout(() => {
+          setShouldLoadPrivy(true);
+        }, 1200);
+        return () => clearTimeout(timer);
+      }
+    }
   }, []);
+
+  // Safety net: ensure isConnecting never gets stuck permanently
+  useEffect(() => {
+    if (isConnecting) {
+      const timer = setTimeout(() => {
+        setIsConnecting(false);
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [isConnecting]);
 
   const handleSync = useCallback((data: PrivySyncData) => {
     setPrivyData(data);
-    if (data.isReady && data.authenticated) {
+    if (data.isReady) {
       setIsConnecting(false);
     }
   }, []);
@@ -101,10 +131,25 @@ export function Web3Provider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (wallets.length > 0 && !selectedAddress) {
       setSelectedAddress(wallets[0].address);
+    } else if (!selectedAddress && privyData?.user?.wallet?.address) {
+      setSelectedAddress(privyData.user.wallet.address);
     }
-  }, [wallets, selectedAddress]);
+  }, [wallets, selectedAddress, privyData?.user?.wallet?.address]);
 
-  const activeWallet = wallets.find((w) => w.address === selectedAddress) || wallets[0] || null;
+  const activeWallet =
+    wallets.find((w) => w.address === selectedAddress) ||
+    wallets[0] ||
+    (privyData?.user?.wallet
+      ? {
+          address: privyData.user.wallet.address,
+          walletClientType: (privyData.user.wallet as any).walletClientType || 'privy',
+          getEthereumProvider: async () => {
+            const eth = (window as any).ethereum;
+            if (eth) return eth;
+            throw new Error('No wallet provider available');
+          },
+        }
+      : null);
 
   const preloadPrivy = useCallback(() => {
     setShouldLoadPrivy(true);
@@ -112,8 +157,17 @@ export function Web3Provider({ children }: { children: ReactNode }) {
 
   const login = useCallback(() => {
     setShouldLoadPrivy(true);
-    if (privyData?.isReady && privyData?.login) {
-      privyData.login();
+    if (privyData?.isReady) {
+      if (privyData.authenticated) {
+        // If already authenticated in Privy, open wallet connect / create modal
+        if (privyData.connectWallet) {
+          privyData.connectWallet();
+        } else if (privyData.createWallet) {
+          privyData.createWallet();
+        }
+      } else if (privyData.login) {
+        privyData.login();
+      }
     } else {
       setIsConnecting(true);
       setTriggerLogin(true);

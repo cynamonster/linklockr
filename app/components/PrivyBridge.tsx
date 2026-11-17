@@ -10,6 +10,8 @@ export interface PrivySyncData {
   user: any;
   wallets: any[];
   login: () => void;
+  connectWallet: () => void;
+  createWallet?: () => Promise<any>;
   logout: () => void;
   isReady: boolean;
 }
@@ -30,10 +32,12 @@ function PrivyBridgeInner({
   triggerLogin?: boolean;
   onLoginTriggered?: () => void;
 }) {
-  const { authenticated, user, login, logout, ready } = usePrivy();
+  const { authenticated, user, login, connectWallet, createWallet, logout, ready } = usePrivy();
   const { wallets } = useWallets();
   const loginRef = useRef(login);
   loginRef.current = login;
+  const connectWalletRef = useRef(connectWallet);
+  connectWalletRef.current = connectWallet;
 
   useEffect(() => {
     onSync({
@@ -41,17 +45,28 @@ function PrivyBridgeInner({
       user,
       wallets,
       login,
+      connectWallet,
+      createWallet,
       logout,
       isReady: ready,
     });
-  }, [authenticated, user, wallets, login, logout, ready, onSync]);
+  }, [authenticated, user, wallets, login, connectWallet, createWallet, logout, ready, onSync]);
 
   useEffect(() => {
     if (triggerLogin && ready) {
-      loginRef.current();
-      onLoginTriggered?.();
+      try {
+        if (authenticated) {
+          connectWalletRef.current?.();
+        } else {
+          loginRef.current?.();
+        }
+      } catch (err) {
+        console.warn('Privy trigger login error:', err);
+      } finally {
+        onLoginTriggered?.();
+      }
     }
-  }, [triggerLogin, ready, onLoginTriggered]);
+  }, [triggerLogin, ready, authenticated, onLoginTriggered]);
 
   return null;
 }
