@@ -55,56 +55,8 @@ export default function CreationCard({
   const [isTermsChecked, setIsTermsChecked] = useState(false);
 
   // In-Place Card Tab & Preview States
-  const [cardTab, setCardTab] = useState<'create' | 'links' | 'preview'>('create');
+  const [cardTab, setCardTab] = useState<'create' | 'preview'>('create');
   const [previewMode, setPreviewMode] = useState<'locked' | 'unlocked'>('locked');
-
-  // Creator's Links State
-  const [myLinks, setMyLinks] = useState<any[]>([]);
-  const [isLoadingLinks, setIsLoadingLinks] = useState(false);
-  const [copiedLinkSlug, setCopiedLinkSlug] = useState<string | null>(null);
-
-  const activeAddress = selectedAddress || wallets[0]?.address || user?.wallet?.address;
-
-  const fetchMyLinks = useCallback(async () => {
-    if (!activeAddress) {
-      setMyLinks([]);
-      return;
-    }
-    setIsLoadingLinks(true);
-    try {
-      const { data, error } = await supabase
-        .from('links')
-        .select('slug, price_usd, active, created_at')
-        .ilike('creator', activeAddress)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Error fetching creator links:', error);
-      } else {
-        setMyLinks(data || []);
-      }
-    } catch (err) {
-      console.error('Error fetching creator links:', err);
-    } finally {
-      setIsLoadingLinks(false);
-    }
-  }, [activeAddress]);
-
-  useEffect(() => {
-    if (cardTab === 'links') {
-      fetchMyLinks();
-    }
-  }, [cardTab, fetchMyLinks]);
-
-  const handleCopyLink = (slugToCopy: string) => {
-    const linkUrl =
-      typeof window !== 'undefined'
-        ? `${window.location.origin}/buy/${slugToCopy}`
-        : `https://linklockr.xyz/buy/${slugToCopy}`;
-    navigator.clipboard.writeText(linkUrl);
-    setCopiedLinkSlug(slugToCopy);
-    setTimeout(() => setCopiedLinkSlug(null), 2000);
-  };
 
   // UI States
   const [isLoading, setIsLoading] = useState(false);
@@ -426,19 +378,6 @@ export default function CreationCard({
 
           <button
             type="button"
-            onClick={() => setCardTab('links')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-              cardTab === 'links'
-                ? 'bg-white dark:bg-cyan-500 text-slate-900 dark:text-black shadow-sm'
-                : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-            }`}
-          >
-            <FolderLock size={13} />
-            <span>{t('tabMyLinks')}</span>
-          </button>
-
-          <button
-            type="button"
             onClick={() => setCardTab('preview')}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               cardTab === 'preview'
@@ -553,105 +492,7 @@ export default function CreationCard({
           </div>
         </div>
 
-        {/* TAB 2: MY LINKS */}
-        <div
-          className={`col-start-1 row-start-1 transition-all duration-300 ease-in-out ${
-            cardTab === 'links'
-              ? 'opacity-100 translate-y-0 visible z-10'
-              : 'opacity-0 -translate-y-1 invisible pointer-events-none z-0'
-          }`}
-        >
-          {!authenticated || !activeAddress ? (
-            <div className="h-full min-h-[240px] flex flex-col items-center justify-center text-center p-4 space-y-3">
-              <div className="p-3 rounded-2xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400">
-                <FolderLock className="w-6 h-6" />
-              </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 max-w-[220px]">
-                {t('connectToViewLinks')}
-              </p>
-              <button
-                type="button"
-                onClick={login}
-                className="px-4 py-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold text-xs hover:opacity-90 transition-opacity cursor-pointer shadow-sm"
-              >
-                {t('connectAndMint')}
-              </button>
-            </div>
-          ) : isLoadingLinks ? (
-            <div className="h-full min-h-[240px] flex flex-col items-center justify-center text-center p-4 space-y-2">
-              <Loader2 className="w-6 h-6 animate-spin text-cyan-500 dark:text-cyan-400" />
-              <p className="text-xs text-slate-400 font-mono">Loading links...</p>
-            </div>
-          ) : myLinks.length === 0 ? (
-            <div className="h-full min-h-[240px] flex flex-col items-center justify-center text-center p-4 space-y-3">
-              <div className="p-3 rounded-2xl bg-slate-100 dark:bg-slate-800/60 text-slate-400">
-                <FolderLock className="w-6 h-6" />
-              </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                {t('noLinksFound')}
-              </p>
-              <button
-                type="button"
-                onClick={() => setCardTab('create')}
-                className="text-xs text-cyan-600 dark:text-cyan-400 font-semibold hover:underline cursor-pointer"
-              >
-                + {t('tabLockLink')}
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-2 max-h-[268px] overflow-y-auto pr-1">
-              {myLinks.map((item) => (
-                <div
-                  key={item.slug}
-                  className="p-3 rounded-2xl border bg-slate-50/80 dark:bg-black/40 border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between gap-2.5 transition-colors hover:border-slate-300 dark:hover:border-slate-700"
-                >
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="text-xs font-bold capitalize text-slate-900 dark:text-white truncate">
-                        {item.slug.replace(/-/g, ' ')}
-                      </span>
-                      {item.active && (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.2 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                          <Check size={10} />
-                          {t('verifiedOnBase')}
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-[11px] font-mono text-slate-500 dark:text-slate-400 mt-0.5">
-                      ${Number(item.price_usd || 0).toFixed(2)} USDC
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-1 shrink-0">
-                    <button
-                      type="button"
-                      onClick={() => handleCopyLink(item.slug)}
-                      className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer text-xs"
-                      title={t('copyLink')}
-                    >
-                      {copiedLinkSlug === item.slug ? (
-                        <Check size={13} className="text-emerald-500" />
-                      ) : (
-                        <Copy size={13} />
-                      )}
-                    </button>
-                    <a
-                      href={`/buy/${item.slug}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-black dark:hover:text-white transition-colors cursor-pointer text-xs"
-                      title={t('viewBuyerPage')}
-                    >
-                      <ExternalLink size={13} />
-                    </a>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* TAB 3: WHAT BUYERS SEE */}
+        {/* TAB 2: WHAT BUYERS SEE */}
         <div
           className={`col-start-1 row-start-1 transition-all duration-300 ease-in-out ${
             cardTab === 'preview'
@@ -774,80 +615,59 @@ export default function CreationCard({
       </div>
 
       {/* PERSISTENT BOTTOM CTA */}
-      {cardTab !== 'links' ? (
-        <div className="pt-3 border-t border-slate-200 dark:border-slate-800/40 space-y-2.5 text-left">
-          {/* TERMS CHECKBOX */}
-          <div className="flex items-start gap-2 pt-1">
-            <button
-              type="button"
-              onClick={() => setIsTermsChecked(!isTermsChecked)}
-              className="mt-0.5 shrink-0 cursor-pointer"
-            >
-              {isTermsChecked ? (
-                <SquareCheckBig className="w-4 h-4 text-blue-600 dark:text-cyan-400" />
-              ) : (
-                <Square className="w-4 h-4 text-slate-400 dark:text-slate-600 hover:text-slate-500" />
-              )}
-            </button>
-            <p
-              onClick={() => setIsTermsChecked(!isTermsChecked)}
-              className="text-[10px] leading-tight cursor-pointer select-none text-slate-500 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-400"
-            >
-              {t('termsAgree')}
-            </p>
-          </div>
-
-          {/* SUBMIT BUTTON */}
+      <div className="pt-3 border-t border-slate-200 dark:border-slate-800/40 space-y-2.5 text-left">
+        {/* TERMS CHECKBOX */}
+        <div className="flex items-start gap-2 pt-1">
           <button
-            onClick={handleCreateLock}
-            onMouseEnter={preloadPrivy}
-            onTouchStart={preloadPrivy}
-            disabled={isLoading}
-            className="w-full font-bold py-3.5 transition-all flex items-center justify-center gap-2 rounded-2xl cursor-pointer text-xs uppercase tracking-wider bg-gradient-to-r from-sky-400 to-blue-600 dark:from-cyan-600 dark:to-blue-700 text-white hover:shadow-lg hover:shadow-sky-500/30 dark:hover:shadow-[0_0_25px_rgba(34,211,238,0.4)] hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed"
+            type="button"
+            onClick={() => setIsTermsChecked(!isTermsChecked)}
+            className="mt-0.5 shrink-0 cursor-pointer"
           >
-            {isLoading ? (
-              <>
-                <Loader2 className="animate-spin" size={16} />{' '}
-                {statusMsg || t('processing')}
-              </>
-            ) : authenticated ? (
-              <>
-                <Zap size={16} fill="currentColor" className="text-white/80" />{' '}
-                {t('encryptAndMint')}
-              </>
+            {isTermsChecked ? (
+              <SquareCheckBig className="w-4 h-4 text-blue-600 dark:text-cyan-400" />
             ) : (
-              <>
-                <Zap size={16} fill="currentColor" className="text-white/80" />{' '}
-                {t('connectAndMint')}
-              </>
+              <Square className="w-4 h-4 text-slate-400 dark:text-slate-600 hover:text-slate-500" />
             )}
           </button>
-
-          {/* FINE PRINT FEE */}
-          <p className="text-[10px] text-center font-mono opacity-60 leading-normal text-slate-500 dark:text-slate-400">
-            {t('finePrintFee', { percent: percentFeeBps })}
+          <p
+            onClick={() => setIsTermsChecked(!isTermsChecked)}
+            className="text-[10px] leading-tight cursor-pointer select-none text-slate-500 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-400"
+          >
+            {t('termsAgree')}
           </p>
         </div>
-      ) : (
-        <div className="pt-3 border-t border-slate-200 dark:border-slate-800/40 flex items-center justify-between text-xs">
-          <button
-            type="button"
-            onClick={fetchMyLinks}
-            disabled={isLoadingLinks}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
-          >
-            <RefreshCw size={12} className={isLoadingLinks ? "animate-spin" : ""} />
-            <span>{t('refreshLinks')}</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setCardTab('create')}
-            className="px-3.5 py-2 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 font-semibold transition-colors cursor-pointer"
-          >
-            + {t('tabLockLink')}
-          </button>
-        </div>
-      )}
+
+        {/* SUBMIT BUTTON */}
+        <button
+          onClick={handleCreateLock}
+          onMouseEnter={preloadPrivy}
+          onTouchStart={preloadPrivy}
+          disabled={isLoading}
+          className="w-full font-bold py-3.5 transition-all flex items-center justify-center gap-2 rounded-2xl cursor-pointer text-xs uppercase tracking-wider bg-gradient-to-r from-sky-400 to-blue-600 dark:from-cyan-600 dark:to-blue-700 text-white hover:shadow-lg hover:shadow-sky-500/30 dark:hover:shadow-[0_0_25px_rgba(34,211,238,0.4)] hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="animate-spin" size={16} />{' '}
+              {statusMsg || t('processing')}
+            </>
+          ) : authenticated ? (
+            <>
+              <Zap size={16} fill="currentColor" className="text-white/80" />{' '}
+              {t('encryptAndMint')}
+            </>
+          ) : (
+            <>
+              <Zap size={16} fill="currentColor" className="text-white/80" />{' '}
+              {t('connectAndMint')}
+            </>
+          )}
+        </button>
+
+        {/* FINE PRINT FEE */}
+        <p className="text-[10px] text-center font-mono opacity-60 leading-normal text-slate-500 dark:text-slate-400">
+          {t('finePrintFee', { percent: percentFeeBps })}
+        </p>
+      </div>
     </div>
   );
 }

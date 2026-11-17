@@ -28,6 +28,8 @@ export interface Web3ContextType {
   isConnecting: boolean;
   isWalletDrawerOpen: boolean;
   setIsWalletDrawerOpen: (open: boolean) => void;
+  isMyLinksOpen: boolean;
+  setIsMyLinksOpen: (open: boolean) => void;
   isPrivyReady: boolean;
   isDark: boolean;
   formatAddress: (addr: string) => string;
@@ -50,6 +52,7 @@ export function Web3Provider({ children }: { children: ReactNode }) {
   const [privyData, setPrivyData] = useState<PrivySyncData | null>(null);
   const [selectedAddress, setSelectedAddress] = useState('');
   const [isWalletDrawerOpen, setIsWalletDrawerOpen] = useState(false);
+  const [isMyLinksOpen, setIsMyLinksOpen] = useState(false);
   const [triggerLogin, setTriggerLogin] = useState(false);
 
   // Sync theme with system settings
@@ -146,6 +149,8 @@ export function Web3Provider({ children }: { children: ReactNode }) {
     isConnecting,
     isWalletDrawerOpen,
     setIsWalletDrawerOpen,
+    isMyLinksOpen,
+    setIsMyLinksOpen,
     isPrivyReady: !!privyData?.isReady,
     isDark,
     formatAddress,

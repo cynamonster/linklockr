@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, Loader2, LogOut, Wallet, X } from 'lucide-react';
+import { ChevronDown, FolderLock, Loader2, LogOut, Wallet, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useWeb3 } from './Web3Context';
 
@@ -10,6 +10,7 @@ export default function WalletDrawer() {
   const {
     isWalletDrawerOpen,
     setIsWalletDrawerOpen,
+    setIsMyLinksOpen,
     wallets,
     selectedAddress,
     setSelectedAddress,
@@ -165,14 +166,25 @@ export default function WalletDrawer() {
           </div>
         </div>
 
-        {/* LOGOUT BUTTON */}
-        <div className="pt-6 border-t border-slate-800">
+        {/* ACTIONS */}
+        <div className="pt-6 border-t border-slate-800 space-y-2">
+          <button
+            onClick={() => {
+              setIsWalletDrawerOpen(false);
+              setIsMyLinksOpen(true);
+            }}
+            className="w-full py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider text-cyan-400 hover:text-white hover:bg-cyan-500/10 border border-cyan-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <FolderLock size={15} />
+            <span>{t('tabMyLinks')}</span>
+          </button>
+
           <button
             onClick={() => {
               logout();
               setIsWalletDrawerOpen(false);
             }}
-            className="w-full py-3 rounded-xl font-bold text-xs uppercase tracking-wider text-red-400 hover:text-red-300 hover:bg-red-500/10 border border-red-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider text-red-400 hover:text-red-300 hover:bg-red-500/10 border border-red-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
             <LogOut size={15} />
             <span>{t('logout')}</span>

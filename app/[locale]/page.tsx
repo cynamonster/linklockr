@@ -6,6 +6,7 @@ import { FolderLock } from 'lucide-react';
 import { Web3Provider } from '../components/Web3Context';
 import HeaderWalletButton from '../components/HeaderWalletButton';
 import WalletDrawer from '../components/WalletDrawer';
+import MyLinksModal from '../components/MyLinksModal';
 import CreationCard from '../components/CreationCard';
 import HeroSection from '../components/HeroSection';
 import HowItWorksSection from '../components/HowItWorksSection';
@@ -146,6 +147,9 @@ export default async function HomePage({
 
           {/* WALLET SLIDEOVER DRAWER (Client Component, loads lazy) */}
           <WalletDrawer />
+
+          {/* MY LINKS DASHBOARD MODAL */}
+          <MyLinksModal />
         </div>
       </div>
     </Web3Provider>
