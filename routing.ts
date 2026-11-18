@@ -4,16 +4,11 @@ import {createNavigation} from 'next-intl/navigation';
 export const routing = defineRouting({
   locales: ['en', 'es', 'pt', 'zh'], // import from shared config?
   defaultLocale: 'en',
+  localePrefix: 'never',
   
   pathnames: {
     '/': '/',
-    // External localized URLs point to internal folder /buy/[slug]
-    '/buy/[slug]': {
-      en: '/buy/[slug]',
-      es: '/comprar/[slug]',
-      pt: '/comprar/[slug]',
-      zh: '/buy/[slug]'
-    }
+    '/buy/[slug]': '/buy/[slug]'
   }
 });
 

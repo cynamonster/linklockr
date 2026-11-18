@@ -25,7 +25,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const url = `https://linklockr.xyz/${locale}`;
+  const url = 'https://linklockr.xyz';
   const ogImageUrl = `https://linklockr.xyz/api/og`;
 
   return {

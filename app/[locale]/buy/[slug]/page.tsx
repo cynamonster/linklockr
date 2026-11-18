@@ -1,6 +1,7 @@
 import { supabase } from "@/utils/supabase";
 import BuyClientWrapper from "./BuyClientWrapper";
 import type { Metadata } from "next";
+import { setRequestLocale } from 'next-intl/server';
 
 // Cache rendered link pages on Vercel's global edge network for 60s
 export const revalidate = 60;
@@ -72,7 +73,8 @@ export default async function BuyPage({
 }: {
   params: Promise<{ slug: string; locale: string }>;
 }) {
-  const { slug } = await params;
+  const { slug, locale } = await params;
+  setRequestLocale(locale);
 
   let initialLinkData = null;
   let initialError: string | null = null;

@@ -13,11 +13,13 @@ export default function LanguageSwitcher({ className = "" }: { className?: strin
 
   const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newLocale = e.target.value;
+    document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000; SameSite=Lax`;
     router.replace(
       // @ts-ignore
       { pathname, params },
       { locale: newLocale }
     );
+    router.refresh();
   };
 
   return (
