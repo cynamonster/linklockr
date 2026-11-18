@@ -374,6 +374,15 @@ function BuyPageContent({ slug, initialLinkData, initialError }: BuyClientWrappe
       }).catch(err => console.warn("Discord sales notification warning:", err));
 
       setIsOwner(true);
+      try {
+        const key = `linklockr_purchases_${userAddress.toLowerCase()}`;
+        const stored: string[] = JSON.parse(localStorage.getItem(key) || '[]');
+        if (!stored.includes(slug)) {
+          stored.push(slug);
+          localStorage.setItem(key, JSON.stringify(stored));
+        }
+      } catch {}
+
       setTxStep("indexing");
       setTxStatus("indexing...");
 
