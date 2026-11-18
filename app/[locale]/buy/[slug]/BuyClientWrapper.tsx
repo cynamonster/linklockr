@@ -83,7 +83,7 @@ export default function BuyClientWrapper({ slug, initialLinkData, initialError }
 }
 
 function BuyPageContent({ slug, initialLinkData, initialError }: BuyClientWrapperProps) {
-  const { authenticated, login, logout } = usePrivy();
+  const { authenticated, user, login, logout } = usePrivy();
   const { wallets } = useWallets();
   const { fundWallet } = useFundWallet();
   
@@ -94,9 +94,11 @@ function BuyPageContent({ slug, initialLinkData, initialError }: BuyClientWrappe
 
   useEffect(() => {
     if (wallets.length > 0 && !selectedAddress) {
-        setSelectedAddress(wallets[0].address);
+      // Prefer the wallet designated as active by Privy or the last connected external wallet
+      const primary = wallets.find(w => w.address === user?.wallet?.address) || wallets[0];
+      setSelectedAddress(primary.address);
     }
-  }, [wallets, selectedAddress]);
+  }, [wallets, selectedAddress, user]);
 
   const handleLogout = async () => {
     try {
@@ -111,6 +113,15 @@ function BuyPageContent({ slug, initialLinkData, initialError }: BuyClientWrappe
   const [ethBalance, setEthBalance] = useState("0.0000");
   const [usdcBalance, setUsdcBalance] = useState("0.00");
   const [isFetchingBalance, setIsFetchingBalance] = useState(false);
+
+  // Clear or reset balance display when selectedAddress changes so balances from prior wallets never linger on screen
+  useEffect(() => {
+    if (selectedAddress) {
+      setIsFetchingBalance(true);
+      setEthBalance("0.0000");
+      setUsdcBalance("0.00");
+    }
+  }, [selectedAddress]);
 
   // Fetch balances for active address
   const fetchBalance = useCallback(async () => {

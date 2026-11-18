@@ -60,6 +60,10 @@ export default function MyLinksModal() {
   }, [activeAddress]);
 
   useEffect(() => {
+    setMyLinks([]);
+  }, [activeAddress]);
+
+  useEffect(() => {
     if (isMyLinksOpen) {
       fetchMyLinks();
     }

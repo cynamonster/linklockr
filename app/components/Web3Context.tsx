@@ -127,14 +127,17 @@ export function Web3Provider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const user = privyData?.user;
   const wallets = privyData?.wallets || [];
   useEffect(() => {
     if (wallets.length > 0 && !selectedAddress) {
-      setSelectedAddress(wallets[0].address);
-    } else if (!selectedAddress && privyData?.user?.wallet?.address) {
-      setSelectedAddress(privyData.user.wallet.address);
+      // Prefer the wallet designated as active by Privy or the last connected external wallet
+      const primary = wallets.find((w) => w.address === user?.wallet?.address) || wallets[0];
+      setSelectedAddress(primary.address);
+    } else if (!selectedAddress && user?.wallet?.address) {
+      setSelectedAddress(user.wallet.address);
     }
-  }, [wallets, selectedAddress, privyData?.user?.wallet?.address]);
+  }, [wallets, selectedAddress, user]);
 
   const activeWallet =
     wallets.find((w) => w.address === selectedAddress) ||
