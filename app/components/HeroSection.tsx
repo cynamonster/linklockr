@@ -7,11 +7,7 @@ export default async function HeroSection() {
 
   return (
     <div className="lg:col-span-7 space-y-6 text-left">
-      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold tracking-wide border bg-sky-100/80 dark:bg-cyan-950/40 border-sky-300 dark:border-cyan-500/30 text-sky-800 dark:text-cyan-400">
-        <Sparkles size={14} />
-        <span>Base L2 • Instant USDC Settlement</span>
-      </div>
-
+      
       <h1 className="text-4xl sm:text-6xl font-black tracking-tight leading-[1.1] text-slate-900 dark:text-white">
         {t('heroTitle')}
       </h1>
