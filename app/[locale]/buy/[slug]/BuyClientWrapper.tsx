@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { ethers } from "ethers";
 import { PrivyProvider, usePrivy, useWallets, useFundWallet } from "@privy-io/react-auth";
-import { FolderLock, Unlock, Loader2, AlertCircle, ExternalLink, Check, Shield, Sparkles, Copy, ChevronDown, Wallet, LogOut, CreditCard } from "lucide-react";
+import { FolderLock, Unlock, Loader2, AlertCircle, ExternalLink, Check, Shield, ShieldAlert, Sparkles, Copy, ChevronDown, Wallet, LogOut, CreditCard } from "lucide-react";
 import { useTranslations } from 'next-intl';
 
 // --- IMPORTS ---
@@ -161,6 +161,10 @@ function BuyPageContent({ slug, initialLinkData, initialError }: BuyClientWrappe
   const [loading, setLoading] = useState(!initialLinkData && !initialError);
   const [error, setError] = useState(initialError || "");
   const [isBanned, setIsBanned] = useState(initialLinkData?.status === 'banned');
+
+  // Hybrid 18+ Mode State
+  const isSensitive = Boolean(linkData?.is_sensitive || linkData?.status === 'flagged');
+  const [hasConfirmedAge, setHasConfirmedAge] = useState(false);
 
   // On-Chain Link Status State
   const [isOnChainActive, setIsOnChainActive] = useState<boolean | null>(null);
@@ -472,6 +476,12 @@ function BuyPageContent({ slug, initialLinkData, initialError }: BuyClientWrappe
               <FolderLock className="w-3.5 h-3.5" />
               <span>{t('contentCardHeader')}</span>
             </div>
+            {isSensitive && (
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-950/60 border border-amber-500/30 text-amber-400 text-xs font-medium">
+                <ShieldAlert className="w-3 h-3" />
+                <span>18+</span>
+              </div>
+            )}
             {isOnChainActive === true && (
               <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-950/60 border border-emerald-500/30 text-emerald-400 text-xs font-medium">
                 <Check className="w-3 h-3" />
@@ -542,8 +552,30 @@ function BuyPageContent({ slug, initialLinkData, initialError }: BuyClientWrappe
             </div>
           )}
 
+          {/* 18+ SENSITIVE CONTENT INTERSTITIAL */}
+          {!loading && !error && !isBanned && !isOwner && isSensitive && !hasConfirmedAge && (
+            <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-6 text-center space-y-4">
+              <div className="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto">
+                <ShieldAlert className="w-6 h-6" />
+              </div>
+              <div className="space-y-1.5">
+                <h3 className="text-lg font-bold text-white">18+ Content Warning</h3>
+                <p className="text-xs text-amber-200/90 leading-relaxed">
+                  This content is marked 18+. By proceeding, you confirm you are of legal age to view adult or sensitive material in your jurisdiction.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setHasConfirmedAge(true)}
+                className="w-full py-3 px-4 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs uppercase tracking-wider transition-all cursor-pointer shadow-lg shadow-amber-500/20 hover:scale-[1.01]"
+              >
+                I am an adult and wish to proceed
+              </button>
+            </div>
+          )}
+
           {/* LOCKED STATE */}
-          {!loading && !error && !isBanned && !isOwner && linkData && (
+          {!loading && !error && !isBanned && !isOwner && linkData && (!isSensitive || hasConfirmedAge) && (
             <div className="bg-black/30 rounded-2xl p-6 border border-white/5 text-center space-y-4">
               <div className="text-4xl font-bold text-white tracking-tight">
                 ${Number(linkData.price_usd).toFixed(2)}

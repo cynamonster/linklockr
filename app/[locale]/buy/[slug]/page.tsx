@@ -15,19 +15,29 @@ export async function generateMetadata({
   const formattedTitle = slug ? slug.replace(/-/g, " ") : "Content";
 
   let priceFormatted = "5.00";
+  let isSensitive = false;
+
   try {
     const { data } = await supabase
       .from("links")
-      .select("price_usd")
+      .select("price_usd, is_sensitive, status")
       .eq("slug", slug)
       .maybeSingle();
+
     if (data?.price_usd) {
       priceFormatted = Number(data.price_usd).toFixed(2);
     }
+    if (data?.is_sensitive || data?.status === "flagged") {
+      isSensitive = true;
+    }
   } catch {}
 
-  const title = `Unlock ${formattedTitle} ($${priceFormatted} USDC) | LinkLockr`;
-  const description = `Instant paywall on Base L2. Unlock with Base Native USDC. Sub-cent gas, zero chargebacks, encrypted via Lit Protocol TEEs.`;
+  const title = isSensitive
+    ? `Secure Content ($${priceFormatted} USDC) | LinkLockr`
+    : `Unlock ${formattedTitle} ($${priceFormatted} USDC) | LinkLockr`;
+  const description = isSensitive
+    ? `Discreet digital access on Base L2. Unlock with Base Native USDC. Zero chargebacks.`
+    : `Instant paywall on Base L2. Unlock with Base Native USDC. Sub-cent gas, zero chargebacks, encrypted via Lit Protocol TEEs.`;
   const pageUrl = `https://linklockr.xyz/buy/${slug}`;
   const ogImageUrl = `https://linklockr.xyz/api/og?slug=${encodeURIComponent(slug)}&price=${encodeURIComponent(priceFormatted)}`;
 

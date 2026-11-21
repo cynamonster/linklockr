@@ -53,6 +53,7 @@ export default function CreationCard({
   const [price, setPrice] = useState('');
   const [slug, setSlug] = useState(initialSlug);
   const [isTermsChecked, setIsTermsChecked] = useState(false);
+  const [isSensitive, setIsSensitive] = useState(false);
 
   // In-Place Card Tab & Preview States
   const [cardTab, setCardTab] = useState<'create' | 'preview'>('create');
@@ -75,6 +76,7 @@ export default function CreationCard({
         if (parsed.price && !price) setPrice(parsed.price);
         if (parsed.slug && !slug) setSlug(parsed.slug);
         if (parsed.isTermsChecked) setIsTermsChecked(parsed.isTermsChecked);
+        if (parsed.isSensitive !== undefined) setIsSensitive(Boolean(parsed.isSensitive));
       }
     } catch {}
   }, []);
@@ -83,10 +85,10 @@ export default function CreationCard({
     try {
       sessionStorage.setItem(
         'linklockr_draft',
-        JSON.stringify({ urlToLock, price, slug, isTermsChecked })
+        JSON.stringify({ urlToLock, price, slug, isTermsChecked, isSensitive })
       );
     } catch {}
-  }, [urlToLock, price, slug, isTermsChecked]);
+  }, [urlToLock, price, slug, isTermsChecked, isSensitive]);
 
   const handleGenerateSlug = async () => {
     setIsRefreshingSlug(true);
@@ -187,6 +189,7 @@ export default function CreationCard({
         price_wei: '0',
         ipfs_hash: linkReferenceUri,
         active: true,
+        is_sensitive: isSensitive,
       };
 
       // 5. MINT ON CHAIN
@@ -211,7 +214,15 @@ export default function CreationCard({
 
       // 6. RECORD TO SUPABASE (Upsert for safety)
       setStatusMsg(t('status.saving'));
-      const { error: insertError } = await supabase.from('links').upsert(linkPayload);
+      let { error: insertError } = await supabase.from('links').upsert(linkPayload);
+
+      // Defensive fallback if is_sensitive column does not exist yet in DB
+      if (insertError && (insertError.message?.includes('is_sensitive') || insertError.code === 'PGRST204')) {
+        console.warn('is_sensitive column not yet added to Supabase links table; retrying without it');
+        const { is_sensitive, ...fallbackPayload } = linkPayload;
+        const fallbackRes = await supabase.from('links').upsert(fallbackPayload);
+        insertError = fallbackRes.error;
+      }
 
       if (insertError) {
         console.error('Supabase write error:', insertError);
@@ -358,9 +369,9 @@ export default function CreationCard({
 
   // --- CREATION FORM + PREVIEW VIEW ---
   return (
-    <div className="p-6 sm:p-7 rounded-[2.5rem] border backdrop-blur-2xl shadow-2xl relative transition-all duration-500 flex flex-col justify-between min-h-[570px] bg-white/90 dark:bg-slate-900/70 border-white dark:border-slate-800/90 shadow-xl dark:shadow-[0_0_50px_rgba(34,211,238,0.1)] shadow-blue-900/5">
+    <div className="p-6 sm:p-7 rounded-[2.5rem] border backdrop-blur-2xl shadow-2xl relative transition-all duration-500 flex flex-col bg-white/90 dark:bg-slate-900/70 border-white dark:border-slate-800/90 shadow-xl dark:shadow-[0_0_50px_rgba(34,211,238,0.1)] shadow-blue-900/5">
       {/* TOP TAB HEADER */}
-      <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800/40 gap-2">
+      <div className="flex items-center justify-between pb-3.5 border-b border-slate-200 dark:border-slate-800/40 gap-2">
         {/* TABS SWITCHER */}
         <div className="flex items-center p-1 rounded-2xl border bg-slate-100 dark:bg-black/50 border-slate-200 dark:border-slate-800">
           <button
@@ -396,7 +407,7 @@ export default function CreationCard({
       </div>
 
       {/* CARD BODY CONTENT */}
-      <div className="py-4 text-left flex-1 min-h-[268px] grid grid-cols-1 grid-rows-1">
+      <div className="pt-2.5 pb-1 text-left grid grid-cols-1 grid-rows-1">
         {/* TAB 1: LOCK A LINK */}
         <div
           className={`col-start-1 row-start-1 transition-all duration-300 ease-in-out ${
@@ -405,7 +416,7 @@ export default function CreationCard({
               : 'opacity-0 -translate-y-1 invisible pointer-events-none z-0'
           }`}
         >
-          <div className="space-y-3.5">
+          <div className="space-y-2.5">
             {/* 1. URL / SECRET INPUT */}
             <div className="space-y-1">
               <label className="text-xs font-bold uppercase tracking-wider ml-1 text-slate-500 dark:text-slate-400">
@@ -488,6 +499,35 @@ export default function CreationCard({
               <span className="text-[11px] block font-mono pl-1 opacity-70 text-blue-600 dark:text-cyan-400 truncate">
                 Preview: linklockr.xyz/buy/{slug || 'slug'}
               </span>
+            </div>
+
+            {/* 4. OPTIONAL 18+ / SENSITIVE TOGGLE */}
+            <div
+              onClick={() => setIsSensitive(!isSensitive)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === ' ' || e.key === 'Enter') {
+                  e.preventDefault();
+                  setIsSensitive(!isSensitive);
+                }
+              }}
+              className="py-2 border-y border-slate-100 dark:border-slate-800/80 cursor-pointer select-none group transition-colors"
+            >
+              <div className="flex items-center">
+                <div className="flex items-center gap-2">
+                  <div className="shrink-0 text-slate-400 group-hover:text-slate-600 dark:text-slate-500 dark:group-hover:text-slate-300 transition-colors">
+                    {isSensitive ? (
+                      <SquareCheckBig className="w-4 h-4 text-amber-500" />
+                    ) : (
+                      <Square className="w-4 h-4" />
+                    )}
+                  </div>
+                  <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
+                    {t('markSensitive') || 'Mark as 18+ / Sensitive Content'}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -615,9 +655,9 @@ export default function CreationCard({
       </div>
 
       {/* PERSISTENT BOTTOM CTA */}
-      <div className="pt-3 border-t border-slate-200 dark:border-slate-800/40 space-y-2.5 text-left">
+      <div className="pt-3 border-t border-slate-200 dark:border-slate-800/40 space-y-3 text-left">
         {/* TERMS CHECKBOX */}
-        <div className="flex items-start gap-2 pt-1">
+        <div className="flex items-start gap-2">
           <button
             type="button"
             onClick={() => setIsTermsChecked(!isTermsChecked)}
@@ -631,7 +671,7 @@ export default function CreationCard({
           </button>
           <p
             onClick={() => setIsTermsChecked(!isTermsChecked)}
-            className="text-[10px] leading-tight cursor-pointer select-none text-slate-500 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-400"
+            className="text-[10px] leading-tight cursor-pointer select-none text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-400"
           >
             {t('termsAgree')}
           </p>

@@ -19,6 +19,7 @@
     * `price_eth` (numeric/text): Derived ETH equivalent at creation.
     * `ipfs_hash` (text): The encrypted content pointer.
     * `created_at` (timestamp): Default `now()`.
+    * `is_sensitive` (boolean): Default `false`. Set to `true` when creator opts into 18+/Sensitive discreet mode or auto-enforced when flagged.
     * **`status`** (text): Default `'active'`.
         * `'active'`: Publicly discoverable and buyable.
         * `'flagged'`: Auto-set by Trigger. Hidden from new buyers (Soft 404/Warning). Visible to existing owners.
