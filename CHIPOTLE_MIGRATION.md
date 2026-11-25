@@ -14,7 +14,7 @@ This project has been migrated from Lit SDK (v8) to **Lit Protocol v3 Chipotle**
 ### ✅ Added
 - Simple HTTP/REST API calls via `fetch()`
 - API key-based authentication
-- Direct REST endpoints at `api.dev.litprotocol.com`
+- Direct REST endpoints at `https://api2.chipotle.litprotocol.com` (migrated from `api.chipotle.litprotocol.com` retiring Dec 31, 2026)
 
 ## Setup Required
 
@@ -25,7 +25,9 @@ This project has been migrated from Lit SDK (v8) to **Lit Protocol v3 Chipotle**
 4. Add it to your `.env.local`:
 
 ```bash
-NEXT_PUBLIC_LIT_API_KEY=your_api_key_here
+LIT_API_KEY=your_api_key_here
+LIT_PKP_ID=your_pkp_id_here
+LIT_API_URL=https://api2.chipotle.litprotocol.com
 ```
 
 ### 2. Create a Wallet (PKP) in Chipotle
@@ -36,7 +38,7 @@ For decryption, you may need to set up a Lit Action or use the dashboard to mana
 
 ### 3. API Reference
 - **Docs**: https://docs.dev.litprotocol.com
-- **API Base**: `https://api.dev.litprotocol.com`
+- **API Base**: `https://api2.chipotle.litprotocol.com` (legacy `https://api.chipotle.litprotocol.com` retired Dec 31, 2026)
 - **Dashboard**: https://dashboard.dev.litprotocol.com
 
 ## How It Works Now

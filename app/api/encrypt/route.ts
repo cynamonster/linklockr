@@ -26,7 +26,8 @@ export async function POST(req: Request) {
       }
     `;
 
-    const res = await fetch("https://api.chipotle.litprotocol.com/core/v1/lit_action", {
+    const litApiUrl = process.env.LIT_API_URL || "https://api2.chipotle.litprotocol.com";
+    const res = await fetch(`${litApiUrl}/core/v1/lit_action`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
