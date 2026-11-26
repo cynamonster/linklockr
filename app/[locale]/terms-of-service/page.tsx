@@ -454,6 +454,13 @@ export default async function TermsOfServicePage({
               Terms of Service
             </Link>
 
+            <Link
+              href="/privacy-policy"
+              className="hover:text-cyan-400 transition-colors"
+            >
+              Privacy Policy
+            </Link>
+
             <a
               href="mailto:copyright@linklockr.xyz"
               className="hover:text-cyan-400 transition-colors"

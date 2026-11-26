@@ -285,6 +285,13 @@ export default async function CreatorsPage({
               Terms of Service
             </Link>
             <span className="hidden sm:inline text-slate-700">•</span>
+            <Link
+              href="/privacy-policy"
+              className="text-slate-400 hover:text-cyan-400 transition-colors"
+            >
+              Privacy Policy
+            </Link>
+            <span className="hidden sm:inline text-slate-700">•</span>
             <span>Have questions or want help setting up?</span>
             <a
               href="mailto:creators@linklockr.xyz"

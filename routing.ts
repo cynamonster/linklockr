@@ -10,7 +10,8 @@ export const routing = defineRouting({
     '/': '/',
     '/buy/[slug]': '/buy/[slug]',
     '/creators': '/creators',
-    '/terms-of-service': '/terms-of-service'
+    '/terms-of-service': '/terms-of-service',
+    '/privacy-policy': '/privacy-policy'
   }
 });
 
