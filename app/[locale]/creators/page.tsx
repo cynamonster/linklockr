@@ -277,7 +277,14 @@ export default async function CreatorsPage({
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center gap-3 text-xs text-slate-400 text-center sm:text-right">
+          <div className="flex flex-col sm:flex-row items-center gap-4 text-xs text-slate-400 text-center sm:text-right">
+            <Link
+              href="/terms-of-service"
+              className="text-slate-400 hover:text-cyan-400 transition-colors"
+            >
+              Terms of Service
+            </Link>
+            <span className="hidden sm:inline text-slate-700">•</span>
             <span>Have questions or want help setting up?</span>
             <a
               href="mailto:creators@linklockr.xyz"

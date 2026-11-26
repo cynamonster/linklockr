@@ -24,6 +24,13 @@ export default function FooterSection() {
         </a>
 
         <a
+          href="/terms-of-service"
+          className="hover:text-sky-600 dark:text-cyan-400/90 font-medium transition-colors"
+        >
+          Terms of Service
+        </a>
+
+        <a
           href={`https://basescan.org/address/${CONTRACT_ADDRESS}`}
           target="_blank"
           rel="noopener noreferrer"

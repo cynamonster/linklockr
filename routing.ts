@@ -9,7 +9,8 @@ export const routing = defineRouting({
   pathnames: {
     '/': '/',
     '/buy/[slug]': '/buy/[slug]',
-    '/creators': '/creators'
+    '/creators': '/creators',
+    '/terms-of-service': '/terms-of-service'
   }
 });
 
