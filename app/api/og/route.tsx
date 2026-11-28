@@ -1,5 +1,6 @@
 import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
+import { FolderLock } from 'lucide-react';
 
 export const runtime = 'edge';
 
@@ -53,10 +54,9 @@ export async function GET(request: NextRequest) {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '28px',
                 }}
               >
-                🔐
+                <FolderLock size={30} color="#22d3ee" strokeWidth={2} />
               </div>
               <span
                 style={{
@@ -282,10 +282,9 @@ export async function GET(request: NextRequest) {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '24px',
               }}
             >
-              🔒
+              <FolderLock size={26} color="#22d3ee" strokeWidth={2} />
             </div>
             <span style={{ fontSize: '32px', fontWeight: 'bold', letterSpacing: '-0.02em' }}>LinkLockr</span>
           </div>
